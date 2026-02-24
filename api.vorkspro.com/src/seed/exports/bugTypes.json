@@ -1,0 +1,32 @@
+[
+    {
+        "name": "UI Issue",
+        "description": "Visual or layout problems in the user interface.",
+        "colorCode": "#E57373",
+        "isActive": true
+    },
+    {
+        "name": "Backend Error",
+        "description": "Issues related to server logic or database operations.",
+        "colorCode": "#81C784",
+        "isActive": true
+    },
+    {
+        "name": "Performance Bug",
+        "description": "Slow response times or unoptimized processes.",
+        "colorCode": "#64B5F6",
+        "isActive": true
+    },
+    {
+        "name": "Security Vulnerability",
+        "description": "Potential risk that could allow unauthorized access or data leak.",
+        "colorCode": "#F06292",
+        "isActive": true
+    },
+    {
+        "name": "Crash or Freeze",
+        "description": "Application crashes or becomes unresponsive.",
+        "colorCode": "#BA68C8",
+        "isActive": true
+    }
+]

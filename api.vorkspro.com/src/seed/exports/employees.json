@@ -1,0 +1,362 @@
+[
+    {
+        "firstName": "Khizar",
+        "lastName": "Waseem",
+        "username": "khizarwaseem",
+        "email": "khizar.waseem@example.com",
+        "phone": "+923001234567",
+        "status": "active",
+        "companyEmail": "khizar@easybgc.com",
+        "gender": "male",
+        "joinDate": "2024-03-15T00:00:00.000Z",
+        "employeeId": "00001",
+        "departmentName": "Engineering",
+        "subDepartmentName": "Backend Development",
+        "jobTitle": "Senior MERN Stack Developer",
+        "employmentType": "full time",
+        "workLocation": "onsite",
+        "baseSalary": 180000,
+        "lastSalary": 180000,
+        "education": {
+            "highestEducation": "Bachelor",
+            "fieldOfStudy": "Computer Science",
+            "university": "Government College University Faisalabad",
+            "highestEducationYear": 2022,
+            "experience": 4,
+            "relevantExperience": 3.5,
+            "skills": [
+                "React",
+                "Node.js",
+                "MongoDB",
+                "Express",
+                "TypeScript",
+                "Next.js",
+                "Redux",
+                "AWS"
+            ],
+            "certifications": [
+                "AWS Certified Developer",
+                "MongoDB Professional"
+            ]
+        },
+        "documents": [
+            {
+                "name": "resume",
+                "url": "https://storage.example.com/resumes/khizar-resume.pdf"
+            }
+        ],
+        "isDeleted": false
+    },
+    {
+        "firstName": "Uzair",
+        "lastName": "Malik",
+        "username": "uzairmalik",
+        "email": "uzair.malik@example.com",
+        "phone": "+923111234567",
+        "status": "active",
+        "companyEmail": "uzair@easybgc.com",
+        "gender": "male",
+        "joinDate": "2024-06-10T00:00:00.000Z",
+        "employeeId": "00002",
+        "departmentName": "Engineering",
+        "subDepartmentName": "Frontend Development",
+        "jobTitle": "MERN Stack Developer",
+        "employmentType": "full time",
+        "workLocation": "hybrid",
+        "baseSalary": 140000,
+        "lastSalary": 140000,
+        "education": {
+            "highestEducation": "Bachelor",
+            "fieldOfStudy": "Software Engineering",
+            "university": "University of Agriculture Faisalabad",
+            "highestEducationYear": 2023,
+            "experience": 2,
+            "relevantExperience": 1.8,
+            "skills": [
+                "React",
+                "Node.js",
+                "Express",
+                "MongoDB",
+                "JavaScript",
+                "Tailwind CSS",
+                "Next.js"
+            ]
+        },
+        "isDeleted": false
+    },
+    {
+        "firstName": "Saad",
+        "lastName": "Babar",
+        "username": "saadbabar",
+        "email": "saad.babar@example.com",
+        "phone": "+923221234567",
+        "status": "active",
+        "companyEmail": "saad@easybgc.com",
+        "gender": "male",
+        "joinDate": "2025-01-05T00:00:00.000Z",
+        "employeeId": "00003",
+        "departmentName": "Engineering",
+        "subDepartmentName": "Frontend Development",
+        "jobTitle": "MERN Stack Developer",
+        "employmentType": "full time",
+        "workLocation": "remote",
+        "baseSalary": 120000,
+        "lastSalary": 120000,
+        "education": {
+            "highestEducation": "Bachelor",
+            "fieldOfStudy": "Computer Science",
+            "highestEducationYear": 2024,
+            "experience": 1,
+            "relevantExperience": 1,
+            "skills": [
+                "React",
+                "Node.js",
+                "MongoDB",
+                "REST API",
+                "Git",
+                "Tailwind CSS"
+            ]
+        },
+        "isDeleted": false
+    },
+    {
+        "firstName": "Adil",
+        "lastName": "Omer",
+        "username": "adilomer",
+        "email": "adil.omer@example.com",
+        "phone": "+923331234567",
+        "status": "active",
+        "companyEmail": "adil@easybgc.com",
+        "gender": "male",
+        "joinDate": "2024-08-20T00:00:00.000Z",
+        "employeeId": "00004",
+        "departmentName": "Engineering",
+        "subDepartmentName": "Backend Development",
+        "jobTitle": "MERN Stack Developer",
+        "employmentType": "full time",
+        "workLocation": "onsite",
+        "baseSalary": 130000,
+        "lastSalary": 130000,
+        "education": {
+            "highestEducation": "Bachelor",
+            "fieldOfStudy": "Information Technology",
+            "experience": 2.5,
+            "relevantExperience": 2,
+            "skills": [
+                "React",
+                "Express",
+                "Node.js",
+                "MongoDB",
+                "TypeScript",
+                "GraphQL"
+            ]
+        },
+        "isDeleted": false
+    },
+    {
+        "firstName": "Muhammad",
+        "lastName": "Ahmad",
+        "username": "muhammadahmad",
+        "email": "muhammad.ahmad@example.com",
+        "phone": "+923441234567",
+        "status": "active",
+        "companyEmail": "ahmad@easybgc.com",
+        "gender": "male",
+        "joinDate": "2025-02-01T00:00:00.000Z",
+        "employeeId": "00005",
+        "departmentName": "Engineering",
+        "subDepartmentName": "Backend Development",
+        "jobTitle": "MERN Stack Developer",
+        "employmentType": "full time",
+        "workLocation": "hybrid",
+        "baseSalary": 125000,
+        "lastSalary": 125000,
+        "education": {
+            "highestEducation": "Bachelor",
+            "skills": [
+                "React",
+                "Node.js",
+                "MongoDB",
+                "JavaScript",
+                "Express"
+            ]
+        },
+        "isDeleted": false
+    },
+    {
+        "firstName": "Hassan",
+        "lastName": "Ahmad",
+        "username": "hassanahmad",
+        "email": "hassan.ahmad@example.com",
+        "phone": "+923551234567",
+        "status": "active",
+        "companyEmail": "hassan@easybgc.com",
+        "gender": "male",
+        "joinDate": "2024-11-15T00:00:00.000Z",
+        "employeeId": "00006",
+        "departmentName": "Engineering",
+        "subDepartmentName": "DevOps",
+        "jobTitle": "DevOps Engineer",
+        "employmentType": "full time",
+        "workLocation": "remote",
+        "baseSalary": 135000,
+        "lastSalary": 135000,
+        "education": {
+            "highestEducation": "Bachelor",
+            "skills": [
+                "Docker",
+                "Kubernetes",
+                "AWS",
+                "CI/CD",
+                "Terraform",
+                "Jenkins"
+            ]
+        },
+        "isDeleted": false
+    },
+    {
+        "firstName": "Ali",
+        "lastName": "Hussain",
+        "username": "alihussain",
+        "email": "ali.hussain@example.com",
+        "phone": "+923661234567",
+        "status": "active",
+        "companyEmail": "ali@easybgc.com",
+        "gender": "male",
+        "joinDate": "2024-09-01T00:00:00.000Z",
+        "employeeId": "00007",
+        "departmentName": "Engineering",
+        "subDepartmentName": "Mobile Development",
+        "jobTitle": "Flutter Developer",
+        "employmentType": "full time",
+        "workLocation": "onsite",
+        "baseSalary": 145000,
+        "lastSalary": 145000,
+        "education": {
+            "highestEducation": "Bachelor",
+            "skills": [
+                "Flutter",
+                "Dart",
+                "Firebase",
+                "Provider",
+                "Riverpod"
+            ]
+        },
+        "isDeleted": false
+    },
+    {
+        "firstName": "Usman",
+        "lastName": "Ghani",
+        "username": "usmanghani",
+        "email": "usman.ghani@example.com",
+        "phone": "+923771234567",
+        "status": "active",
+        "companyEmail": "usman@easybgc.com",
+        "gender": "male",
+        "joinDate": "2024-04-01T00:00:00.000Z",
+        "employeeId": "00008",
+        "departmentName": "Engineering",
+        "subDepartmentName": "Mobile Development",
+        "jobTitle": "Senior Flutter Developer",
+        "employmentType": "full time",
+        "workLocation": "hybrid",
+        "baseSalary": 160000,
+        "lastSalary": 160000,
+        "education": {
+            "highestEducation": "Bachelor",
+            "skills": [
+                "Flutter",
+                "Dart",
+                "Firebase",
+                "Bloc",
+                "GetX",
+                "Riverpod"
+            ]
+        },
+        "isDeleted": false
+    },
+    {
+        "firstName": "Muhammad",
+        "lastName": "Fahad",
+        "username": "muhammadfahad",
+        "email": "fahad@example.com",
+        "phone": "+923881234567",
+        "status": "active",
+        "companyEmail": "fahad@easybgc.com",
+        "gender": "male",
+        "joinDate": "2025-03-10T00:00:00.000Z",
+        "employeeId": "00009",
+        "departmentName": "Engineering",
+        "subDepartmentName": "Mobile Development",
+        "jobTitle": "Flutter Developer",
+        "employmentType": "full time",
+        "workLocation": "remote",
+        "baseSalary": 130000,
+        "lastSalary": 130000,
+        "education": {
+            "highestEducation": "Bachelor",
+            "skills": [
+                "Flutter",
+                "Dart",
+                "Firebase",
+                "GetX"
+            ]
+        },
+        "isDeleted": false
+    },
+    {
+        "firstName": "Juinor",
+        "lastName": "Abdullah",
+        "username": "juinorabdullah",
+        "email": "juinor@example.com",
+        "phone": "+923991234567",
+        "status": "active",
+        "companyEmail": "juinor@easybgc.com",
+        "gender": "male",
+        "joinDate": "2025-06-01T00:00:00.000Z",
+        "employeeId": "00010",
+        "departmentName": "Engineering",
+        "subDepartmentName": "Quality Assurance",
+        "jobTitle": "QA Engineer",
+        "employmentType": "full time",
+        "workLocation": "onsite",
+        "baseSalary": 115000,
+        "lastSalary": 115000,
+        "education": {
+            "highestEducation": "Intermediate",
+            "experience": 1.5,
+            "skills": [
+                "Manual Testing",
+                "Automation Testing",
+                "Selenium",
+                "Postman"
+            ]
+        },
+        "isDeleted": false
+    },
+    {
+        "firstName": "Raheel",
+        "lastName": "Baig",
+        "username": "raheelbaig",
+        "email": "raheel.baig@example.com",
+        "phone": "+923001112223",
+        "status": "active",
+        "companyEmail": "raheel@easybgc.com",
+        "gender": "male",
+        "joinDate": "2023-11-01T00:00:00.000Z",
+        "employeeId": "00001",
+        "departmentName": "Human Resources",
+        "subDepartmentName": "Human Resources",
+        "jobTitle": "HR Manager",
+        "employmentType": "full time",
+        "workLocation": "onsite",
+        "baseSalary": 200000,
+        "lastSalary": 200000,
+        "education": {
+            "highestEducation": "Masters",
+            "fieldOfStudy": "Human Resource Management",
+            "experience": 8
+        },
+        "isDeleted": false
+    }
+]

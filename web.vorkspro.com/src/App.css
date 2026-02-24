@@ -1,0 +1,501 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap');
+
+* {
+  font-family: "Plus Jakarta Sans", sans-serif;
+}
+
+::-webkit-scrollbar {
+  display: none;
+}
+
+.border-button {
+  background-color: transparent;
+  border: 1px solid var(--border);
+  color: var(--foreground);
+  transition: all 0.2s ease;
+}
+
+.border-button {
+  position: relative;
+  z-index: 0;
+  overflow: hidden; /* ensures overlay doesn’t spill out */
+}
+
+.border-button:hover {
+  border-color: var(--button);
+  color: var(--button);
+}
+
+/* use a semi-transparent overlay for background only */
+.border-button:hover::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-color: var(--button);
+  opacity: 0.1; /* controls only background transparency */
+  z-index: -1;
+}
+
+.border-button.active {
+  border-color: var(--button);
+  color: var(--button);
+}
+
+.border-button.active::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-color: var(--button);
+  opacity: 0.15; /* slightly stronger than hover */
+  z-index: -1;
+}
+
+
+.logout-button {
+  position: relative;
+  z-index: 0;
+  overflow: hidden; /* ensures overlay doesn’t spill out */
+  background: transparent;
+  color: var(--foreground);
+  border: 1px solid var(--border);
+}
+
+.logout-button:hover {
+  border-color: red;
+  color: red;
+}
+
+/* use a semi-transparent overlay for background only */
+.logout-button:hover::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-color: red;
+  opacity: 0.1; /* controls only background transparency */
+  z-index: -1;
+}
+.indicator {
+  width: 100%;
+  height: 3px;
+  background-color: var(--primary);
+  border-radius: 4px;
+  margin-top: 4px;
+}
+/* Light Mode → Black icon */
+@media (prefers-color-scheme: light) {
+  .time-input::-webkit-calendar-picker-indicator {
+    filter: invert(0); /* stays black */
+    opacity: 1;
+  }
+}
+
+/* Dark Mode → White icon */
+@media (prefers-color-scheme: dark) {
+  .time-input::-webkit-calendar-picker-indicator {
+    filter: invert(1) brightness(200%);
+    opacity: 1;
+  }
+}
+
+@keyframes rippleEffect {
+  0% {
+    transform: scale(0);
+    opacity: 0.5;
+  }
+  50% {
+    transform: scale(2);
+    opacity: 0.25;
+  }
+  100% {
+    transform: scale(3);
+    opacity: 0;
+  }
+}
+
+/* Ripple element inside the box */
+.checkbox-ripple {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.9) 0, transparent 60%);
+  border-radius: 999px;
+  transform: scale(0);
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Trigger ripple whenever it becomes checked */
+.peer:checked + span .checkbox-ripple {
+  animation: rippleEffect 0.45s ease-out forwards;
+}
+
+/* Check icon base */
+.checkbox-check {
+  opacity: 0;
+  transform: scale(0.7);
+  transition: opacity 0.18s ease-out 0.12s, transform 0.18s ease-out 0.12s;
+}
+
+/* Show check when checked */
+.peer:checked + span .checkbox-check {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* Keyboard focus ring */
+.peer:focus-visible + span {
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.5);
+}
+
+/* Optional hover depth */
+.peer:not(:checked) + span:hover {
+  box-shadow: 0 0 0 1px rgba(148, 163, 184, 0.7);
+}
+.ripple-effect {
+  position: absolute;
+  background: var(--button);
+  border-radius: 50%;
+  transform: scale(0);
+  animation: ripple 0.6s linear;
+  pointer-events: none;
+}
+
+@keyframes ripple {
+  to {
+    transform: scale(4);
+    opacity: 0;
+  }
+}
+
+
+ .checkbox-wrapper-3 input[type="checkbox"] {
+    visibility: hidden;
+    display: none;
+  }
+
+  .checkbox-wrapper-3 .toggle {
+    position: relative;
+    display: block;
+    width: 40px;
+    height: 20px;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    transform: translate3d(0, 0, 0);
+  }
+  .checkbox-wrapper-3 .toggle:before {
+    content: "";
+    position: relative;
+    top: 3px;
+    left: 3px;
+    width: 34px;
+    height: 14px;
+    display: block;
+    background: #9A9999;
+    border-radius: 8px;
+    transition: background 0.2s ease;
+  }
+  .checkbox-wrapper-3 .toggle span {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 20px;
+    height: 20px;
+    display: block;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 3px 8px rgba(154, 153, 153, 0.5);
+    transition: all 0.2s ease;
+  }
+  .checkbox-wrapper-3 .toggle span:before {
+    content: "";
+    position: absolute;
+    display: block;
+    margin: -18px;
+    width: 56px;
+    height: 56px;
+    background: rgba(79, 46, 220, 0.5);
+    border-radius: 50%;
+    transform: scale(0);
+    opacity: 1;
+    pointer-events: none;
+  }
+
+  .checkbox-wrapper-3 #cbx-3:checked + .toggle:before {
+    background: #947ADA;
+  }
+  .checkbox-wrapper-3 #cbx-3:checked + .toggle span {
+    background: #4F2EDC;
+    transform: translateX(20px);
+    transition: all 0.2s cubic-bezier(0.8, 0.4, 0.3, 1.25), background 0.15s ease;
+    box-shadow: 0 3px 8px rgba(79, 46, 220, 0.2);
+  }
+  .checkbox-wrapper-3 #cbx-3:checked + .toggle span:before {
+    transform: scale(1);
+    opacity: 0;
+    transition: all 0.4s ease;
+  }
+
+ /* ==========
+   Base Calendar
+   ========== */
+
+.rbc-calendar {
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text",
+    "Inter", sans-serif;
+  font-size: 0.85rem;
+  background: transparent;
+}
+
+/* Month header row (Mon, Tue, ...) */
+.rbc-month-header {
+  background: linear-gradient(
+    to right,
+    rgba(15, 23, 42, 0.02),
+    rgba(15, 23, 42, 0.0)
+  );
+}
+
+.rbc-header {
+  padding: 0.45rem 0.75rem;
+  border-bottom: 1px solid var(--border);
+  border-right: 1px solid var(--border);
+  text-transform: none;
+  font-weight: 500;
+  font-size: 0.75rem;
+  color: var(--muted-foreground);
+}
+
+/* Month rows height */
+.rbc-month-row {
+  min-height: 100px;
+}
+
+/* Date label inside cell */
+.rbc-date-cell {
+  padding: 0.35rem 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--muted-foreground);
+}
+
+/* Out-of-range days */
+.rbc-off-range {
+  color: var(--muted-foreground);
+  opacity: 0.45;
+}
+
+.rbc-off-range-bg {
+  background-color: rgba(15, 23, 42, 0.01);
+}
+
+/* Remove default "today" bg, we handle it ourselves */
+.rbc-today {
+  background: transparent;
+}
+
+
+/* ==========
+   Day cells (from dayPropGetter)
+   ========== */
+
+/* Subtle hover on any active day */
+.rbc-day-bg:hover {
+  background-color: rgba(148, 163, 184, 0.06);
+}
+
+/* Today – we already add radial + outline inline, this just polishes text */
+.rbc-day-today .rbc-date-cell {
+  color: var(--button);
+}
+
+/* Past days – muted text */
+.rbc-day-past .rbc-date-cell {
+  color: var(--muted-foreground);
+}
+
+/* Weekend – tiny emphasis */
+.rbc-day-weekend .rbc-date-cell {
+  color: rgba(79, 70, 229, 0.9);
+}
+
+/* Selected range border clean-up */
+.rbc-selected-cell {
+  box-shadow: inset 0 0 0 1px var(--button);
+}
+
+/* ==========
+   Event pills
+   ========== */
+
+.rbc-event-pill {
+  border-radius: 999px;
+  padding: 3px 10px;
+  font-size: 11px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid rgba(148, 163, 184, 0.55);
+  box-shadow: 0 4px 10px rgba(15, 23, 42, 0.06);
+  max-width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  cursor: pointer;
+  transition:
+    background-color 140ms ease,
+    transform 80ms ease,
+    box-shadow 120ms ease,
+    border-color 120ms ease;
+}
+
+/* subtle hover for all event types */
+.rbc-event-pill:hover {
+  transform: translateY(-0.5px);
+  box-shadow: 0 8px 18px rgba(15, 23, 42, 0.13);
+}
+
+/* default event style */
+.rbc-event-default {
+  background-color: rgba(148, 163, 184, 0.1);
+  color: var(--foreground);
+  border-color: rgba(148, 163, 184, 0.7);
+}
+
+/* milestone */
+.rbc-event-milestone {
+  background-color: rgba(16, 185, 129, 0.18);
+  color: #064e3b;
+  border-color: #10b981;
+}
+
+/* urgent */
+.rbc-event-urgent {
+  background-color: rgba(239, 68, 68, 0.18);
+  color: #7f1d1d;
+  border-color: #ef4444;
+}
+
+/* ==========
+   Toolbar + button borders
+   ========== */
+
+.rbc-toolbar {
+  padding: 0.9rem 1.5rem 0.75rem;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.rbc-toolbar-label {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--foreground);
+}
+
+/* button groups */
+.rbc-btn-group {
+  display: inline-flex;
+  gap: 0.35rem;
+}
+
+/* main toolbar buttons */
+.rbc-toolbar button {
+  border-radius: 9999px;
+  border: 1px solid var(--border);
+  padding: 0.3rem 0.9rem;
+  background: rgba(15, 23, 42, 0.02);
+  color: var(--muted-foreground);
+  font-size: 0.8rem;
+  font-weight: 500;
+  outline: none;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+  transition:
+    background-color 140ms ease,
+    border-color 140ms ease,
+    color 140ms ease,
+    box-shadow 140ms ease,
+    transform 80ms ease;
+}
+
+.rbc-toolbar button:hover {
+  background: rgba(99, 102, 241, 0.06);
+  border-color: var(--button);
+  color: var(--foreground);
+  box-shadow: 0 6px 16px rgba(15, 23, 42, 0.15);
+  transform: translateY(-0.5px);
+}
+
+/* active (e.g. Month view) */
+.rbc-toolbar button.rbc-active {
+  background: var(--button);
+  color: #ffffff;
+  border-color: var(--button);
+  box-shadow: 0 8px 20px rgba(37, 99, 235, 0.35);
+}
+
+.rbc-show-more {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  color: var(--foreground) !important;
+  font-size: 11px;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+/* Remove the hover background also */
+.rbc-show-more:hover {
+  background: transparent !important;
+  text-decoration: underline;
+}
+
+
+/* Toolbar buttons (Today, Back, Next) */
+/* Base button styling */
+.rbc-btn-group button {
+  background: transparent !important;
+  border: 1px solid var(--border) !important;
+  color: var(--foreground) !important;
+  transition: all 0.25s ease;
+  position: relative;
+  overflow: hidden; /* needed for ripple */
+}
+
+/* Hover — clean, simple highlight */
+.rbc-btn-group button:hover {
+  border-color: var(--button) !important;
+  color: var(--button) !important;
+  background: transparent !important;
+}
+
+/* Active (press) — smooth darker visual press */
+.rbc-btn-group button:active {
+  transform: scale(0.97);
+  border-color: var(--button) !important;
+  color: var(--button) !important;
+  background: transparent !important;
+}
+
+/* Ripple element */
+.rbc-btn-group button::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  
+  opacity: 0;
+  transform: scale(0);
+  border-radius: 50%;
+  transition: transform 0.4s ease, opacity 0.4s ease;
+}
+
+/* Ripple on click */
+.rbc-btn-group button:active::after {
+  opacity: 0.18;
+  transform: scale(2.6);
+}
+
+
+
+

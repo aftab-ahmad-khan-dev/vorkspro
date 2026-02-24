@@ -1,0 +1,468 @@
+[
+  {
+    "name": "Admin",
+    "description": "Full access to all modules and actions.",
+    "modulePermissions": [
+      {
+        "module": "Dashboard",
+        "actions": [
+          "Create Records",
+          "Edit Records",
+          "Delete Records",
+          "Change Status",
+          "Toggle Active/Inactive",
+          "Export Data",
+          "Manage Users",
+          "Process Payroll",
+          "View Finance",
+          "Access Settings",
+          "View Records"
+        ]
+      },
+      {
+        "module": "Employee Management",
+        "actions": [
+          "Create Records",
+          "Edit Records",
+          "Delete Records",
+          "Change Status",
+          "Toggle Active/Inactive",
+          "Export Data",
+          "Manage Users",
+          "Process Payroll",
+          "View Finance",
+          "Access Settings",
+          "View Records"
+        ]
+      },
+      {
+        "module": "Employees",
+        "actions": [
+          "Create Records",
+          "Edit Records",
+          "Delete Records",
+          "Change Status",
+          "Toggle Active/Inactive",
+          "Export Data",
+          "Manage Users",
+          "Process Payroll",
+          "View Finance",
+          "Access Settings",
+          "View Records"
+        ]
+      },
+      {
+        "module": "Attendance",
+        "actions": [
+          "Create Records",
+          "Edit Records",
+          "Delete Records",
+          "Change Status",
+          "Toggle Active/Inactive",
+          "Export Data",
+          "Manage Users",
+          "Process Payroll",
+          "View Finance",
+          "Access Settings",
+          "View Records"
+        ]
+      },
+      {
+        "module": "Performance",
+        "actions": [
+          "Create Records",
+          "Edit Records",
+          "Delete Records",
+          "Change Status",
+          "Toggle Active/Inactive",
+          "Export Data",
+          "Manage Users",
+          "Process Payroll",
+          "View Finance",
+          "Access Settings",
+          "View Records"
+        ]
+      },
+      {
+        "module": "Payroll",
+        "actions": [
+          "Create Records",
+          "Edit Records",
+          "Delete Records",
+          "Change Status",
+          "Toggle Active/Inactive",
+          "Export Data",
+          "Manage Users",
+          "Process Payroll",
+          "View Finance",
+          "Access Settings",
+          "View Records"
+        ]
+      },
+      {
+        "module": "Project Management",
+        "actions": [
+          "Create Records",
+          "Edit Records",
+          "Delete Records",
+          "Change Status",
+          "Toggle Active/Inactive",
+          "Export Data",
+          "Manage Users",
+          "Process Payroll",
+          "View Finance",
+          "Access Settings",
+          "View Records"
+        ]
+      },
+      {
+        "module": "Projects",
+        "actions": [
+          "Create Records",
+          "Edit Records",
+          "Delete Records",
+          "Change Status",
+          "Toggle Active/Inactive",
+          "Export Data",
+          "Manage Users",
+          "Process Payroll",
+          "View Finance",
+          "Access Settings",
+          "View Records"
+        ]
+      },
+      {
+        "module": "Milestones",
+        "actions": [
+          "Create Records",
+          "Edit Records",
+          "Delete Records",
+          "Change Status",
+          "Toggle Active/Inactive",
+          "Export Data",
+          "Manage Users",
+          "Process Payroll",
+          "View Finance",
+          "Access Settings",
+          "View Records"
+        ]
+      },
+      {
+        "module": "Client Management",
+        "actions": [
+          "Create Records",
+          "Edit Records",
+          "Delete Records",
+          "Change Status",
+          "Toggle Active/Inactive",
+          "Export Data",
+          "Manage Users",
+          "Process Payroll",
+          "View Finance",
+          "Access Settings",
+          "View Records"
+        ]
+      },
+      {
+        "module": "Follow-up-Hub",
+        "actions": [
+          "Create Records",
+          "Edit Records",
+          "Delete Records",
+          "Change Status",
+          "Toggle Active/Inactive",
+          "Export Data",
+          "Manage Users",
+          "Process Payroll",
+          "View Finance",
+          "Access Settings",
+          "View Records"
+        ]
+      },
+      {
+        "module": "Finance",
+        "actions": [
+          "Create Records",
+          "Edit Records",
+          "Delete Records",
+          "Change Status",
+          "Toggle Active/Inactive",
+          "Export Data",
+          "Manage Users",
+          "Process Payroll",
+          "View Finance",
+          "Access Settings",
+          "View Records"
+        ]
+      },
+      {
+        "module": "HR Management",
+        "actions": [
+          "Create Records",
+          "Edit Records",
+          "Delete Records",
+          "Change Status",
+          "Toggle Active/Inactive",
+          "Export Data",
+          "Manage Users",
+          "Process Payroll",
+          "View Finance",
+          "Access Settings",
+          "View Records"
+        ]
+      },
+      {
+        "module": "My To-Do Hub",
+        "actions": [
+          "Create Records",
+          "Edit Records",
+          "Delete Records",
+          "Change Status",
+          "Toggle Active/Inactive",
+          "Export Data",
+          "Manage Users",
+          "Process Payroll",
+          "View Finance",
+          "Access Settings",
+          "View Records"
+        ]
+      },
+      {
+        "module": "Reports & Analytics",
+        "actions": [
+          "Create Records",
+          "Edit Records",
+          "Delete Records",
+          "Change Status",
+          "Toggle Active/Inactive",
+          "Export Data",
+          "Manage Users",
+          "Process Payroll",
+          "View Finance",
+          "Access Settings",
+          "View Records"
+        ]
+      },
+      {
+        "module": "Admin & Assets",
+        "actions": [
+          "Create Records",
+          "Edit Records",
+          "Delete Records",
+          "Change Status",
+          "Toggle Active/Inactive",
+          "Export Data",
+          "Manage Users",
+          "Process Payroll",
+          "View Finance",
+          "Access Settings",
+          "View Records"
+        ]
+      },
+      {
+        "module": "Knowledge Base",
+        "actions": [
+          "Create Records",
+          "Edit Records",
+          "Delete Records",
+          "Change Status",
+          "Toggle Active/Inactive",
+          "Export Data",
+          "Manage Users",
+          "Process Payroll",
+          "View Finance",
+          "Access Settings",
+          "View Records"
+        ]
+      },
+      {
+        "module": "Announcements",
+        "actions": [
+          "Create Records",
+          "Edit Records",
+          "Delete Records",
+          "Change Status",
+          "Toggle Active/Inactive",
+          "Export Data",
+          "Manage Users",
+          "Process Payroll",
+          "View Finance",
+          "Access Settings",
+          "View Records"
+        ]
+      },
+      {
+        "module": "Categories",
+        "actions": [
+          "Create Records",
+          "Edit Records",
+          "Delete Records",
+          "Change Status",
+          "Toggle Active/Inactive",
+          "Export Data",
+          "Manage Users",
+          "Process Payroll",
+          "View Finance",
+          "Access Settings",
+          "View Records"
+        ]
+      },
+      {
+        "module": "Settings",
+        "actions": [
+          "Create Records",
+          "Edit Records",
+          "Delete Records",
+          "Change Status",
+          "Toggle Active/Inactive",
+          "Export Data",
+          "Manage Users",
+          "Process Payroll",
+          "View Finance",
+          "Access Settings",
+          "View Records"
+        ]
+      },
+      {
+        "module": "Blockages",
+        "actions": [
+          "Create Records",
+          "Edit Records",
+          "Delete Records",
+          "Change Status",
+          "Toggle Active/Inactive",
+          "Export Data",
+          "Manage Users",
+          "Process Payroll",
+          "View Finance",
+          "Access Settings",
+          "View Records"
+        ]
+      }
+    ],
+    "actionPermissions": ["Access Settings"],
+    "isActive": true
+  },
+  {
+    "name": "HR Manager",
+    "description": "Manages employee data, payroll, and attendance-related modules.",
+    "modulePermissions": [
+      {
+        "module": "Dashboard",
+        "actions": ["View Records"]
+      },
+      {
+        "module": "Employee Management",
+        "actions": [
+          "Create Records",
+          "Edit Records",
+          "Delete Records",
+          "Toggle Active/Inactive"
+        ]
+      },
+      {
+        "module": "Attendance",
+        "actions": ["View Records", "Edit Records"]
+      },
+      {
+        "module": "Payroll",
+        "actions": ["Process Payroll", "View Records"]
+      },
+      {
+        "module": "Reports & Analytics",
+        "actions": ["View Records", "Export Data"]
+      }
+    ],
+    "actionPermissions": [],
+    "isActive": true
+  },
+  {
+    "name": "Finance Officer",
+    "description": "Handles financial operations, reports, and payroll management.",
+    "modulePermissions": [
+      {
+        "module": "Dashboard",
+        "actions": ["View Records"]
+      },
+      {
+        "module": "Finance",
+        "actions": [
+          "View Finance",
+          "Create Records",
+          "Edit Records",
+          "Export Data"
+        ]
+      },
+      {
+        "module": "Payroll",
+        "actions": ["Process Payroll"]
+      },
+      {
+        "module": "Reports & Analytics",
+        "actions": ["View Records", "Export Data"]
+      }
+    ],
+    "actionPermissions": [],
+    "isActive": true
+  },
+  {
+    "name": "Project Manager",
+    "description": "Oversees assigned projects and manages team progress.",
+    "modulePermissions": [
+      {
+        "module": "Dashboard",
+        "actions": ["View Records"]
+      },
+      {
+        "module": "Project Management",
+        "actions": [
+          "Create Records",
+          "Edit Records",
+          "Change Status"
+        ]
+      },
+      {
+        "module": "Projects",
+        "actions": [
+          "Create Records",
+          "Edit Records",
+          "Export Data"
+        ]
+      },
+      {
+        "module": "Milestones",
+        "actions": ["Create Records", "Edit Records"]
+      },
+      {
+        "module": "Reports & Analytics",
+        "actions": ["View Records"]
+      }
+    ],
+    "actionPermissions": [],
+    "isActive": true
+  },
+  {
+    "name": "Employee",
+    "description": "Limited access to assigned tasks, attendance, and reports.",
+    "modulePermissions": [
+      {
+        "module": "Dashboard",
+        "actions": ["View Records"]
+      },
+      {
+        "module": "My To-Do Hub",
+        "actions": ["View Records", "Change Status"]
+      },
+      {
+        "module": "Attendance",
+        "actions": ["View Records"]
+      },
+      {
+        "module": "Reports & Analytics",
+        "actions": ["View Records"]
+      }
+    ],
+    "actionPermissions": [],
+    "isActive": true
+  }
+]

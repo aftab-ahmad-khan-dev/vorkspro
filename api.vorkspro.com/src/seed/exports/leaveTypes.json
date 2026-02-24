@@ -1,0 +1,72 @@
+[
+    {
+        "name": "Annual Leave",
+        "description": "Paid time off for vacation or personal reasons",
+        "daysAllowed": 14,
+        "colorCode": "#4CAF50",
+        "isActive": true
+    },
+    {
+        "name": "Sick Leave",
+        "description": "Leave granted for illness or medical emergencies",
+        "daysAllowed": 10,
+        "colorCode": "#F44336",
+        "isActive": true
+    },
+    {
+        "name": "Casual Leave",
+        "description": "Short-term leave for personal or unforeseen matters",
+        "daysAllowed": 6,
+        "colorCode": "#FFC107",
+        "isActive": true
+    },
+    {
+        "name": "Maternity Leave",
+        "description": "Leave granted to female employees during pregnancy and childbirth",
+        "daysAllowed": 90,
+        "colorCode": "#E91E63",
+        "isActive": true
+    },
+    {
+        "name": "Paternity Leave",
+        "description": "Leave granted to male employees for childbirth and childcare",
+        "daysAllowed": 10,
+        "colorCode": "#2196F3",
+        "isActive": true
+    },
+    {
+        "name": "Bereavement Leave",
+        "description": "Leave granted in the event of a family member's death",
+        "daysAllowed": 5,
+        "colorCode": "#9E9E9E",
+        "isActive": true
+    },
+    {
+        "name": "Unpaid Leave",
+        "description": "Leave taken without salary deduction waiver",
+        "daysAllowed": 0,
+        "colorCode": "#607D8B",
+        "isActive": true
+    },
+    {
+        "name": "Study Leave",
+        "description": "Leave granted for educational or training purposes",
+        "daysAllowed": 15,
+        "colorCode": "#00BCD4",
+        "isActive": true
+    },
+    {
+        "name": "Compensatory Leave",
+        "description": "Leave granted in lieu of extra work hours or holidays worked",
+        "daysAllowed": 5,
+        "colorCode": "#8BC34A",
+        "isActive": true
+    },
+    {
+        "name": "Marriage Leave",
+        "description": "Leave provided for an employee’s wedding ceremony",
+        "daysAllowed": 7,
+        "colorCode": "#9C27B0",
+        "isActive": true
+    }
+]

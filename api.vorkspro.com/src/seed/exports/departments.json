@@ -1,0 +1,32 @@
+[
+  {
+    "name": "Engineering",
+    "description": "Responsible for software development, technical operations, and product building.",
+    "colorCode": "#42A5F5",
+    "isActive": true
+  },
+  {
+    "name": "Product Management",
+    "description": "Oversees product vision, roadmap, feature prioritization, and user experience.",
+    "colorCode": "#66BB6A",
+    "isActive": true
+  },
+  {
+    "name": "Human Resources",
+    "description": "Handles recruitment, onboarding, employee relations, performance management, and company culture.",
+    "colorCode": "#FFB74D",
+    "isActive": true
+  },
+  {
+    "name": "Sales & Marketing",
+    "description": "Responsible for lead generation, client relationships, marketing campaigns, and revenue growth.",
+    "colorCode": "#EF5350",
+    "isActive": true
+  },
+  {
+    "name": "Finance",
+    "description": "Manages budgeting, financial planning, payroll, invoicing, and expense tracking.",
+    "colorCode": "#AB47BC",
+    "isActive": true
+  }
+]

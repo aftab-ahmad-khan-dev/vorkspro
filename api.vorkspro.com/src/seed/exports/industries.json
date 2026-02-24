@@ -1,0 +1,72 @@
+[
+    {
+        "name": "Information Technology",
+        "description": "Software, hardware, and IT services industry",
+        "sector": "Technology",
+        "colorCode": "#4F46E5",
+        "isActive": true
+    },
+    {
+        "name": "Healthcare",
+        "description": "Medical services, equipment, and pharmaceuticals",
+        "sector": "Health & Medicine",
+        "colorCode": "#16A34A",
+        "isActive": true
+    },
+    {
+        "name": "Finance",
+        "description": "Banking, insurance, and investment management",
+        "sector": "Financial Services",
+        "colorCode": "#0EA5E9",
+        "isActive": true
+    },
+    {
+        "name": "Education",
+        "description": "Schools, universities, and online learning platforms",
+        "sector": "Public & Private Education",
+        "colorCode": "#F59E0B",
+        "isActive": true
+    },
+    {
+        "name": "Manufacturing",
+        "description": "Production and assembly of goods and components",
+        "sector": "Industrial",
+        "colorCode": "#6B7280",
+        "isActive": true
+    },
+    {
+        "name": "Real Estate",
+        "description": "Property development, sales, and management",
+        "sector": "Construction & Property",
+        "colorCode": "#7C3AED",
+        "isActive": true
+    },
+    {
+        "name": "Retail & E-commerce",
+        "description": "Consumer goods sales and online marketplaces",
+        "sector": "Commerce",
+        "colorCode": "#D946EF",
+        "isActive": true
+    },
+    {
+        "name": "Energy",
+        "description": "Oil, gas, and renewable energy companies",
+        "sector": "Utilities",
+        "colorCode": "#EA580C",
+        "isActive": true
+    },
+    {
+        "name": "Transportation & Logistics",
+        "description": "Freight, shipping, and logistics management",
+        "sector": "Infrastructure",
+        "colorCode": "#14B8A6",
+        "isActive": true
+    },
+    {
+        "name": "Hospitality & Tourism",
+        "description": "Hotels, restaurants, and travel services",
+        "sector": "Services",
+        "colorCode": "#EF4444",
+        "isActive": true
+    }
+]

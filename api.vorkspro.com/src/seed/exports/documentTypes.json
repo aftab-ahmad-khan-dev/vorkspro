@@ -1,0 +1,62 @@
+[
+    {
+        "name": "Resume / CV",
+        "description": "Employee resume or curriculum vitae",
+        "colorCode": "#4CAF50",
+        "isActive": true
+    },
+    {
+        "name": "Offer Letter",
+        "description": "Official offer letter issued to the employee",
+        "colorCode": "#2196F3",
+        "isActive": true
+    },
+    {
+        "name": "ID Proof",
+        "description": "Government issued identification document",
+        "colorCode": "#9C27B0",
+        "isActive": true
+    },
+    {
+        "name": "Address Proof",
+        "description": "Proof of residence or address verification document",
+        "colorCode": "#FF9800",
+        "isActive": true
+    },
+    {
+        "name": "Experience Letter",
+        "description": "Previous company experience certificate",
+        "colorCode": "#3F51B5",
+        "isActive": true
+    },
+    {
+        "name": "Educational Certificates",
+        "description": "Academic qualification and degree documents",
+        "colorCode": "#00BCD4",
+        "isActive": true
+    },
+    {
+        "name": "Joining Letter",
+        "description": "Letter confirming employee joining details",
+        "colorCode": "#8BC34A",
+        "isActive": true
+    },
+    {
+        "name": "Relieving Letter",
+        "description": "Document provided upon resignation or termination",
+        "colorCode": "#F44336",
+        "isActive": true
+    },
+    {
+        "name": "Non-Disclosure Agreement",
+        "description": "Signed NDA document for confidentiality terms",
+        "colorCode": "#607D8B",
+        "isActive": true
+    },
+    {
+        "name": "Other Documents",
+        "description": "Miscellaneous documents related to employment or HR",
+        "colorCode": "#9E9E9E",
+        "isActive": true
+    }
+]

@@ -1,0 +1,62 @@
+[
+    {
+        "name": "Frontend Development",
+        "description": "Handles UI/UX implementation, React/Next.js development, and client-side logic.",
+        "departmentName": "Engineering",
+        "isActive": true
+    },
+    {
+        "name": "Backend Development",
+        "description": "Responsible for APIs, databases, server-side logic, authentication, and performance.",
+        "departmentName": "Engineering",
+        "isActive": true
+    },
+    {
+        "name": "Mobile Development",
+        "description": "Develops cross-platform and native mobile applications using Flutter and other frameworks.",
+        "departmentName": "Engineering",
+        "isActive": true
+    },
+    {
+        "name": "Quality Assurance",
+        "description": "Performs manual & automated testing, bug tracking, regression, and quality validation.",
+        "departmentName": "Engineering",
+        "isActive": true
+    },
+    {
+        "name": "UI/UX Design",
+        "description": "Creates user interfaces, wireframes, prototypes, design systems, and user research.",
+        "departmentName": "Engineering",
+        "isActive": true
+    },
+    {
+        "name": "DevOps",
+        "description": "Manages CI/CD pipelines, cloud infrastructure, deployments, monitoring, and security.",
+        "departmentName": "Engineering",
+        "isActive": true
+    },
+    {
+        "name": "Project Management",
+        "description": "Coordinates sprints, timelines, task assignments, stakeholder communication, and delivery.",
+        "departmentName": "Product Management",
+        "isActive": true
+    },
+    {
+        "name": "Sales & Marketing",
+        "description": "Handles lead generation, client outreach, campaigns, branding, and partnerships.",
+        "departmentName": "Sales & Marketing",
+        "isActive": true
+    },
+    {
+        "name": "Human Resources",
+        "description": "Manages recruitment, onboarding, employee engagement, performance reviews, and culture.",
+        "departmentName": "Human Resources",
+        "isActive": true
+    },
+    {
+        "name": "Finance & Accounts",
+        "description": "Oversees budgeting, payroll processing, invoicing, financial reporting, and compliance.",
+        "departmentName": "Finance",
+        "isActive": true
+    }
+]

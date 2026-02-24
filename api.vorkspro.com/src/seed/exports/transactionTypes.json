@@ -1,0 +1,44 @@
+[
+    {
+        "name": "Salary Payment",
+        "description": "Monthly salary paid to employees",
+        "type": "expense",
+        "isActive": true
+    },
+    {
+        "name": "Office Rent",
+        "description": "Monthly office rent expense",
+        "type": "expense",
+        "isActive": true
+    },
+    {
+        "name": "Software Subscription",
+        "description": "Recurring payments for tools and software",
+        "type": "expense",
+        "isActive": true
+    },
+    {
+        "name": "Client Payment",
+        "description": "Payment received from clients for services",
+        "type": "income",
+        "isActive": true
+    },
+    {
+        "name": "Investment",
+        "description": "Funds invested into the company",
+        "type": "income",
+        "isActive": true
+    },
+    {
+        "name": "Miscellaneous Expense",
+        "description": "Other unclassified expenses",
+        "type": "expense",
+        "isActive": true
+    },
+    {
+        "name": "Bonus Income",
+        "description": "Additional income received from external sources",
+        "type": "income",
+        "isActive": true
+    }
+]
