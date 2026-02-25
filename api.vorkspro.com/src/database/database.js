@@ -2,26 +2,50 @@ import dotenv from "dotenv";
 import mongoose from "mongoose";
 import { DB_NAME, TEST_DB_NAME, DEV_DB_NAME } from "../constants.js";
 
-// dotenv.config({ path: './.env' });   //? Live DB
-dotenv.config({ path: "./.env.dev" }); //? Test DB
+dotenv.config({ path: "./.env" });
+
+function buildDbUri(dbName) {
+  const uri = process.env.MONGODB_URI?.trim();
+  if (!uri) return null;
+  if (uri.includes("?")) {
+    return uri.replace("?", `/${dbName}?`);
+  }
+  return `${uri.replace(/\/$/, "")}/${dbName}`;
+}
 
 const initializeDatabase = async () => {
+  if (mongoose.connection.readyState === 1) return;
+
   try {
-    console.log('DB Name', process.env.MODE)
-    const DB_PATH =
+    const dbName =
       process.env.MODE == "development"
-        ? `${process.env.MONGODB_URI}/${DEV_DB_NAME}`
+        ? DEV_DB_NAME
         : process.env.MODE == "test"
-          ? `${process.env.MONGODB_URI}/${TEST_DB_NAME}`
+          ? TEST_DB_NAME
           : process.env.MODE == "production"
-          ? `${process.env.MONGODB_URI}/${DB_NAME}` : null;
-    console.log("DB_PATH: ", DB_PATH);
-    const connectionInstance = await mongoose.connect(`${DB_PATH}`);
+            ? DB_NAME
+            : null;
+    if (!dbName) {
+      throw new Error("Set MODE in .env (development | test | production)");
+    }
+
+    const DB_PATH = buildDbUri(dbName);
+    if (!DB_PATH) {
+      throw new Error("MONGODB_URI missing in .env");
+    }
+
+    console.log("MongoDB connecting…", dbName);
+    await mongoose.connect(DB_PATH, {
+      serverSelectionTimeoutMS: 30000,
+      connectTimeoutMS: 30000,
+    });
+
+    const conn = mongoose.connection;
     console.log(
-      `════════════════════════════════════════════════════════════ \nMongoDB connected...!! \nDB HOST: ${connectionInstance.connection.host}\nDB Name: ${connectionInstance.connection.name}\n════════════════════════════════════════════════════════════`
+      `MongoDB connected — DB: ${conn.name || dbName}`
     );
   } catch (error) {
-    console.log("MongoDB connection failed: ", error);
+    console.error("MongoDB connection failed:", error.message);
     process.exit(1);
   }
 };

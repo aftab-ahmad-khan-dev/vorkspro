@@ -97,6 +97,7 @@ import dotenv from "dotenv";
 import fs from "fs/promises";
 import path from "path";
 import { fileURLToPath } from "url";
+import { DEV_DB_NAME, DB_NAME } from "../constants.js";
 import {
   BugType,
   Department,
@@ -113,7 +114,7 @@ import {
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-dotenv.config();
+dotenv.config({ path: path.join(path.dirname(__dirname), ".env") });
 
 const SEED_SEQUENCE = [
   { name: "Departments", model: Department, file: "departments.json" },
@@ -309,8 +310,24 @@ async function seedEmployeesAndUsers(empData) {
   console.log(`\nTotal employees processed: ${success}/${empData.length}`);
 }
 
+function buildDbUri(dbName) {
+  const uri = process.env.MONGODB_URI?.trim();
+  if (!uri) return null;
+  if (uri.includes("?")) return uri.replace("?", `/${dbName}?`);
+  return `${uri.replace(/\/$/, "")}/${dbName}`;
+}
+
 async function seedData() {
   try {
+    const dbName = process.env.MODE === "production" ? DB_NAME : DEV_DB_NAME;
+    const dbPath = buildDbUri(dbName);
+    if (!dbPath) {
+      console.error("❌ MONGODB_URI or MODE missing. Set .env (MODE, MONGODB_URI).");
+      process.exit(1);
+    }
+    console.log("🔌 Connecting to MongoDB...");
+    await mongoose.connect(dbPath, { serverSelectionTimeoutMS: 30000, connectTimeoutMS: 30000 });
+    console.log("✅ MongoDB connected\n");
     console.log("🚀 Starting full data seeding...\n");
 
     for (const item of SEED_SEQUENCE) {

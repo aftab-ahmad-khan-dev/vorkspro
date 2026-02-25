@@ -36,7 +36,7 @@ function Sidebar({ isSidebarOpen, toggleSidebar, isMobile }) {
   const [isDark, setIsDark] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
-  const { tabs } = useTabs(); // This may be null/undefined while loading
+  const { tabs, setTabs, setActions } = useTabs(); // This may be null/undefined while loading
 
   const isLoading = !tabs; // Skeleton shown when tabs are not yet available
 
@@ -101,25 +101,30 @@ function Sidebar({ isSidebarOpen, toggleSidebar, isMobile }) {
       initial={{ x: -300, opacity: 0 }}
       animate={{ x: 0, opacity: 1 }}
       transition={{ duration: 0.3, ease: "easeOut" }}
-      className="h-full flex flex-col bg-white dark:bg-slate-950/30"
+      className="h-full flex flex-col bg-white dark:bg-[var(--background)]"
     >
       {/* Header: Logo + Toggle */}
       <motion.div
         initial={{ y: -20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ delay: 0.1, duration: 0.3 }}
-        className="flex items-center justify-between px-4 py-[11px] md:py-[14px] border-b border-gray-200 dark:border-slate-800 flex-shrink-0"
+        className="flex items-center justify-between px-4 py-[11px] md:py-[14px] border-b border-gray-200 dark:border-[var(--border)] flex-shrink-0"
       >
         {isSidebarOpen && (
-          <div className="flex items-center">
+          <div className="flex items-center gap-2 min-w-0">
             {isLoading ? (
               <div className="h-9 w-40 bg-gray-200 dark:bg-slate-700 rounded animate-pulse" />
             ) : (
-              <img
-                src={logo}
-                alt="Vorks Pro"
-                className="h-8 w-40 md:h-9 object-contain"
-              />
+              <>
+                <img
+                  src={logo}
+                  alt="Vorks Pro"
+                  className="h-8 w-auto md:h-9 flex-shrink-0 object-contain dark:invert dark:opacity-90"
+                />
+                <span className="text-base font-bold tracking-tight text-[var(--primary)] dark:text-[var(--primary)] truncate">
+                  Vorks Pro
+                </span>
+              </>
             )}
           </div>
         )}
@@ -319,6 +324,8 @@ function Sidebar({ isSidebarOpen, toggleSidebar, isMobile }) {
 
             <NavItem
               onClick={() => {
+                setTabs(null);
+                setActions([]);
                 localStorage.removeItem("token");
                 localStorage.removeItem("refreshToken");
                 navigate("/login", { replace: true });

@@ -106,4 +106,37 @@ export const salaryHistoryController = {
       { salaryHistory }
     );
   }),
+
+  getRecentSalaryHistory: asyncHandler(async (req, res) => {
+    const limit = Math.min(parseInt(req.query.limit, 10) || 20, 50);
+    const records = await SalaryHistory.find({})
+      .sort({ date: -1 })
+      .limit(limit)
+      .populate("userId", "name email")
+      .lean();
+
+    const withEmployee = await Promise.all(
+      records.map(async (r) => {
+        const userId = r.userId?._id ?? r.userId;
+        if (!userId) {
+          return { ...r, employeeName: "—", departmentName: null };
+        }
+        const emp = await Employee.findOne({ user: userId })
+          .select("firstName lastName department")
+          .populate("department", "name")
+          .lean();
+        const employeeName =
+          emp ? `${(emp.firstName || "").trim()} ${(emp.lastName || "").trim()}`.trim() || r.userId?.name : r.userId?.name || "—";
+        return {
+          ...r,
+          employeeName: employeeName || "—",
+          departmentName: emp?.department?.name ?? null,
+        };
+      })
+    );
+
+    return generateApiResponse(res, StatusCodes.OK, true, "Recent salary history fetched.", {
+      salaryHistory: withEmployee,
+    });
+  }),
 };

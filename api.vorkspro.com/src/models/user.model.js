@@ -13,7 +13,8 @@ const UserSchema = new mongoose.Schema(
         role: { type: Schema.Types.ObjectId, ref: ModelNames.Role.model },
         isSuperAdmin: { type: Boolean, default: false },
         isActive: { type: Boolean, default: true },
-        oneSignalPlayerId: { type: String }
+        oneSignalPlayerId: { type: String },
+        themePreference: { type: String, enum: ["light", "dark", "neon-purple"], default: "neon-purple" }
 
     },
     { timestamps: true }

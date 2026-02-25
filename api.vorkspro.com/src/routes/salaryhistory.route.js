@@ -5,6 +5,12 @@ import { validate } from "../middlewares/validators.middleware.js";
 
 const route = Router();
 
+route.get(
+  "/recent",
+  checkPermission({ modules: ["Payroll", "Employees", "Employee Management"] }),
+  salaryHistoryController.getRecentSalaryHistory
+);
+
 route.post(
     '/update-salary',
     checkPermission({

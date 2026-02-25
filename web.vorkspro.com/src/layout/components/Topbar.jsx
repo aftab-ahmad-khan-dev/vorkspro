@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Menu } from "lucide-react";
+import { Menu, Sun, Moon, Sparkles } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import Confirmation from "@/models/Confirmation";
@@ -11,28 +11,54 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { apiPatch } from "@/interceptor/interceptor";
+import { applyThemePreference, getThemePreference } from "@/lib/theme";
+import { toast } from "sonner";
+
+const THEME_OPTIONS = [
+  { value: "light", label: "Light", icon: Sun },
+  { value: "dark", label: "Dark", icon: Moon },
+  { value: "neon-purple", label: "Neon Purple", icon: Sparkles },
+];
 
 export default function Topbar({ toggleSidebar, isSidebarOpen }) {
   const navigate = useNavigate();
   const location = useLocation();
-  const [isDark, setIsDark] = useState(false);
+  const [themePreference, setThemePreference] = useState(getThemePreference());
   const [activeTab, setActiveTab] = useState("");
   const [confirmationOpen, setConfirmationOpen] = useState(false);
+  const [themeSaving, setThemeSaving] = useState(false);
 
-  // Sync theme
+  // Sync theme from DOM/localStorage (e.g. after Layout applies server preference)
   useEffect(() => {
-    const checkTheme = () =>
-      setIsDark(document.documentElement.classList.contains("dark"));
-    checkTheme();
-    const mo = new MutationObserver(checkTheme);
+    const check = () => setThemePreference(getThemePreference());
+    check();
+    const mo = new MutationObserver(check);
     mo.observe(document.documentElement, { attributes: true });
-    return () => mo.disconnect();
+    window.addEventListener("storage", check);
+    return () => {
+      mo.disconnect();
+      window.removeEventListener("storage", check);
+    };
   }, []);
 
-  const toggleTheme = () => {
-    const root = document.documentElement;
-    root.classList.toggle("dark");
-    setIsDark(root.classList.contains("dark"));
+  const handleThemeChange = async (value) => {
+    if (themeSaving || !value) return;
+    setThemeSaving(true);
+    try {
+      const res = await apiPatch("user/profile", { themePreference: value });
+      if (res?.isSuccess) {
+        applyThemePreference(value);
+        setThemePreference(value);
+        toast.success("Theme saved to your profile");
+      } else {
+        toast.error(res?.message || "Failed to save theme");
+      }
+    } catch (err) {
+      toast.error(err?.message || "Failed to save theme");
+    } finally {
+      setThemeSaving(false);
+    }
   };
 
   const format = (text) =>
@@ -133,6 +159,9 @@ export default function Topbar({ toggleSidebar, isSidebarOpen }) {
     );
   };
 
+  const isNeon = themePreference === "neon-purple";
+  const isDark = themePreference === "dark" || isNeon;
+
   return (
     <header
       className={cn(
@@ -142,9 +171,14 @@ export default function Topbar({ toggleSidebar, isSidebarOpen }) {
         "border-b border-slate-200/50 dark:border-slate-800/50",
         "shadow-[0_2px_12px_-3px_rgba(0,0,0,0.12)] dark:shadow-none",
         "supports-[backdrop-filter]:bg-white/40 dark:supports-[backdrop-filter]:bg-slate-950/20",
+        isNeon && "!bg-[var(--background)]/95 !border-[var(--border)]",
       )}
     >
-      <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-slate-300/40 to-transparent dark:via-slate-700/40 pointer-events-none" />
+      <div className={cn(
+        "absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent to-transparent pointer-events-none",
+        !isNeon && "via-slate-300/40 dark:via-slate-700/40",
+        isNeon && "via-purple-400/30"
+      )} />
 
       <nav className="flex h-16 items-center justify-between  px-4 lg:px-6">
         <div className="flex justify-between w-full items-center gap-4">
@@ -269,54 +303,44 @@ export default function Topbar({ toggleSidebar, isSidebarOpen }) {
               </nav>
             </div>
           </div>
-          <div>
+          <div className="flex items-center gap-2">
+            <Select value={themePreference} onValueChange={handleThemeChange} disabled={themeSaving}>
+              <SelectTrigger className="w-[140px] text-foreground border rounded-lg px-3 py-2 text-sm">
+                <SelectValue>
+                  {THEME_OPTIONS.find((o) => o.value === themePreference)?.label ?? "Theme"}
+                </SelectValue>
+              </SelectTrigger>
+              <SelectContent>
+                {THEME_OPTIONS.map((opt) => (
+                  <SelectItem key={opt.value} value={opt.value}>
+                    <span className="flex items-center gap-2">
+                      <opt.icon className="h-4 w-4" />
+                      {opt.label}
+                    </span>
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
             <Select
               value={activeTab}
               onValueChange={(value) => {
                 setActiveTab(value);
-
-                if (value === "admin-dashboard") {
-                  navigate("/app/admin-dashboard");
-                }
-
-                if (value === "hr-dashboard") {
-                  navigate("/app/hr-dashboard");
-                }
-
-                if (value === "project-manager-dashboard") {
-                  navigate("/app/project-manager-dashboard");
-                }
-
-                if (value === "finance-manager-dashboard") {
-                  navigate("/app/finance-manager-dashboard");
-                }
-
-                if (value === "employee-dashboard") {
-                  navigate("/app/employee-dashboard");
-                }
-
+                if (value === "admin-dashboard") navigate("/app/admin-dashboard");
+                if (value === "hr-dashboard") navigate("/app/hr-dashboard");
+                if (value === "project-manager-dashboard") navigate("/app/project-manager-dashboard");
+                if (value === "finance-manager-dashboard") navigate("/app/finance-manager-dashboard");
+                if (value === "employee-dashboard") navigate("/app/employee-dashboard");
               }}
             >
-              <SelectTrigger className="w-full text-foreground border rounded-lg px-3 py-2 text-sm">
-                <SelectValue  placeholder="Switch Role" /> 
+              <SelectTrigger className="w-full text-foreground border rounded-lg px-3 py-2 text-sm min-w-[140px]">
+                <SelectValue placeholder="Switch Role" />
               </SelectTrigger>
-
               <SelectContent>
                 <SelectItem value="admin-dashboard">Admin Dashboard</SelectItem>
-
                 <SelectItem value="hr-dashboard">HR Dashboard</SelectItem>
-
-                <SelectItem value="project-manager-dashboard">
-                  Project Manager Dashboard
-                </SelectItem>
-
-                <SelectItem value="finance-manager-dashboard">
-                  Finance Manager Dashboard
-                </SelectItem>
-
-                <SelectItem value="employee-dashboard">
-                  Employee Dashboard
-                </SelectItem>
+                <SelectItem value="project-manager-dashboard">Project Manager Dashboard</SelectItem>
+                <SelectItem value="finance-manager-dashboard">Finance Manager Dashboard</SelectItem>
+                <SelectItem value="employee-dashboard">Employee Dashboard</SelectItem>
               </SelectContent>
             </Select>
           </div>

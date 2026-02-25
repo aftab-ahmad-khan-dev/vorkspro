@@ -143,6 +143,9 @@ export default function RoleForm({ role, onSuccess, onClose }) {
   const [openAccordions, setOpenAccordions] = useState([]);
   const [budgetLoading, setBudgetLoading] = useState(false);
   const [localBudget, setLocalBudget] = useState(role?.cost || false);
+  const [usersList, setUsersList] = useState([]);
+  const [loadingUsers, setLoadingUsers] = useState(false);
+  const [assigningUserId, setAssigningUserId] = useState(null);
 
   useEffect(() => {
     if (role) {
@@ -155,6 +158,25 @@ export default function RoleForm({ role, onSuccess, onClose }) {
       setLocalBudget(role.cost || false);
     }
   }, [role]);
+
+  useEffect(() => {
+    if (!role?._id) return;
+    let cancelled = false;
+    setLoadingUsers(true);
+    apiGet("user/list")
+      .then((data) => {
+        if (!cancelled && data?.isSuccess && Array.isArray(data?.users)) {
+          setUsersList(data.users);
+        }
+      })
+      .catch(() => {
+        if (!cancelled) setUsersList([]);
+      })
+      .finally(() => {
+        if (!cancelled) setLoadingUsers(false);
+      });
+    return () => { cancelled = true; };
+  }, [role?._id]);
 
   const handleAccordionChange = (values) => {
     const newlyOpened = values.filter((v) => !openAccordions.includes(v));
@@ -391,6 +413,26 @@ export default function RoleForm({ role, onSuccess, onClose }) {
     if (!role?._id) return;
     setLocalBudget(newBudgetValue)
     setToggleValue(newBudgetValue)
+  };
+
+  const handleAssignRole = async (user, assign) => {
+    if (!role?._id || !user?._id) return;
+    setAssigningUserId(user._id);
+    try {
+      const data = await apiPatch(`user/${user._id}/role`, { role: assign ? role._id : null });
+      if (data?.isSuccess && data?.user) {
+        setUsersList((prev) =>
+          prev.map((u) => (u._id === user._id ? { ...u, role: data.user.role } : u))
+        );
+        toast.success(assign ? "Role assigned" : "Role unassigned");
+      } else {
+        toast.error(data?.message || "Failed to update role");
+      }
+    } catch (err) {
+      toast.error(err?.message || "Failed to update role");
+    } finally {
+      setAssigningUserId(null);
+    }
   };
 
   const handleSubmit = async () => {
@@ -711,6 +753,61 @@ export default function RoleForm({ role, onSuccess, onClose }) {
           </div>
         </Accordion>
       </section>
+
+      {/* User register list — assign this role to users (edit only) */}
+      {isEdit && role?._id && (
+        <section className="space-y-4 rounded-xl p-6 border border-[var(--border)] shadow-sm bg-background">
+          <h2 className="text-xl font-bold text-foreground">Assign role to users</h2>
+          <p className="text-sm text-muted-foreground">
+            Users with this role are listed below. Check or uncheck to assign or remove &quot;{role.name}&quot;.
+          </p>
+          {loadingUsers ? (
+            <p className="text-sm text-muted-foreground py-4">Loading users...</p>
+          ) : usersList.length === 0 ? (
+            <p className="text-sm text-muted-foreground py-4">No users found.</p>
+          ) : (
+            <div className="border border-[var(--border)] rounded-lg overflow-hidden">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b border-[var(--border)] bg-muted/50">
+                    <th className="text-left p-3 font-semibold text-foreground">Name</th>
+                    <th className="text-left p-3 font-semibold text-foreground">Email</th>
+                    <th className="text-left p-3 font-semibold text-foreground">Current role</th>
+                    <th className="text-left p-3 font-semibold text-foreground">Assign this role</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {usersList.map((u) => {
+                    const hasRole = u.role?._id === role._id;
+                    const busy = assigningUserId === u._id;
+                    return (
+                      <tr key={u._id} className="border-b border-[var(--border)] hover:bg-muted/30">
+                        <td className="p-3 text-foreground">
+                          {[u.firstName, u.lastName].filter(Boolean).join(" ") || "—"}
+                        </td>
+                        <td className="p-3 text-foreground">{u.email || u.username || "—"}</td>
+                        <td className="p-3 text-muted-foreground">{u.role?.name ?? "—"}</td>
+                        <td className="p-3">
+                          <label className="flex items-center gap-2 cursor-pointer select-none">
+                            <input
+                              type="checkbox"
+                              checked={hasRole}
+                              disabled={busy}
+                              onChange={() => handleAssignRole(u, !hasRole)}
+                              className="w-4 h-4 text-primary rounded focus:ring-primary"
+                            />
+                            <span className="text-foreground/90">{busy ? "Updating…" : hasRole ? "Assigned" : "Assign"}</span>
+                          </label>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </section>
+      )}
 
       {/* Submit Button */}
       <div className="flex justify-end gap-4 pt-8">

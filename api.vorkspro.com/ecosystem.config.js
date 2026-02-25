@@ -1,3 +1,6 @@
+// Single MongoDB for all apps — set MONGODB_URI (and MODE) in .env or here.
+const MONGODB_URI = process.env.MONGODB_URI || 'mongodb+srv://aftabahmadkhandev:unchosen8704@personal.0earg.mongodb.net';
+
 module.exports = {
   apps: [
     {
@@ -8,8 +11,9 @@ module.exports = {
       instances: 1,
       env: {
         NODE_ENV: 'production',
+        MODE: 'production',
         PORT: 4000,
-        DB_PATH: 'mongodb+srv://user:password@cluster.mongodb.net'  // Replace with your MongoDB URI
+        MONGODB_URI
       }
     },
     {
@@ -20,8 +24,9 @@ module.exports = {
       instances: 1,
       env: {
         NODE_ENV: 'test',
+        MODE: 'test',
         PORT: 5000,
-        DB_PATH: 'mongodb+srv://user:password@cluster.mongodb.net'  // Replace with your MongoDB URI
+        MONGODB_URI
       }
     },
     {
@@ -32,8 +37,9 @@ module.exports = {
       instances: 1,
       env: {
         NODE_ENV: 'production',
+        MODE: 'production',
         PORT: 3000,
-        DB_PATH: 'mongodb+srv://user:password@cluster.mongodb.net'  // Replace with your MongoDB URI
+        MONGODB_URI
       }
     }
   ]

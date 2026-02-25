@@ -2,6 +2,7 @@ import { Router } from "express";
 import { userController } from "../controllers/user.controller.js";
 import { User } from "../startup/models.js";
 import { asyncHandler } from "../services/asynchandler.js";
+import { checkPermission } from "../middlewares/permission.middleware.js";
 
 const route = Router();
 
@@ -38,6 +39,23 @@ route.post(
 route.get(
     "/get-roles",
     userController.getRoles
+);
+
+route.patch(
+    "/profile",
+    userController.updateProfile
+);
+
+route.get(
+    "/list",
+    checkPermission({ actions: ["Access Settings"] }),
+    userController.listUsers
+);
+
+route.patch(
+    "/:id/role",
+    checkPermission({ actions: ["Access Settings"] }),
+    userController.updateUserRole
 );
 
 route.post("/save-player-id", asyncHandler(async (req, res) => {

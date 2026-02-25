@@ -5,12 +5,26 @@ import { tokenChecker } from './middlewares/token.middleware.js';
 import "./cron/reminder.cron.js";
 import { createClient } from "redis";
 
-export const client = createClient({
-    url: "redis://127.0.0.1:6379"
-});
+const redisUrl = process.env.REDIS_URL || "redis://127.0.0.1:6379";
 
-await client.connect();
-console.log("Redis Connected");
+const noOpRedis = {
+  get: async () => null,
+  set: async () => {},
+  del: async () => {},
+};
+
+let client = noOpRedis;
+
+try {
+  const redisClient = createClient({ url: redisUrl });
+  await redisClient.connect();
+  client = redisClient;
+  console.log("Redis connected");
+} catch (err) {
+  console.warn("Redis not available — running without cache:", err.message);
+}
+
+export { client };
 
 
 const app = express();

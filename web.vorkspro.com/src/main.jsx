@@ -9,7 +9,7 @@ import { TabsProvider } from "./context/TabsContext";
 createRoot(document.getElementById("root")).render(
   <TabsProvider>
     <TooltipProvider>
-      <BrowserRouter basename="/t-portal">
+      <BrowserRouter basename="/demo-portal">
         <App />
         <Toaster
           richColors

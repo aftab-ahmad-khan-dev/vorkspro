@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Loader2, Moon, Plus, Shield, Sun, Trash2 } from "lucide-react";
+import { Loader2, Moon, Plus, Shield, Sun, Trash2, Palette, Building2, Users, Bell } from "lucide-react";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import AddRoleDialog from "@/models/settings/AddRoleDialog";
@@ -20,6 +20,13 @@ import { useTabs } from "@/context/TabsContext";
 import { has } from "lodash";
 import CustomTooltip from "@/components/Tooltip";
 import { apiDelete, apiGet, apiPatch } from "@/interceptor/interceptor";
+import {
+  THEME_KEYS,
+  THEME_LABELS,
+  THEMES_LIGHT,
+  THEMES_DARK,
+  THEME_GLOW,
+} from "@/constants/themes";
 
 function Settings() {
   const [activeTab, setActiveTab] = useState("preferences");
@@ -153,95 +160,21 @@ function Settings() {
     () => localStorage.getItem("themeMode") || "light"
   );
 
-  const lightColors = [
-    {
-      name: "vorkspro",
-      value: "#251A3C",
-      border: "border-[#251A3C]",
-      bg: "#251A3C",
-    },
-    {
-      name: "blue",
-      value: "oklch(65.5% 0.178 247)",
-      border: "border-blue-500",
-      bg: "#ADD8E6",
-    },
-    {
-      name: "purple",
-      value: "oklch(65% 0.15 270)",
-      border: "border-purple-500",
-      bg: "#D8BFD8",
-    },
-    {
-      name: "green",
-      value: "oklch(70% 0.15 140)",
-      border: "border-green-500",
-      bg: "#90EE90",
-    },
-    {
-      name: "orange",
-      value: "oklch(70% 0.2 40)",
-      border: "border-orange-500",
-      bg: "#FFA07A",
-    },
-    {
-      name: "pink",
-      value: "oklch(70% 0.15 330)",
-      border: "border-pink-500",
-      bg: "#FFB6C1",
-    },
-    {
-      name: "teal",
-      value: "oklch(65% 0.15 180)",
-      border: "border-teal-500",
-      bg: "#AFEEEE",
-    },
-  ];
-
-  const darkColors = [
-    {
-      name: "vorkspro",
-      value: "#251A3C",
-      border: "border-[#251A3C]",
-      bg: "#251A3C",
-    },
-    {
-      name: "blue",
-      value: "oklch(45% 0.15 247)",
-      border: "border-blue-500",
-      bg: "#1E90FF",
-    },
-    {
-      name: "purple",
-      value: "oklch(45% 0.15 270)",
-      border: "border-purple-500",
-      bg: "#9370DB",
-    },
-    {
-      name: "green",
-      value: "oklch(50% 0.15 140)",
-      border: "border-green-500",
-      bg: "#3CB371",
-    },
-    {
-      name: "orange",
-      value: "oklch(50% 0.2 40)",
-      border: "border-orange-500",
-      bg: "#FF4500",
-    },
-    {
-      name: "pink",
-      value: "oklch(50% 0.15 330)",
-      border: "border-pink-500",
-      bg: "#FF69B4",
-    },
-    {
-      name: "teal",
-      value: "oklch(45% 0.15 180)",
-      border: "border-teal-500",
-      bg: "#008080",
-    },
-  ];
+  // 10 app themes (Slack/ClickUp style) from constants
+  const lightThemeList = THEME_KEYS.map((key) => ({
+    name: key,
+    value: THEMES_LIGHT[key],
+    label: THEME_LABELS[key],
+    glow: THEME_GLOW[key],
+    bg: THEMES_LIGHT[key],
+  }));
+  const darkThemeList = THEME_KEYS.map((key) => ({
+    name: key,
+    value: THEMES_DARK[key],
+    label: THEME_LABELS[key],
+    glow: THEME_GLOW[key],
+    bg: THEMES_DARK[key],
+  }));
   const items = [
     {
       key: "emailNotifications",
@@ -272,15 +205,11 @@ function Settings() {
 
   const [lightColor, setLightColor] = useState(() => {
     const saved = localStorage.getItem("lightColor");
-    return lightColors.find((color) => color.name === saved)
-      ? saved
-      : lightColors[0].name;
+    return THEME_KEYS.includes(saved) ? saved : "vorkspro";
   });
   const [darkColor, setDarkColor] = useState(() => {
     const saved = localStorage.getItem("darkColor");
-    return darkColors.find((color) => color.name === saved)
-      ? saved
-      : darkColors[0].name;
+    return THEME_KEYS.includes(saved) ? saved : "vorkspro";
   });
 
   // Apply saved theme and colors on mount and updates
@@ -294,37 +223,15 @@ function Settings() {
       }
 
       // Apply light color only if in light mode
-      if (themeMode === "light") {
-        const selectedLightColor = lightColors.find(
-          (color) => color.name === lightColor
-        );
-        if (selectedLightColor) {
-          document.documentElement.style.setProperty(
-            "--primary",
-            selectedLightColor.value
-          );
-          document.documentElement.style.setProperty(
-            "--button",
-            selectedLightColor.value
-          );
-        }
+      if (themeMode === "light" && THEMES_LIGHT[lightColor]) {
+        document.documentElement.style.setProperty("--primary", THEMES_LIGHT[lightColor]);
+        document.documentElement.style.setProperty("--button", THEMES_LIGHT[lightColor]);
       }
 
       // Apply dark color only if in dark mode
-      if (themeMode === "dark") {
-        const selectedDarkColor = darkColors.find(
-          (color) => color.name === darkColor
-        );
-        if (selectedDarkColor) {
-          document.documentElement.style.setProperty(
-            "--primary",
-            selectedDarkColor.value
-          );
-          document.documentElement.style.setProperty(
-            "--button",
-            selectedDarkColor.value
-          );
-        }
+      if (themeMode === "dark" && THEMES_DARK[darkColor]) {
+        document.documentElement.style.setProperty("--primary", THEMES_DARK[darkColor]);
+        document.documentElement.style.setProperty("--button", THEMES_DARK[darkColor]);
       }
     }
   }, [themeMode, lightColor, darkColor]);
@@ -457,19 +364,12 @@ function Settings() {
   // }
 
   const handleColorChange = (colorName, mode) => {
-    const colors = mode === "light" ? lightColors : darkColors;
-    const selectedColor = colors.find((color) => color.name === colorName);
-
-    if (selectedColor && typeof window !== "undefined") {
-      const root = document.documentElement;
-
-      // ⚡ Force update after theme activation
+    const value = mode === "light" ? THEMES_LIGHT[colorName] : THEMES_DARK[colorName];
+    if (value && typeof window !== "undefined") {
       requestAnimationFrame(() => {
-        root.style.setProperty("--primary", selectedColor.value);
-        root.style.setProperty("--button", selectedColor.value);
+        document.documentElement.style.setProperty("--primary", value);
+        document.documentElement.style.setProperty("--button", value);
       });
-
-      // ✅ Persist selection
       if (mode === "light") {
         setLightColor(colorName);
         localStorage.setItem("lightColor", colorName);
@@ -504,30 +404,53 @@ function Settings() {
     localStorage.setItem("activeRoute", activeRoute);
   }, []);
 
+  const settingsNav = [
+    allowedTabs.includes("preferences") && { id: "preferences", label: "Appearance", icon: Palette },
+    allowedTabs.includes("company") && { id: "company", label: "Company Info", icon: Building2 },
+    allowedTabs.includes("roles") && { id: "roles", label: "Roles & Permissions", icon: Users },
+  ].filter(Boolean);
+
   return (
     <div className="min-h-screen w-full text-[var(--foreground)] transition-colors duration-300 ease-in-out pb-8">
-      <div className="flex justify-between items-center mb-8">
-        <div className="w-full">
-          <h1 className="text-3xl font-bold text-[var(--foreground)]">
-            Settings
-          </h1>
-          <p className="mt-1 text-[var(--muted-foreground)]">
-            Manage system preferences and configurations
-          </p>
-        </div>
+      {/* Notion/ClickUp style: header + sidebar + content */}
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold text-[var(--foreground)]">
+          Settings
+        </h1>
+        <p className="mt-1 text-sm text-[var(--muted-foreground)]">
+          Manage your workspace preferences, appearance, and team permissions
+        </p>
       </div>
 
-      {/* Debug Element to Verify Color Application */}
-      <div
-        className="debug-primary w-10 h-10 mb-4"
-        title="Debug: Shows --primary color"
-      ></div>
+      <div className="flex flex-col lg:flex-row gap-8">
+        {/* Sidebar nav (Notion/ClickUp style) */}
+        {hasPermission("Settings", "Access Settings") && settingsNav.length >= 2 && (
+          <nav className="lg:w-56 flex-shrink-0">
+            <div className="sticky top-24 space-y-0.5 rounded-xl border border-[var(--border)] bg-[var(--background)]/60 p-1.5">
+              {settingsNav.map(({ id, label, icon: Icon }) => (
+                <button
+                  key={id}
+                  type="button"
+                  onClick={() => setActiveTab(id)}
+                  className={`w-full flex items-center gap-3 rounded-lg px-3 py-2.5 text-left text-sm font-medium transition-colors ${
+                    activeTab === id
+                      ? "bg-[var(--primary)]/15 text-[var(--primary)]"
+                      : "text-[var(--muted-foreground)] hover:bg-[var(--foreground)]/5 hover:text-[var(--foreground)]"
+                  }`}
+                >
+                  {Icon && <Icon className="h-4 w-4 shrink-0" />}
+                  {label}
+                </button>
+              ))}
+            </div>
+          </nav>
+        )}
 
-      {/* ───── Tabs Section ───── */}
+        <div className="flex-1 min-w-0">
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         {hasPermission("Settings", "Access Settings") &&
           allowedTabs.length >= 2 && (
-            <TabsList className="hidden sm:flex mb-6 rounded-2xl bg-[var(--foreground)]/10">
+            <TabsList className="hidden lg:flex mb-6 rounded-2xl bg-[var(--foreground)]/10">
               {allowedTabs.includes("preferences") && (
                 <TabsTrigger
                   value="preferences"
@@ -970,11 +893,11 @@ function Settings() {
                     {themeMode === "light" ? "Light" : "Dark"} Mode Accent Color
                   </p>
                   <p className="text-xs text-[var(--muted-foreground)] mb-4">
-                    Choose your preferred accent color.
+                    Choose an accent theme for the whole app. Neon options add a vibrant touch.
                   </p>
 
-                  <div className="flex flex-wrap gap-3">
-                    {(themeMode === "light" ? lightColors : darkColors).map(
+                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
+                    {(themeMode === "light" ? lightThemeList : darkThemeList).map(
                       (color) => {
                         const isActive =
                           color.name ===
@@ -985,41 +908,33 @@ function Settings() {
                             onClick={() =>
                               handleColorChange(color.name, themeMode)
                             }
-                            whileHover={{ scale: 1.1 }}
-                            whileTap={{ scale: 0.95 }}
-                            className={`relative w-14 h-14 rounded-xl cursor-pointer border-2 transition-all duration-300 ${isActive
-                              ? "border-[var(--primary)] shadow-lg scale-105"
+                            whileHover={{ y: -2, scale: 1.02 }}
+                            whileTap={{ scale: 0.98 }}
+                            className={`relative rounded-xl cursor-pointer border-2 transition-all duration-300 overflow-hidden ${isActive
+                              ? "border-[var(--primary)] shadow-lg ring-2 ring-[var(--primary)]/30"
                               : "border-[var(--border)] hover:border-[var(--primary)]/50"
                               }`}
-                            style={{
-                              background: color.bg,
-                              boxShadow: isActive
-                                ? `0 0 20px ${color.glow || color.bg}80`
-                                : "none",
-                            }}
                           >
+                            <div
+                              className="h-16 w-full"
+                              style={{
+                                background: color.bg,
+                                boxShadow: isActive
+                                  ? `0 0 24px ${color.glow}66, inset 0 1px 0 rgba(255,255,255,0.2)`
+                                  : "none",
+                              }}
+                            />
+                            <div className="p-2.5 bg-[var(--background)]/80 text-left">
+                              <span className="text-xs font-medium text-[var(--foreground)]">
+                                {color.label}
+                              </span>
+                            </div>
                             {isActive && (
-                              <motion.div
-                                initial={{ scale: 0 }}
-                                animate={{ scale: 1 }}
-                                className="absolute inset-0 flex items-center justify-center"
-                              >
-                                <div className="w-6 h-6 bg-white/90 rounded-full flex items-center justify-center">
-                                  <svg
-                                    className="w-4 h-4 text-[var(--primary)]"
-                                    fill="none"
-                                    viewBox="0 0 24 24"
-                                    stroke="currentColor"
-                                    strokeWidth="3"
-                                  >
-                                    <path
-                                      strokeLinecap="round"
-                                      strokeLinejoin="round"
-                                      d="M5 13l4 4L19 7"
-                                    />
-                                  </svg>
-                                </div>
-                              </motion.div>
+                              <div className="absolute top-2 right-2 w-5 h-5 rounded-full bg-white/95 flex items-center justify-center shadow">
+                                <svg className="w-3 h-3 text-[var(--primary)]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="3">
+                                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                                </svg>
+                              </div>
                             )}
                           </motion.button>
                         );
@@ -1032,6 +947,8 @@ function Settings() {
           </motion.div>
         </TabsContent>
       </Tabs>
+        </div>
+      </div>
 
       <GlobalDialog
         className={'w-4xl h-[800px]'}

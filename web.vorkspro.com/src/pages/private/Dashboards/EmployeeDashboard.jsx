@@ -10,32 +10,32 @@ import React from "react";
 export default function EmployeeDashboard() {
   return (
     <div className="min-h-screen bg-background sm:p-6 ">
-      {/* Top Stats */}
+      {/* Top Stats — use theme color */}
       <div className="mb-6 grid gap-4 md:grid-cols-4">
         <StatCard
           title="Pending Tasks"
           value="2"
-          iconBg="bg-gradient-to-br from-purple-500 via-indigo-500 to-blue-500"
+          iconBg="bg-[var(--primary)]"
           Icon={SquareCheckBig}
         />
         <StatCard
           title="Completed Tasks"
           value="1"
           sub="↑ 18% vs last month"
-          subColor="text-green-400"
-          iconBg="bg-gradient-to-br from-green-600 to-green-400"
+          subColor="text-green-500 dark:text-green-400"
+          iconBg="bg-[var(--primary)]"
           Icon={TrendingUp}
         />
         <StatCard
           title="Upcoming Meetings"
           value="2"
-          iconBg="bg-gradient-to-br from-sky-600 to-sky-400"
+          iconBg="bg-[var(--primary)]"
           Icon={Calendar}
         />
         <StatCard
           title="Work Hours Today"
           value="9h"
-          iconBg="bg-gradient-to-br from-orange-600 to-orange-400"
+          iconBg="bg-[var(--primary)]"
           Icon={Clock}
         />
       </div>
@@ -50,20 +50,20 @@ export default function EmployeeDashboard() {
           <SummaryCard
             label="Check-in Time"
             value="09:00"
-            border="border-purple-500"
-            bg="from-purple-500/10 via-purple-500/10 to-transparent"
+            border="border-[var(--primary)]"
+            bg="from-[var(--primary)]/10 via-[var(--primary)]/10 to-transparent"
           />
           <SummaryCard
             label="Check-out Time"
             value="18:00"
-            border="border-green-500"
-            bg="from-green-500/10  via-green-500/10 to-transparent"
+            border="border-[var(--primary)]"
+            bg="from-[var(--primary)]/10 via-[var(--primary)]/10 to-transparent"
           />
           <SummaryCard
             label="Status"
             value="Present"
-            border="border-blue-500"
-            bg="from-blue-500/10  via-blue-500/10 to-transparent"
+            border="border-[var(--primary)]"
+            bg="from-[var(--primary)]/10 via-[var(--primary)]/10 to-transparent"
           />
         </div>
       </div>
@@ -132,7 +132,7 @@ export default function EmployeeDashboard() {
             <div className="flex gap-6">
               {/* Date */}
               <div className="text-center">
-                <p className="text-sm font-semibold text-purple-400">Jan 22</p>
+                <p className="text-sm font-semibold text-[var(--primary)]">Jan 22</p>
                 <p className="text-xs text-muted-foreground">10:00</p>
               </div>
 
@@ -156,7 +156,7 @@ export default function EmployeeDashboard() {
             <div className="flex gap-6">
               {/* Date */}
               <div className="text-center">
-                <p className="text-sm font-semibold text-purple-400">Jan 23</p>
+                <p className="text-sm font-semibold text-[var(--primary)]">Jan 23</p>
                 <p className="text-xs text-muted-foreground">14:00</p>
               </div>
 
@@ -178,23 +178,18 @@ export default function EmployeeDashboard() {
 
         {/* Action Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 text-center gap-5">
-          {/* Request Leave */}
-          <button className="rounded-2xl mb-1 cursor-pointer hover:from-purple-600  hover:via-indigo-600 ease-in-out duration-500 hover:to-blue-600 bg-gradient-to-br from-purple-500 via-indigo-500 to-blue-500 p-6 text-white shadow-lg">
-            <Calendar size={32} className="mb-4" />
+          <button className="rounded-2xl mb-1 cursor-pointer bg-[var(--primary)] hover:opacity-90 transition-opacity p-6 text-white shadow-lg">
+            <Calendar size={32} className="mb-4 mx-auto" />
             <h3 className="text-lg font-semibold">Request Leave</h3>
             <p className="text-sm opacity-90">Apply for time off</p>
           </button>
-
-          {/* Mark Attendance */}
-          <button className="rounded-2xl mb-1 bg-gradient-to-br cursor-pointer hover:from-green-600 hover:to-emerald-600 ease-in-out duration-500 from-green-500 to-emerald-500 p-6 text-white shadow-lg">
-            <Clock size={32} className="mb-4" />
+          <button className="rounded-2xl mb-1 cursor-pointer bg-[var(--primary)] hover:opacity-90 transition-opacity p-6 text-white shadow-lg">
+            <Clock size={32} className="mb-4 mx-auto" />
             <h3 className="text-lg font-semibold">Mark Attendance</h3>
             <p className="text-sm opacity-90">Check in/out</p>
           </button>
-
-          {/* View Tasks */}
-          <button className="rounded-2xl mb-1 bg-gradient-to-br cursor-pointer hover:from-sky-600 hover:to-blue-600 ease-in-out duration-500 from-sky-500 to-blue-500 p-6 text-white shadow-lg">
-            <CheckSquare size={32} className="mb-4" />
+          <button className="rounded-2xl mb-1 cursor-pointer bg-[var(--primary)] hover:opacity-90 transition-opacity p-6 text-white shadow-lg">
+            <CheckSquare size={32} className="mb-4 mx-auto" />
             <h3 className="text-lg font-semibold">View Tasks</h3>
             <p className="text-sm opacity-90">Manage your tasks</p>
           </button>
@@ -240,7 +235,7 @@ function ProjectCard({ title, client, progress, due }) {
           <h3 className="font-semibold text-foreground">{title}</h3>
           <p className="text-sm text-muted-foreground">{client}</p>
         </div>
-        <span className="rounded-full bg-green-500/20 px-3 py-1 text-xs text-green-500">
+        <span className="rounded-full bg-[var(--primary)]/20 px-3 py-1 text-xs text-[var(--primary)]">
           active
         </span>
       </div>
@@ -248,7 +243,7 @@ function ProjectCard({ title, client, progress, due }) {
       <div className="mt-4">
         <div className="h-2 w-full rounded bg-border">
           <div
-            className="h-2 rounded bg-gradient-to-r from-purple-500 to-blue-500"
+            className="h-2 rounded bg-[var(--primary)]"
             style={{ width: `${progress}%` }}
           />
         </div>

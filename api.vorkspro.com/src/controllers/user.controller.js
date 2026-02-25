@@ -189,37 +189,65 @@ export const userController = {
         const cacheKey = `user:${_id}:role`; // unique Redis key per user
 
         // 1️⃣ Check Redis first
-        const cachedRole = await client.get(cacheKey);
-
-        if (cachedRole) {
-            console.log("Role served from Redis cache");
-
+        const cached = await client.get(cacheKey);
+        if (cached) {
+            const parsed = JSON.parse(cached);
             return generateApiResponse(
                 res,
                 StatusCodes.OK,
                 true,
                 "Roles fetched successfully (cache)",
-                { role: JSON.parse(cachedRole) }
+                { role: parsed.role, themePreference: parsed.themePreference || "neon-purple" }
             );
         }
 
         // 2️⃣ Fetch from DB if not in cache
-        console.log("Role served from database");
         const user = await User.findById(_id).populate('role');
+        if (!user) {
+            return generateApiResponse(res, StatusCodes.NOT_FOUND, false, "User not found", null);
+        }
 
-        // 3️⃣ Store role in Redis (TTL 10 minutes)
-        await client.set(
-            cacheKey,
-            JSON.stringify(user.role),
-            { EX: 600 } // 600 seconds = 10 minutes
-        );
+        // Build role payload: role doc + isSuperAdmin so frontend can show correct sidebar per user
+        const rolePayload = user.role
+            ? { ...user.role.toObject(), isSuperAdmin: !!user.isSuperAdmin }
+            : { isSuperAdmin: !!user.isSuperAdmin, modulePermissions: [] };
+        const themePreference = user.themePreference || "neon-purple";
+
+        // 3️⃣ Store in Redis (TTL 10 minutes)
+        await client.set(cacheKey, JSON.stringify({ role: rolePayload, themePreference }), { EX: 600 });
 
         return generateApiResponse(
             res,
             StatusCodes.OK,
             true,
             "Roles fetched successfully",
-            { role: user.role }
+            { role: rolePayload, themePreference }
+        );
+    }),
+
+    /** Update current user profile (e.g. theme preference). Body: { themePreference } */
+    updateProfile: asyncHandler(async (req, res) => {
+        const { _id } = req.user;
+        const { themePreference } = req.body;
+        if (themePreference && !["light", "dark", "neon-purple"].includes(themePreference)) {
+            return generateApiResponse(res, StatusCodes.BAD_REQUEST, false, "Invalid theme preference");
+        }
+        const user = await User.findById(_id);
+        if (!user) {
+            return generateApiResponse(res, StatusCodes.NOT_FOUND, false, "User not found");
+        }
+        if (themePreference) {
+            user.themePreference = themePreference;
+            await user.save();
+            const cacheKey = `user:${_id}:role`;
+            await client.del(cacheKey).catch(() => {});
+        }
+        return generateApiResponse(
+            res,
+            StatusCodes.OK,
+            true,
+            "Profile updated successfully",
+            { themePreference: user.themePreference || "neon-purple" }
         );
     }),
 
@@ -268,6 +296,42 @@ export const userController = {
                 rate: config?.usdToPkrRate || 0,
                 lastUpdated: config?.lastUpdated 
             }
+        );
+    }),
+
+    /** List all users with role populated — for Settings / Role assignment (Access Settings only) */
+    listUsers: asyncHandler(async (req, res) => {
+        const users = await User.find()
+            .populate("role", "name description isActive")
+            .select("firstName lastName email username role isActive")
+            .lean();
+        return generateApiResponse(
+            res,
+            StatusCodes.OK,
+            true,
+            "Users fetched successfully",
+            { users }
+        );
+    }),
+
+    /** Assign role to user — body: { role: roleId } or { role: null } to unassign (Access Settings only) */
+    updateUserRole: asyncHandler(async (req, res) => {
+        const { id } = req.params;
+        const { role: roleId } = req.body;
+        const user = await User.findByIdAndUpdate(
+            id,
+            { role: roleId ?? null },
+            { new: true }
+        ).populate("role", "name description isActive");
+        if (!user) {
+            return generateApiResponse(res, StatusCodes.NOT_FOUND, false, "User not found");
+        }
+        return generateApiResponse(
+            res,
+            StatusCodes.OK,
+            true,
+            "User role updated successfully",
+            { user }
         );
     }),
 

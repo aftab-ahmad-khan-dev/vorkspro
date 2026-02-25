@@ -54,7 +54,7 @@ export default function Dashboard() {
               +8% <span className="text-muted-foreground">vs last month</span>
             </p>
           </div>
-          <div className="bg-gradient-to-br from-purple-500 via-indigo-500 to-blue-400 flex items-center justify-center h-12 w-12 text-white rounded-lg">
+          <div className="bg-[var(--primary)] flex items-center justify-center h-12 w-12 text-white rounded-lg">
             <Users />
           </div>
         </div>
@@ -82,7 +82,7 @@ export default function Dashboard() {
               +15% <span className="text-muted-foreground">vs last month</span>
             </p>
           </div>
-          <div className="bg-gradient-to-br from-green-500 to-emerald-500 flex items-center justify-center h-12 w-12 text-white rounded-lg">
+          <div className="bg-[var(--primary)] flex items-center justify-center h-12 w-12 text-white rounded-lg">
             <DollarSign />
           </div>
         </div>

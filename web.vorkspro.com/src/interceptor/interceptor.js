@@ -60,7 +60,7 @@ const fetchWithRefresh = async (url, options, retry = true) => {
 
   if (!retry) {
     localStorage.clear();
-    window.location.href = "/t-portal/login";
+    window.location.href = "/demo-portal/login";
     throw new Error("Unauthorized");
   }
 
@@ -87,7 +87,7 @@ const fetchWithRefresh = async (url, options, retry = true) => {
   } catch (err) {
     processQueue(err, null);
     localStorage.clear();
-    window.location.href = "/t-portal/login";
+    window.location.href = "/demo-portal/login";
     throw err;
   } finally {
     isRefreshing = false;

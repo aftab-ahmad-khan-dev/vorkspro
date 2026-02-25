@@ -58,6 +58,11 @@
   --color-sidebar-ring: var(--sidebar-ring);
 }
 
+/* Smooth scroll for anchor links (e.g. landing nav) */
+html {
+  scroll-behavior: smooth;
+}
+
 @layer base {
   :root {
     --radius: 0.625rem;
@@ -146,6 +151,28 @@
     --sidebar-border: oklch(1 0 0 / 10%);
     --sidebar-ring: oklch(0.556 0 0);
   }
+
+  /* Neon Purple & Indigo – lighter dashboard theme (sidebar, topbar, content) */
+  .theme-neon-purple.dark,
+  .theme-neon-purple {
+    --background: #1e1b3d;
+    --foreground: #e2e8f0;
+    --button: #a855f7;
+    --primary: #a855f7;
+    --card: rgba(55, 48, 107, 0.5);
+    --card-foreground: #e2e8f0;
+    --border: rgba(168, 85, 247, 0.28);
+    --input: rgba(99, 102, 241, 0.25);
+    --muted: rgba(55, 48, 107, 0.6);
+    --muted-foreground: #a5b4fc;
+    --sidebar: #252038;
+    --sidebar-foreground: #e2e8f0;
+    --sidebar-primary: #c084fc;
+    --sidebar-accent: rgba(168, 85, 247, 0.18);
+    --sidebar-accent-foreground: #e2e8f0;
+    --sidebar-border: rgba(168, 85, 247, 0.25);
+    --sidebar-ring: rgba(168, 85, 247, 0.45);
+  }
 }
 
 
@@ -184,6 +211,13 @@
 
 .dark ::-webkit-scrollbar-thumb:hover {
   background-color: #64748b;
+}
+
+.theme-neon-purple ::-webkit-scrollbar-thumb {
+  background-color: rgba(168, 85, 247, 0.4);
+}
+.theme-neon-purple ::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(168, 85, 247, 0.6);
 }
 
 /* Make calendar arrows always visible */
