@@ -707,7 +707,7 @@ function Client() {
                                 className="bg-transparent hover:text-[var(--button)] text-[var(--button)] hover:bg-[var(--button)]/20"
                                 size="sm"
                                 onClick={() =>
-                                  navigate(`/clients/client-detail/${client._id}`)
+                                  navigate(`/app/clients/client-detail/${client._id}`)
                                 }
                               >
                                 <Eye size={16} />

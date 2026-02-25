@@ -64,8 +64,8 @@
     --background: oklch(1 0 0);
     --foreground: oklch(0.145 0 0);
     --gradient: oklch(39.344% 0.12162 261.647 / 0.568);
-    /* Primary / Button */
-    --button: oklch(65.5% 0.178 247);
+    /* Primary / Button - Vorks Pro theme #251A3C */
+    --button: #251A3C;
     /* Vibrant blue-violet */
     --button-text: oklch(98% 0.03 250);
     /* Soft white */
@@ -77,7 +77,7 @@
     --card-foreground: oklch(0.145 0 0);
     --popover: oklch(1 0 0);
     --popover-foreground: oklch(0.145 0 0);
-    --primary: oklch(0.205 0 0);
+    --primary: #251A3C;
     --primary-foreground: oklch(0.985 0 0);
     --secondary: oklch(0.97 0 0);
     --secondary-foreground: oklch(0.205 0 0);
@@ -108,9 +108,8 @@
     --background: oklch(18.7% 0.039 264.7);
     --foreground: oklch(0.985 0 0);
     --gradient: oklch(30.847% 0.07013 261.301);
-    /* Primary / Button */
-    /* blue-600 → blue-400 */
-    --button: oklch(45% 0.15 247);
+    /* Primary / Button - Vorks Pro theme */
+    --button: #251A3C;
     /* Deep, luminous indigo */
     --button-text: oklch(98% 0.02 250);
     /* Off-white text */
@@ -121,8 +120,8 @@
     --card-foreground: oklch(0.985 0 0);
     --popover: oklch(0.205 0 0);
     --popover-foreground: oklch(0.985 0 0);
-    --primary: oklch(0.922 0 0);
-    --primary-foreground: oklch(0.205 0 0);
+    --primary: #251A3C;
+    --primary-foreground: oklch(0.985 0 0);
     --secondary: oklch(0.269 0 0);
     --secondary-foreground: oklch(0.985 0 0);
     --muted: oklch(0.269 0 0);

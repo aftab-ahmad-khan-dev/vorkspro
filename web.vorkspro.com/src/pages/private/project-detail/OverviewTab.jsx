@@ -46,7 +46,7 @@ export default function OverviewTab({ project }) {
         <div className="lg:col-span-2 border border-[var(--border)] rounded-2xl p-6 ">
           <h3 className="text-xl text-[var(--foreground)] font-bold mb-6">Project Details</h3>
           <div className="grid grid-cols-2 gap-8">
-            <Detail onClick={() => navigate(`/clients/client-detail/${project.client._id}`)} label="Client" value={project.client?.name || "N/A"} />
+            <Detail onClick={() => navigate(`/app/clients/client-detail/${project.client._id}`)} label="Client" value={project.client?.name || "N/A"} />
             <Detail label="Deadline" value={formatDate(project.endDate)} />
             <Detail label="Project Manager" value={`${project.projectManager?.firstName || ""} ${project.projectManager?.lastName || ""}`.trim() || "N/A"} />
             <Detail label="Start Date" value={formatDate(project.startDate)} />

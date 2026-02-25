@@ -28,8 +28,7 @@ import {
 import { cn } from "@/lib/utils";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import logoLight from "@/assets/nlslightlogo.png";
-import logoDark from "@/assets/nlsLogo.png";
+import logo from "@/assets/vorkspro-logo.svg";
 import { useTabs } from "@/context/TabsContext";
 
 function Sidebar({ isSidebarOpen, toggleSidebar, isMobile }) {
@@ -117,8 +116,8 @@ function Sidebar({ isSidebarOpen, toggleSidebar, isMobile }) {
               <div className="h-9 w-40 bg-gray-200 dark:bg-slate-700 rounded animate-pulse" />
             ) : (
               <img
-                src={isDark ? logoDark : logoLight}
-                alt="Company Logo"
+                src={logo}
+                alt="Vorks Pro"
                 className="h-8 w-40 md:h-9 object-contain"
               />
             )}
@@ -164,8 +163,8 @@ function Sidebar({ isSidebarOpen, toggleSidebar, isMobile }) {
               <NavItem
                 icon={<LayoutDashboard size={16} />}
                 label="Dashboard"
-                link="/dashboard"
-                active={location.pathname === "/dashboard"}
+                link="/app/dashboard"
+                active={location.pathname === "/app/dashboard"}
                 isSidebarOpen={isSidebarOpen}
               />
             )}
@@ -178,27 +177,27 @@ function Sidebar({ isSidebarOpen, toggleSidebar, isMobile }) {
                 menuKey="employee"
                 open={openMenus.includes("employee")}
                 onToggle={() => toggleMenu("employee")}
-                isActive={location.pathname.startsWith("/employee") ||
-                  ["employees", "attendance", "performance", "payroll"].some(p => location.pathname.startsWith(`/${p}`))}
+                isActive={location.pathname.startsWith("/app/employee") ||
+                  ["employees", "attendance", "performance", "payroll"].some(p => location.pathname.startsWith(`/app/${p}`))}
                 items={[
                   hasPermission("Employees") && {
                     label: "Employees",
-                    link: "/employees",
+                    link: "/app/employees",
                     icon: <Users size={16} />,
                   },
                   hasPermission("Attendance") && {
                     label: "Attendance",
-                    link: "/attendance",
+                    link: "/app/attendance",
                     icon: <Calendar size={16} />,
                   },
                   hasPermission("Performance") && {
                     label: "Performance",
-                    link: "/performance",
+                    link: "/app/performance",
                     icon: <Star size={16} />,
                   },
                   hasPermission("Payroll") && {
                     label: "Payroll",
-                    link: "/payroll",
+                    link: "/app/payroll",
                     icon: <DollarSign size={16} />,
                   },
                 ].filter(Boolean)}
@@ -215,27 +214,27 @@ function Sidebar({ isSidebarOpen, toggleSidebar, isMobile }) {
                 menuKey="project"
                 open={openMenus.includes("project")}
                 onToggle={() => toggleMenu("project")}
-                isActive={location.pathname.startsWith("/project") ||
-                  ["projects", "milestones"].some(p => location.pathname.startsWith(`/${p}`))}
+                isActive={location.pathname.startsWith("/app/project") ||
+                  ["projects", "milestones"].some(p => location.pathname.startsWith(`/app/${p}`))}
                 items={[
                   hasPermission("Projects") && {
                     label: "Projects",
-                    link: "/projects",
+                    link: "/app/projects",
                     icon: <Briefcase size={16} />,
                   },
                   hasPermission("Keys & Credentials") && {
                     label: "Key & Credentials",
-                    link: "/credentials",
+                    link: "/app/credentials",
                     icon: <Key size={16} />,
                   },
                   hasPermission("Milestones") && {
                     label: "Milestones",
-                    link: "/milestones",
+                    link: "/app/milestones",
                     icon: <Flag size={16} />,
                   },
                   hasPermission("Blockages") && {
                     label: "Blockages",
-                    link: "/blockages",
+                    link: "/app/blockages",
                     icon: <Construction size={16} />,
                   },
                 ].filter(Boolean)}
@@ -246,31 +245,31 @@ function Sidebar({ isSidebarOpen, toggleSidebar, isMobile }) {
 
             {/* Standalone Modules */}
             {hasPermission("Client Management") && (
-              <NavItem icon={<Briefcase size={16} />} label="Client Management" link="/client-management" active={location.pathname.startsWith("/client-management")} isSidebarOpen={isSidebarOpen} />
+              <NavItem icon={<Briefcase size={16} />} label="Client Management" link="/app/client-management" active={location.pathname.startsWith("/app/client-management")} isSidebarOpen={isSidebarOpen} />
             )}
             {hasPermission("Follow-up-Hub") && (
-              <NavItem icon={<MessageSquare size={16} />} label="Follow-up Hub" link="/follow-up-hub" active={location.pathname.startsWith("/follow-up-hub")} isSidebarOpen={isSidebarOpen} />
+              <NavItem icon={<MessageSquare size={16} />} label="Follow-up Hub" link="/app/follow-up-hub" active={location.pathname.startsWith("/app/follow-up-hub")} isSidebarOpen={isSidebarOpen} />
             )}
             {hasPermission("Finance") && (
-              <NavItem icon={<DollarSign size={16} />} label="Finance" link="/finance" active={location.pathname.startsWith("/finance")} isSidebarOpen={isSidebarOpen} />
+              <NavItem icon={<DollarSign size={16} />} label="Finance" link="/app/finance" active={location.pathname.startsWith("/app/finance")} isSidebarOpen={isSidebarOpen} />
             )}
             {hasPermission("HR Management") && (
-              <NavItem icon={<UserCheck size={16} />} label="HR Management" link="/hr-management" active={location.pathname.startsWith("/hr-management")} isSidebarOpen={isSidebarOpen} />
+              <NavItem icon={<UserCheck size={16} />} label="HR Management" link="/app/hr-management" active={location.pathname.startsWith("/app/hr-management")} isSidebarOpen={isSidebarOpen} />
             )}
             {hasPermission("My To-Do Hub") && (
-              <NavItem icon={<SquareCheckBig size={16} />} label="My To-Do Hub" link="/my-todo-list" active={location.pathname.startsWith("/my-todo-list")} isSidebarOpen={isSidebarOpen} />
+              <NavItem icon={<SquareCheckBig size={16} />} label="My To-Do Hub" link="/app/my-todo-list" active={location.pathname.startsWith("/app/my-todo-list")} isSidebarOpen={isSidebarOpen} />
             )}
             {hasPermission("Reports & Analytics") && (
-              <NavItem icon={<BarChart3 size={16} />} label="Reports & Analytics" link="/reports" active={location.pathname.startsWith("/reports")} isSidebarOpen={isSidebarOpen} />
+              <NavItem icon={<BarChart3 size={16} />} label="Reports & Analytics" link="/app/reports" active={location.pathname.startsWith("/app/reports")} isSidebarOpen={isSidebarOpen} />
             )}
             {hasPermission("Admin & Assets") && (
-              <NavItem icon={<Package size={16} />} label="Admin & Assets" link="/admin-&-assets" active={location.pathname.startsWith("/admin-&-assets")} isSidebarOpen={isSidebarOpen} />
+              <NavItem icon={<Package size={16} />} label="Admin & Assets" link="/app/admin-&-assets" active={location.pathname.startsWith("/app/admin-&-assets")} isSidebarOpen={isSidebarOpen} />
             )}
             {hasPermission("Knowledge Base") && (
-              <NavItem icon={<BookOpen size={16} />} label="Knowledge Base" link="/knowledge-base" active={location.pathname.startsWith("/knowledge-base")} isSidebarOpen={isSidebarOpen} />
+              <NavItem icon={<BookOpen size={16} />} label="Knowledge Base" link="/app/knowledge-base" active={location.pathname.startsWith("/app/knowledge-base")} isSidebarOpen={isSidebarOpen} />
             )}
             {hasPermission("Announcements") && (
-              <NavItem icon={<Bell size={16} />} label="Announcements" link="/announcements" active={location.pathname.startsWith("/announcements")} isSidebarOpen={isSidebarOpen} />
+              <NavItem icon={<Bell size={16} />} label="Announcements" link="/app/announcements" active={location.pathname.startsWith("/app/announcements")} isSidebarOpen={isSidebarOpen} />
             )}
           </>
         )}
@@ -296,8 +295,8 @@ function Sidebar({ isSidebarOpen, toggleSidebar, isMobile }) {
               <NavItem
                 icon={<ClipboardList size={16} />}
                 label="Categories"
-                link="/categories"
-                active={location.pathname.startsWith("/categories")}
+                link="/app/categories"
+                active={location.pathname.startsWith("/app/categories")}
                 isSidebarOpen={isSidebarOpen}
               />
             )}
@@ -305,27 +304,23 @@ function Sidebar({ isSidebarOpen, toggleSidebar, isMobile }) {
             <NavItem
               icon={<Settings size={16} />}
               label="Settings"
-              link="/settings"
-              active={location.pathname.startsWith("/settings")}
+              link="/app/settings"
+              active={location.pathname.startsWith("/app/settings")}
               isSidebarOpen={isSidebarOpen}
             />
 
             <NavItem
               icon={<User size={16} />}
               label="Profile"
-              link="/profile"
-              active={location.pathname.startsWith("/profile")}
+              link="/app/profile"
+              active={location.pathname.startsWith("/app/profile")}
               isSidebarOpen={isSidebarOpen}
             />
 
             <NavItem
               onClick={() => {
                 localStorage.removeItem("token");
-                localStorage.removeItem("oneSignalPlayerId");
                 localStorage.removeItem("refreshToken");
-                window.OneSignal?.push(() => {
-                  window.OneSignal.removeExternalUserId?.();
-                });
                 navigate("/login", { replace: true });
               }}
               icon={<LogOut size={16} />}

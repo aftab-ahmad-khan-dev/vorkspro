@@ -970,7 +970,7 @@ function Project() {
                       <Button
                         className="flex-1 border-button sm:flex-none "
                         onClick={() =>
-                          navigate(`/projects/project-detail/${project._id}`)
+                          navigate(`/app/projects/project-detail/${project._id}`)
                         }
                       >
                         View detail

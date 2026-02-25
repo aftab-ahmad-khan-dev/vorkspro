@@ -1,7 +1,7 @@
-export const ProjectName = "NLS Portal";
-export const DB_NAME = "nlsportal";
-export const TEST_DB_NAME = "nlsportaltest";
-export const DEV_DB_NAME = "nlsportaldev";
+export const ProjectName = "Vorks Pro";
+export const DB_NAME = "VorksPro";
+export const TEST_DB_NAME = "VorksProTest";
+export const DEV_DB_NAME = "VorksPro";
 
 const ModelNames = {
   Achievement: { model: "Achievement", db: "achievements" },

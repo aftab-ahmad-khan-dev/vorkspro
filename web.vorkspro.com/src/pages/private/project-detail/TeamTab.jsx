@@ -74,7 +74,7 @@ export default function TeamTab({ project, refresh }) {
           {project.teamMembers.map((member) => (
             <div
               key={member._id}
-              onClick={() => navigate(`/employees/employee-detail/${member._id}`)}
+              onClick={() => navigate(`/app/employees/employee-detail/${member._id}`)}
               className="flex items-center justify-between p-5 border border-[var(--border)] rounded-xl hover:shadow-lg transition cursor-pointer"
             >
               <div className="flex items-center gap-4">

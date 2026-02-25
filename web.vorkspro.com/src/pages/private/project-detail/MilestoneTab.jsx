@@ -203,7 +203,7 @@
 //           {...provided.draggableProps}
 //           {...provided.dragHandleProps}
 //           onClick={() =>
-//             navigate(`/milestones/milestone-detail/${milestone._id}`)
+//             navigate(`/app/milestones/milestone-detail/${milestone._id}`)
 //           }
 //           className={`
 //             p-4 rounded-xl border border-[var(--border)] shadow-sm transition-all cursor-pointer bg-border/20 mb-3
@@ -553,7 +553,7 @@
 //           ref={provided.innerRef}
 //           {...provided.draggableProps}
 //           {...provided.dragHandleProps}
-//           onClick={() => navigate(`/milestones/milestone-detail/${milestone._id}`)}
+//           onClick={() => navigate(`/app/milestones/milestone-detail/${milestone._id}`)}
 //           className={`p-4 rounded-xl border border-[var(--border)] shadow-sm transition-all cursor-pointer bg-border/20 mb-3 hover:shadow-md hover:border-gray-300 ${
 //             snapshot.isDragging ? "shadow-2xl scale-[1.02] rotate-1" : ""
 //           }`}
@@ -592,7 +592,7 @@
 //           )}
 //           <div
 //             className="p-4 rounded-xl border border-[var(--border)] shadow-sm bg-border/20 cursor-pointer hover:shadow-md hover:border-gray-300"
-//             onClick={() => navigate(`/milestones/milestone-detail/${milestone._id}`)}
+//             onClick={() => navigate(`/app/milestones/milestone-detail/${milestone._id}`)}
 //           >
 //             <h4 className="font-semibold text-foreground text-base">
 //               {milestone.name}
@@ -1047,7 +1047,7 @@ export default function MilestonesTab({ project, refresh, onMilestonesUpdate }) 
           ref={provided.innerRef}
           {...provided.draggableProps}
           {...provided.dragHandleProps}
-          onClick={() => navigate(`/milestones/milestone-detail/${milestone._id}`)}
+          onClick={() => navigate(`/app/milestones/milestone-detail/${milestone._id}`)}
           className={`p-4 rounded-xl border border-[var(--border)] shadow-sm transition-all cursor-pointer bg-border/20 mb-3 hover:shadow-md hover:border-gray-300 ${snapshot.isDragging ? "shadow-2xl scale-[1.02] rotate-1" : ""
             }`}
         >
@@ -1093,7 +1093,7 @@ export default function MilestonesTab({ project, refresh, onMilestonesUpdate }) 
               )}
               <div
                 className={`p-1 sm:p-4 rounded-xl border border-[var(--border)] shadow-sm bg-border/20 cursor-pointer hover:shadow-md hover:border-gray-300 transition-all ${snapshot.isDragging ? "shadow-2xl scale-[1.02] rotate-1" : ""}`}
-                onClick={() => navigate(`/milestones/milestone-detail/${milestone._id}`)}
+                onClick={() => navigate(`/app/milestones/milestone-detail/${milestone._id}`)}
               >
                 <h4
                   className="font-semibold text-foreground text-start truncate max-w-[140px] block text-base"

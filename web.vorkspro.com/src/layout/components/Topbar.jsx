@@ -182,7 +182,7 @@ export default function Topbar({ toggleSidebar, isSidebarOpen }) {
 
             <div className="flex flex-col leading-tight select-none">
               <span className="text-[15px] font-bold tracking-tight text-slate-900 dark:text-white">
-                NextLevel Admin
+                Vorks Pro Admin
               </span>
               <nav className="text-xs hidden sm:flex text-slate-500 dark:text-slate-400">
                 <ol className="flex items-center space-x-1">
@@ -190,7 +190,7 @@ export default function Topbar({ toggleSidebar, isSidebarOpen }) {
                   <li>
                     <button
                       className="hover:text-slate-700 cursor-pointer dark:hover:text-slate-300"
-                      onClick={() => navigate("/dashboard")}
+                      onClick={() => navigate("/app/dashboard")}
                     >
                       Dashboard
                     </button>
@@ -208,11 +208,11 @@ export default function Topbar({ toggleSidebar, isSidebarOpen }) {
                               className="hover:text-slate-700 cursor-pointer dark:hover:text-slate-300"
                               onClick={() => {
                                 if (moduleLabel === "Employees Management") {
-                                  navigate("/employees");
+                                  navigate("/app/employees");
                                 } else if (
                                   moduleLabel === "Project Management"
                                 ) {
-                                  navigate("/projects");
+                                  navigate("/app/projects");
                                 } else {
                                   navigate(modulePath);
                                 }
@@ -276,23 +276,23 @@ export default function Topbar({ toggleSidebar, isSidebarOpen }) {
                 setActiveTab(value);
 
                 if (value === "admin-dashboard") {
-                  navigate("/admin-dashboard");
+                  navigate("/app/admin-dashboard");
                 }
 
                 if (value === "hr-dashboard") {
-                  navigate("/hr-dashboard");
+                  navigate("/app/hr-dashboard");
                 }
 
                 if (value === "project-manager-dashboard") {
-                  navigate("/project-manager-dashboard");
+                  navigate("/app/project-manager-dashboard");
                 }
 
                 if (value === "finance-manager-dashboard") {
-                  navigate("/finance-manager-dashboard");
+                  navigate("/app/finance-manager-dashboard");
                 }
 
                 if (value === "employee-dashboard") {
-                  navigate("/employee-dashboard");
+                  navigate("/app/employee-dashboard");
                 }
 
               }}

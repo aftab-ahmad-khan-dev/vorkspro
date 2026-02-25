@@ -434,7 +434,7 @@ function MilestoneDetail() {
                       return (
                         <div
                           key={member._id}
-                          onClick={() => navigate(`/employees/employee-detail/${member._id}`)}
+                          onClick={() => navigate(`/app/employees/employee-detail/${member._id}`)}
                           className="flex items-center gap-4 p-4 border border-border rounded-lg hover:bg-muted/50 transition cursor-pointer"
                         >
                           <div className="w-12 bg-border h-12 rounded-full flex items-center justify-center text-sm font-medium">

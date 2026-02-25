@@ -2,51 +2,6 @@ import fs from 'fs';
 import nodemailer from 'nodemailer';
 import { User, Config } from '../startup/models.js';
 import moment from 'moment';
-import https from 'https';
-
-export const sendOneSignalEmail = async ({ to, subject, text, html }) => {
-    try {
-        const url = 'https://api.onesignal.com/notifications?c=email';
-
-        const data = JSON.stringify({
-            app_id: process.env.ONESIGNAL_APP_ID,
-            email_subject: subject,
-            email_body: html || text,
-            email_from_name: 'Connect',
-            email_to: [to],
-        });
-
-        const options = {
-            method: 'POST',
-            headers: {
-                accept: 'application/json',
-                Authorization: `Key ${process.env.ONESIGNAL_API_KEY}`,
-                'content-type': 'application/json',
-            },
-        };
-
-        const req = https.request(url, options, (res) => {
-            let responseData = '';
-
-            res.on('data', (chunk) => {
-                responseData += chunk;
-            });
-
-            res.on('end', () => {
-                console.log('Email sent successfully via OneSignal:', JSON.parse(responseData));
-            });
-        });
-
-        req.on('error', (error) => {
-            console.error('Error sending email via OneSignal:', error.message);
-        });
-
-        req.write(data);
-        req.end();
-    } catch (error) {
-        console.error('Error in sendOneSignalEmail function:', error.message);
-    }
-};
 
 export const transporter = nodemailer.createTransport({
     service: process.env.EMAIL_SERVICE,
@@ -96,10 +51,12 @@ export async function sendEmailOnRegistration(email, code) {
             ? `شكرًا لك على التسجيل في ${companyName?.keyValue || 'Connect'}`
             : `Thank you for Registering with ${companyName?.keyValue || 'Connect'}`;
 
-        await sendOneSignalEmail({
+        await transporter.sendMail({
+            from: process.env.FROM_EMAIL,
             to: email,
-            html: template,
             subject,
+            html: template,
+            replyTo: process.env.FROM_EMAIL,
         });
     } catch (error) {
         console.error('Error in sending registration email:', error);

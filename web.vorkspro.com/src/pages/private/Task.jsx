@@ -984,7 +984,7 @@ function Task() {
                             <Button
                               className="border-button"
                               onClick={() =>
-                                navigate(`/milestones/milestone-detail/${m._id}`)
+                                navigate(`/app/milestones/milestone-detail/${m._id}`)
                               }
                             >
                               <span className="whitespace-nowrap">
@@ -1074,7 +1074,7 @@ function Task() {
               popup
               selectable
               onSelectEvent={(event) =>
-                navigate(`/milestones/milestone-detail/${event.id}`)
+                navigate(`/app/milestones/milestone-detail/${event.id}`)
               }
               dayPropGetter={(date) => {
                 const today = new Date();

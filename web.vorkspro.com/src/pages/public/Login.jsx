@@ -2,10 +2,10 @@ import React, { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Eye, EyeOff } from "lucide-react";
-import logo from "../../assets/nlsLogo.png";
+import logo from "../../assets/vorkspro-logo.svg";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
-import nlslogo from "../../assets/nls.png";
+import heroImage from "../../assets/nls.png";
 
 function Login() {
   const [loading, setLoading] = useState(false);
@@ -68,7 +68,7 @@ function Login() {
         toast.success("Login successful!");
         localStorage.setItem("token", data?.token);
         localStorage.setItem("refreshToken", data?.refreshToken);
-        navigate("/dashboard");
+        navigate("/app/dashboard");
       } else {
         toast.error(data?.message || "Login failed.");
       }
@@ -205,7 +205,7 @@ function Login() {
                   <div className="text-center">
                     <img
                       src={logo}
-                      alt="Logo"
+                      alt="Vorks Pro"
                       className="w-60 mb-1 "
                     />
 
@@ -235,7 +235,7 @@ function Login() {
                       </label>
                       <Input
                         type="text"
-                        placeholder="you@nextlevelsoftware.com"
+                        placeholder="you@vorkspro.com"
                         value={username}
                         onChange={(e) => setUsername(e.target.value)}
                         className="w-full h-11 rounded-xl border border-white/10 bg-white/[0.06] px-3.5 text-sm 
@@ -335,7 +335,7 @@ function Login() {
                       </label>
                       <Input
                         type="email"
-                        placeholder="you@nextlevelsoftware.com"
+                        placeholder="you@vorkspro.com"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         className="w-full h-11 rounded-xl border border-white/10 bg-white/[0.06] px-3.5 text-sm 
@@ -512,8 +512,8 @@ function Login() {
 
         <div className="absolute -right-10 -bottom-60">
           <img
-            src={nlslogo}
-            alt="Logo"
+            src={heroImage}
+            alt="Vorks Pro"
             className="  h-[45rem] w-[45rem]  opacity-1.5"
           />
         </div>

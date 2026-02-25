@@ -1,39 +1,39 @@
 module.exports = {
   apps: [
     {
-      name: 'portal-api',
-      script: './src/index.js',              // adjust if entry file is different
-      cwd: '/var/www/portal-api',
-      exec_mode: 'fork',                     // your current mode
+      name: 'vorkspro-api',
+      script: './src/index.js',
+      cwd: '/var/www/vorkspro-api',
+      exec_mode: 'fork',
       instances: 1,
       env: {
         NODE_ENV: 'production',
         PORT: 4000,
-        DB_PATH: 'mongodb+srv://chandabdullahnls_db_user:B6TgK7xMTja7vJZH@cluster0.yhks5yj.mongodb.net' 
+        DB_PATH: 'mongodb+srv://user:password@cluster.mongodb.net'  // Replace with your MongoDB URI
       }
     },
     {
-      name: 'portal-tapi',
+      name: 'vorkspro-tapi',
       script: './src/index.js',
-      cwd: '/var/www/portal-tapi',
+      cwd: '/var/www/vorkspro-tapi',
       exec_mode: 'fork',
       instances: 1,
       env: {
-        NODE_ENV: 'test',                    // or 'production' if needed
-        PORT: 5000,                          // different port!
-        DB_PATH: 'mongodb+srv://chandabdullahnls_db_user:B6TgK7xMTja7vJZH@cluster0.yhks5yj.mongodb.net'
+        NODE_ENV: 'test',
+        PORT: 5000,
+        DB_PATH: 'mongodb+srv://user:password@cluster.mongodb.net'  // Replace with your MongoDB URI
       }
     },
     {
-      name: 'api',
+      name: 'vorkspro',
       script: './src/index.js',
-      cwd: '/var/www/api',
+      cwd: '/var/www/vorkspro',
       exec_mode: 'fork',
       instances: 1,
       env: {
-        NODE_ENV: 'production',                    // or 'production' if needed
-        PORT: 3000,                          // different port!
-        DB_PATH: 'mongodb+srv://nextlevelsoftwaretesting:yAUh61uwVT7sWxa0@nlstesting.ocn6l.mongodb.net' 
+        NODE_ENV: 'production',
+        PORT: 3000,
+        DB_PATH: 'mongodb+srv://user:password@cluster.mongodb.net'  // Replace with your MongoDB URI
       }
     }
   ]

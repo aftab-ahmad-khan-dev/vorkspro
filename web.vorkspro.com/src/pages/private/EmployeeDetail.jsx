@@ -148,7 +148,7 @@ function EmployeeDetail() {
     try {
       await apiDelete(`employee/delete/${urlId}`);
       toast.success("Employee deleted");
-      navigate("/employees");
+      navigate("/app/employees");
     } catch (error) {
       toast.error("Failed to delete");
     }

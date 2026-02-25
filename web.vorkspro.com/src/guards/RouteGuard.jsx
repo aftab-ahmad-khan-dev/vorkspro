@@ -2,27 +2,27 @@ import { Navigate, useLocation } from "react-router-dom";
 import { useTabs } from "@/context/TabsContext";
 
 const routeModuleMap = {
-  "/dashboard": "Dashboard",
-  "/employees": "Employees",
-  "/attendance": "Attendance",
-  "/timesheets": "Attendance",
-  "/performance": "Performance",
-  "/payroll": "Payroll",
-  "/projects": "Projects",
-  "/milestones": "Milestones",
-  "/client-management": "Client Management",
-  "/clients": "Client Management",
-  "/finance": "Finance",
-  "/hr-management": "HR Management",
-  "/reports": "Reports & Analytics",
-  "/follow-up-hub": "Follow-up-Hub",
-  "/my-todo-list": "My To-Do Hub",
-  "/admin-&-assets": "Admin & Assets",
-  "/knowledge-base": "Knowledge Base",
-  "/announcements": "Announcements",
-  "/categories": "Categories",
-  "/credentials": "Keys & Credentials",
-  "/blockages": "Blockages",
+  "/app/dashboard": "Dashboard",
+  "/app/employees": "Employees",
+  "/app/attendance": "Attendance",
+  "/app/timesheets": "Attendance",
+  "/app/performance": "Performance",
+  "/app/payroll": "Payroll",
+  "/app/projects": "Projects",
+  "/app/milestones": "Milestones",
+  "/app/client-management": "Client Management",
+  "/app/clients": "Client Management",
+  "/app/finance": "Finance",
+  "/app/hr-management": "HR Management",
+  "/app/reports": "Reports & Analytics",
+  "/app/follow-up-hub": "Follow-up-Hub",
+  "/app/my-todo-list": "My To-Do Hub",
+  "/app/admin-&-assets": "Admin & Assets",
+  "/app/knowledge-base": "Knowledge Base",
+  "/app/announcements": "Announcements",
+  "/app/categories": "Categories",
+  "/app/credentials": "Keys & Credentials",
+  "/app/blockages": "Blockages",
 };
 
 export const RouteGuard = ({ children }) => {
@@ -36,7 +36,7 @@ export const RouteGuard = ({ children }) => {
   const currentPath = location.pathname;
   
   // Always allow settings and profile
-  if (currentPath === "/settings" || currentPath === "/profile") {
+  if (currentPath === "/app/settings" || currentPath === "/app/profile") {
     return children;
   }
   
@@ -54,5 +54,5 @@ export const RouteGuard = ({ children }) => {
       perm.module === requiredModule && Array.isArray(perm.actions) && perm.actions.length > 0
     );
   
-  return hasAccess ? children : <Navigate to="/dashboard" replace />;
+  return hasAccess ? children : <Navigate to="/app/dashboard" replace />;
 };

@@ -31,18 +31,23 @@ function Layout() {
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
   const [isSidebarOpen, setIsSidebarOpen] = useState(window.innerWidth >= 768);
 
+  const toggleSidebar = useCallback(() => {
+    setIsSidebarOpen((prev) => !prev);
+  }, []);
+
   // =========================
   // Apply Theme
   // =========================
   useEffect(() => {
     const applyTheme = () => {
       const savedTheme = localStorage.getItem("themeMode") || "light";
-      const savedLightColor = localStorage.getItem("lightColor") || "blue";
-      const savedDarkColor = localStorage.getItem("darkColor") || "blue";
+      const savedLightColor = localStorage.getItem("lightColor") || "vorkspro";
+      const savedDarkColor = localStorage.getItem("darkColor") || "vorkspro";
 
       document.documentElement.classList.toggle("dark", savedTheme === "dark");
 
       const lightColors = {
+        vorkspro: "#251A3C",
         blue: "oklch(65.5% 0.178 247)",
         purple: "oklch(65% 0.15 270)",
         green: "oklch(70% 0.15 140)",
@@ -52,6 +57,7 @@ function Layout() {
       };
 
       const darkColors = {
+        vorkspro: "#251A3C",
         blue: "oklch(45% 0.15 247)",
         purple: "oklch(45% 0.15 270)",
         green: "oklch(50% 0.15 140)",
@@ -89,35 +95,26 @@ function Layout() {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  async function fetchRoles() {
-    try {
-      const data = await apiGet('user/get-roles');
-      if (data?.isSuccess) {
-        setRole(data.role)
-      }
-    } catch (error) {
-      console.log(error)
-    }
-  }
-
-  useEffect(() => {
-    fetchRoles();
-  }, []);
-
   // =========================
-  // Fetch Roles ON ROUTE CHANGE
+  // Fetch Roles (on mount and route change)
   // =========================
+  const emptyRole = { isSuperAdmin: false, modulePermissions: [{ module: "Dashboard" }] };
+
   useEffect(() => {
     const fetchRoles = async () => {
       try {
         const data = await apiGet("user/get-roles");
         if (data?.isSuccess && data.role) {
-          // Only update context if real change
-          setTabs(prev => (!deepEqual(prev, data.role) ? data.role : prev));
-          setActions(prev => (!deepEqual(prev, data.role) ? data.role : prev));
+          setTabs((prev) => (!deepEqual(prev, data.role) ? data.role : prev));
+          setActions((prev) => (!deepEqual(prev, data.role) ? data.role : prev));
+        } else {
+          setTabs((prev) => prev ?? emptyRole);
+          setActions((prev) => prev ?? emptyRole);
         }
       } catch (error) {
         console.error("Failed to fetch roles", error);
+        setTabs((prev) => prev ?? emptyRole);
+        setActions((prev) => prev ?? emptyRole);
       }
     };
 

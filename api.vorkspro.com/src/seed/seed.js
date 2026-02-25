@@ -317,28 +317,62 @@ async function seedData() {
       await seedCollection(item);
     }
 
-    // Final Super Admin check (after roles are ready)
-    const adminEmail = process.env.ADMIN_EMAIL || "admin@thenextlevelsoftware.com";
-
-    const existing = await User.findOne({ email: adminEmail });
-    if (!existing) {
+    // Super Admin (from env)
+    const adminEmail = process.env.ADMIN_EMAIL || "admin@vorkspro.com";
+    const defaultPassword = process.env.ADMIN_PASSWORD || "12345678";
+    const existingAdmin = await User.findOne({ email: adminEmail });
+    if (!existingAdmin) {
       const adminRole = await Role.findOne({ name: "Admin" });
-
       if (adminRole) {
         await User.create({
-          name: "Super Admin",
+          firstName: "Super",
+          lastName: "Admin",
+          username: adminEmail.split("@")[0],
           email: adminEmail,
-          password: process.env.ADMIN_PASSWORD || "12345678", // ← hash in real app!
+          password: defaultPassword,
           isSuperAdmin: true,
           isActive: true,
-          role: adminRole._id
+          role: adminRole._id,
         });
         console.log("👑 Super Admin created successfully!");
       } else {
         console.warn("⚠️ Admin role not found — skipping Super Admin");
       }
     } else {
-      console.log("👑 Super Admin already exists — skipping creation");
+      console.log("👑 Super Admin already exists — skipping");
+    }
+
+    // One user per role (for testing/demo)
+    const roleUserSeeds = [
+      { roleName: "Admin", email: "admin@vorkspro.com", firstName: "Super", lastName: "Admin", isSuperAdmin: true },
+      { roleName: "HR Manager", email: "hr@vorkspro.com", firstName: "HR", lastName: "Manager", isSuperAdmin: false },
+      { roleName: "Finance Officer", email: "finance@vorkspro.com", firstName: "Finance", lastName: "Officer", isSuperAdmin: false },
+      { roleName: "Project Manager", email: "pm@vorkspro.com", firstName: "Project", lastName: "Manager", isSuperAdmin: false },
+      { roleName: "Employee", email: "employee@vorkspro.com", firstName: "Demo", lastName: "Employee", isSuperAdmin: false },
+    ];
+
+    for (const seed of roleUserSeeds) {
+      const existing = await User.findOne({ email: seed.email });
+      if (existing) {
+        console.log(`👤 User ${seed.email} already exists — skipping`);
+        continue;
+      }
+      const role = await Role.findOne({ name: seed.roleName });
+      if (!role) {
+        console.warn(`⚠️ Role "${seed.roleName}" not found — skipping user ${seed.email}`);
+        continue;
+      }
+      await User.create({
+        firstName: seed.firstName,
+        lastName: seed.lastName,
+        username: seed.email.split("@")[0],
+        email: seed.email,
+        password: defaultPassword,
+        isSuperAdmin: seed.isSuperAdmin ?? false,
+        isActive: true,
+        role: role._id,
+      });
+      console.log(`👤 Created user for role "${seed.roleName}": ${seed.email}`);
     }
 
     console.log("\n🎉 All seeding completed successfully!");

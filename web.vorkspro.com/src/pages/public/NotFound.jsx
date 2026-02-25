@@ -23,7 +23,7 @@ export default function NotFound() {
 
       if (e.key.toLowerCase() === "d") {
         e.preventDefault();
-        navigate("/dashboard");
+        navigate("/app/dashboard");
       }
     };
 

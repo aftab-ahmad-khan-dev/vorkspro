@@ -1,5 +1,5 @@
 {
-  "name": "api.portal.nls.com",
+  "name": "api.vorkspro.com",
   "version": "1.0.0",
   "main": "src/index.js",
   "type": "module",
@@ -26,6 +26,7 @@
     "mongoose": "^8.19.2",
     "multer": "^2.0.2",
     "node-cron": "^4.2.1",
+    "nodemailer": "^8.0.1",
     "redis": "^5.10.0",
     "sharp": "^0.34.4",
     "socket.io": "^4.8.1",

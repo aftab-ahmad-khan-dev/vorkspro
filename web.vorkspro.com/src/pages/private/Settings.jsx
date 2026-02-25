@@ -155,6 +155,12 @@ function Settings() {
 
   const lightColors = [
     {
+      name: "vorkspro",
+      value: "#251A3C",
+      border: "border-[#251A3C]",
+      bg: "#251A3C",
+    },
+    {
       name: "blue",
       value: "oklch(65.5% 0.178 247)",
       border: "border-blue-500",
@@ -193,6 +199,12 @@ function Settings() {
   ];
 
   const darkColors = [
+    {
+      name: "vorkspro",
+      value: "#251A3C",
+      border: "border-[#251A3C]",
+      bg: "#251A3C",
+    },
     {
       name: "blue",
       value: "oklch(45% 0.15 247)",

@@ -537,7 +537,7 @@ function ClientDetail() {
                     <div
                       key={project._id}
                       className="border border-[var(--border)] rounded-xl p-5 hover:shadow-md transition-all cursor-pointer"
-                      onClick={() => navigate(`/projects/project-detail/${project._id}`)}
+                      onClick={() => navigate(`/app/projects/project-detail/${project._id}`)}
                     >
                       {/* Top Section */}
                       <div className="flex justify-between items-start">

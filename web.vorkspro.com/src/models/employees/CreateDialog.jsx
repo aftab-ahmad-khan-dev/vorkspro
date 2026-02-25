@@ -258,7 +258,7 @@ function CreateDialog({
       <div className="grid grid-cols-2 gap-4">
         {!isEditMode && (
           <>
-            {subHeading("Portal Login Credentials")}
+            {subHeading("Vorks Pro Login Credentials")}
             <div className="flex flex-col space-y-2 col-span-2 sm:col-span-1">
               <label className="text-sm font-medium text-[var(--text)]">
                 Personal Email <span className="text-red-500">*</span>

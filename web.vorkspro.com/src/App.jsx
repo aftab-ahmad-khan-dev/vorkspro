@@ -24,6 +24,7 @@ import EmployeeDetail from "./pages/private/EmployeeDetail";
 import { ForwardGuard } from "./guards/ForwardGuard";
 import { RouteGuard } from "./guards/RouteGuard";
 import NotFound from "./pages/public/NotFound";
+import Landing from "./pages/public/Landing";
 import AdminAssets from "./pages/private/Admin&Assets";
 import FollowHub from "./pages/private/FollowUpHub";
 import ToDoList from "./pages/private/MyToDoList";
@@ -37,8 +38,6 @@ import HRDashboard from "./pages/private/Dashboards/HRDashboard";
 import ProjectManagerDashboard from "./pages/private/Dashboards/ProjectManagerDashboard";
 import FinanceManagerDashboard from "./pages/private/Dashboards/FinanceManagerDashboard"
 import EmployeeDashboard from "./pages/private/Dashboards/EmployeeDashboard";
-import { useEffect } from "react";
-import { apiPost } from "./interceptor/interceptor";
 import KeysAndCredentials from "./pages/private/Keys&Credentials";
 import { AuthGuard } from "./guards/AuthGuard";
 import Blockages from "./pages/private/Blockages";
@@ -46,50 +45,6 @@ import Blockages from "./pages/private/Blockages";
 function App() {
   const { tabs } = useTabs();
   const token = localStorage.getItem("token");
-  useEffect(() => {
-    if (!token) return;
-
-    window.OneSignalDeferred = window.OneSignalDeferred || [];
-    window.OneSignalDeferred.push(async (OneSignal) => {
-      try {
-        await OneSignal.init({
-          appId: import.meta.env.VITE_ONESIGNAL_APP_ID,
-          allowLocalhostAsSecureOrigin: true,
-        });
-
-        console.log("OneSignal initialized successfully");
-        
-        // Add notification event listener
-        OneSignal.Notifications.addEventListener('click', (event) => {
-          console.log('OneSignal notification clicked:', event);
-        });
-        
-        OneSignal.Notifications.addEventListener('foregroundWillDisplay', (event) => {
-          console.log('OneSignal notification received:', event);
-        });
-
-        const permission = await OneSignal.Notifications.permission;
-        console.log("Permission:", permission);
-
-        if (permission !== "granted") {
-          await OneSignal.Notifications.requestPermission();
-        }
-
-        const userId = await OneSignal.User.PushSubscription.id;
-        console.log("OneSignal User ID:", userId);
-
-        if (userId) {
-          const saved = localStorage.getItem("oneSignalPlayerId");
-          if (saved !== userId) {
-            await apiPost("user/save-player-id", { playerId: userId });
-            localStorage.setItem("oneSignalPlayerId", userId);
-          }
-        }
-      } catch (error) {
-        console.error("OneSignal initialization error:", error);
-      }
-    });
-  }, [token]);
 
 
 
@@ -98,8 +53,9 @@ function App() {
 
   return (
     <Routes>
-      {/* Public Routes */}
-      <Route path="*" element={<NotFound />} />
+      {/* Landing (public) */}
+      <Route path="/" element={<Landing />} />
+
       <Route
         path="/login"
         element={
@@ -109,9 +65,9 @@ function App() {
         }
       />
 
-      {/* Protected Layout */}
+      {/* Protected App (portal) */}
       <Route
-        path="/"
+        path="/app"
         element={
           <AuthGuard>
             <RouteGuard>
@@ -120,8 +76,7 @@ function App() {
           </AuthGuard>
         }
       >
-        {/* Default Redirect */}
-        <Route index element={<Navigate to="/dashboard" replace />} />
+        <Route index element={<Navigate to="/app/dashboard" replace />} />
 
         {/* Dashboard */}
         <Route path="dashboard" element={<Dashboard />} />
@@ -233,6 +188,9 @@ function App() {
         <Route path="settings" element={<Settings />} />
         <Route path="profile" element={<Profile />} />
       </Route>
+
+      {/* Catch-all */}
+      <Route path="*" element={<NotFound />} />
     </Routes>
   );
 }

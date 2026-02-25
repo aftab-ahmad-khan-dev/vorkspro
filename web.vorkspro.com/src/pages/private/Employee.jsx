@@ -308,7 +308,7 @@ export default function Employee() {
   };
 
   const handleDetail = (emp) => {
-    navigate(`/employees/employee-detail/${emp._id}`);
+    navigate(`/app/employees/employee-detail/${emp._id}`);
   };
 
   const SkeletonRow = () => (
