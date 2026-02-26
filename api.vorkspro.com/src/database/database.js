@@ -1,8 +1,12 @@
 import dotenv from "dotenv";
+import path from "path";
 import mongoose from "mongoose";
 import { DB_NAME, TEST_DB_NAME, DEV_DB_NAME } from "../constants.js";
 
-dotenv.config({ path: "./.env" });
+// Load .env from project root (works in local and Vercel when present)
+try {
+  dotenv.config({ path: path.resolve(process.cwd(), ".env") });
+} catch (_) {}
 
 function buildDbUri(dbName) {
   const uri = process.env.MONGODB_URI?.trim();
@@ -17,16 +21,18 @@ const initializeDatabase = async () => {
   if (mongoose.connection.readyState === 1) return;
 
   try {
+    // Vercel sets VERCEL=1; default MODE to production when on Vercel
+    const mode = process.env.MODE || (process.env.VERCEL ? "production" : null);
     const dbName =
-      process.env.MODE == "development"
+      mode === "development"
         ? DEV_DB_NAME
-        : process.env.MODE == "test"
+        : mode === "test"
           ? TEST_DB_NAME
-          : process.env.MODE == "production"
+          : mode === "production"
             ? DB_NAME
             : null;
     if (!dbName) {
-      throw new Error("Set MODE in .env (development | test | production)");
+      throw new Error("Set MODE (development | test | production). On Vercel it defaults to production.");
     }
 
     const DB_PATH = buildDbUri(dbName);
@@ -46,7 +52,7 @@ const initializeDatabase = async () => {
     );
   } catch (error) {
     console.error("MongoDB connection failed:", error.message);
-    process.exit(1);
+    throw error;
   }
 };
 

@@ -2,7 +2,8 @@ import express from 'express';
 import cors from 'cors';
 import routes from "./startup/routes.js";
 import { tokenChecker } from './middlewares/token.middleware.js';
-import "./cron/reminder.cron.js";
+// Skip cron in serverless (Vercel) — it only runs in long-lived processes
+if (!process.env.VERCEL) import("./cron/reminder.cron.js");
 import { createClient } from "redis";
 
 const redisUrl = process.env.REDIS_URL || "redis://127.0.0.1:6379";
