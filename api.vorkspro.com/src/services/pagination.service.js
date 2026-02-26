@@ -56,27 +56,24 @@ async function paginationFiltrationData(
     const parsedPage = Math.max(parseInt(page, 10), pageStart);
     const parsedSize = Math.max(parseInt(size, 10), 1);
 
-    const offset = (parsedPage - pageStart) * parsedSize; // Adjust offset based on pageStart (0 or 1)
-    const totalItems = await model.countDocuments(whereCondition);    
-    const totalPages = Math.ceil(totalItems / parsedSize);
+    const offset = (parsedPage - pageStart) * parsedSize;
 
-    // Build base query
+    // Build find query (same shape for parallel run)
     let query = model.find(whereCondition)
         .skip(offset)
         .limit(parsedSize)
-        .sort({ [sort]: order === 'asc' ? 1 : -1 });
+        .sort({ [sort]: order === 'asc' ? 1 : -1 })
+        .lean();
 
-    // Apply populate if provided
-    if (populate) {
-        query = query.populate(populate);
-    }
+    if (populate) query = query.populate(populate);
+    if (queryCallback) query = queryCallback(query);
 
-    // Apply query callback for custom modifications
-    if (queryCallback) {
-        query = queryCallback(query);
-    }
-
-    const items = await query;
+    // Run count and find in parallel to reduce latency
+    const [totalItems, items] = await Promise.all([
+        model.countDocuments(whereCondition),
+        query.exec(),
+    ]);
+    const totalPages = Math.ceil(totalItems / parsedSize);
 
     const pagination = {
         page: parsedPage,

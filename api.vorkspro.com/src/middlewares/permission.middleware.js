@@ -17,6 +17,7 @@ export const checkPermission = ({ actions = [], modules = [] } = {}) => {
 
             if (req.user.isSuperAdmin) return next();
 
+            // User must have a role assigned (e.g. in User.role or via admin). Otherwise all protected routes return 403.
             if (!req.user.role) {
                 return generateApiResponse(res, StatusCodes.FORBIDDEN, false, "No role assigned to the user.");
             }
@@ -37,8 +38,6 @@ export const checkPermission = ({ actions = [], modules = [] } = {}) => {
                 )
                 : true;
 
-            console.log('hasAction:', hasAction);
-
             const hasModule = modules.length
                 ? modules.some((moduleName) =>
                     role.modulePermissions.some(
@@ -46,8 +45,6 @@ export const checkPermission = ({ actions = [], modules = [] } = {}) => {
                     )
                 )
                 : true;
-
-            console.log('hasModule:', hasModule);                
 
             if (!hasAction || !hasModule) {
                 return generateApiResponse(

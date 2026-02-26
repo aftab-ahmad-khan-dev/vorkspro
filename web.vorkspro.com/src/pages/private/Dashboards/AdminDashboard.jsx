@@ -9,6 +9,14 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from "recharts";
+import { useTabs } from "@/context/TabsContext";
+import { DASHBOARD_SUMMARIES, getModulesFromTabs } from "@/config/dashboardConfig";
+import {
+  DashboardSummaryCard,
+  DashboardInsightCard,
+  DashboardQuickActions,
+  DashboardActivitySection,
+} from "@/components/dashboard";
 
 const CustomTooltip = ({ active, payload, label,text }) => {
   if (!active || !payload?.length) return null;
@@ -23,7 +31,10 @@ const CustomTooltip = ({ active, payload, label,text }) => {
   );
 };
 
-export default function Dashboard() {
+export default function AdminDashboard() {
+  const { tabs } = useTabs();
+  const allowedModules = getModulesFromTabs(tabs);
+
   const revenueData = [
     { month: "Jul", value: 85000 },
     { month: "Aug", value: 92000 },
@@ -43,73 +54,22 @@ export default function Dashboard() {
 
   return (
     <div className="min-h-screen bg-background sm:p-8">
-      {/* TOP STATS */}
+      <DashboardSummaryCard title="Admin dashboard" summary={DASHBOARD_SUMMARIES.admin} />
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-        {/* Card 1 */}
-        <div className="bg-border/50 rounded-xl p-6 flex justify-between">
-          <div>
-            <p className="text-sm text-muted-foreground">Active Employees</p>
-            <p className="text-2xl font-bold my-2 text-foreground">5</p>
-            <p className="text-xs text-emerald-400 mt-1">
-              +8% <span className="text-muted-foreground">vs last month</span>
-            </p>
-          </div>
-          <div className="bg-[var(--primary)] flex items-center justify-center h-12 w-12 text-white rounded-lg">
-            <Users />
-          </div>
-        </div>
-
-        {/* Card 2 */}
-        <div className="bg-border/50 rounded-xl p-6 flex justify-between">
-          <div>
-            <p className="text-sm text-muted-foreground">Active Projects</p>
-            <p className="text-2xl font-bold my-2 text-foreground">3</p>
-            <p className="text-xs text-emerald-400 mt-1">
-              +12% <span className="text-muted-foreground">vs last month</span>
-            </p>
-          </div>
-          <div className="bg-gradient-to-br from-blue-600  to-cyan-400 flex items-center justify-center h-12 w-12 text-white rounded-lg">
-            <FolderKanban />
-          </div>
-        </div>
-
-        {/* Card 3 */}
-        <div className="bg-border/50 rounded-xl p-6 flex justify-between">
-          <div>
-            <p className="text-sm text-muted-foreground">Monthly Revenue</p>
-            <p className="text-2xl font-bold my-2 text-foreground">$40K</p>
-            <p className="text-xs text-emerald-400 mt-1">
-              +15% <span className="text-muted-foreground">vs last month</span>
-            </p>
-          </div>
-          <div className="bg-[var(--primary)] flex items-center justify-center h-12 w-12 text-white rounded-lg">
-            <DollarSign />
-          </div>
-        </div>
-
-        {/* Card 4 */}
-        <div className="bg-border/50 rounded-xl p-6 flex justify-between">
-          <div>
-            <p className="text-sm text-muted-foreground">Open Blockers</p>
-            <p className="text-2xl font-bold my-2 text-foreground">2</p>
-          </div>
-          <div className="bg-gradient-to-br from-orange-500 to-red-500 flex items-center justify-center h-12 w-12 text-white rounded-lg">
-            <AlertTriangle />
-          </div>
-        </div>
+        <DashboardInsightCard title="Active Employees" value="5" subtitle="+8% vs last month" Icon={Users} iconBg="bg-[var(--primary)]" />
+        <DashboardInsightCard title="Active Projects" value="3" subtitle="+12% vs last month" Icon={FolderKanban} iconBg="bg-gradient-to-br from-blue-600 to-cyan-400" />
+        <DashboardInsightCard title="Monthly Revenue" value="$40K" subtitle="+15% vs last month" Icon={DollarSign} iconBg="bg-[var(--primary)]" />
+        <DashboardInsightCard title="Open Blockers" value="2" Icon={AlertTriangle} iconBg="bg-gradient-to-br from-orange-500 to-red-500" />
       </div>
+      <DashboardQuickActions className="mb-8" />
 
-      {/* MIDDLE SECTION */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-        {/* Revenue Trend */}
-        <div className=" bg-border/50 rounded-xl p-6">
-          <div className="flex justify-between mb-4">
-            <h3 className="text-lg text-foreground font-bold">Revenue Trend</h3>
+        <DashboardActivitySection title="Revenue Trend" subtitle="">
+          <div className="flex justify-end mb-2">
             <span className="text-xs items-center bg-green-500/20 font-bold text-green-400 px-3 py-2 rounded-full">
               +15% this month
             </span>
           </div>
-
           <div className="h-64">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={revenueData}>
@@ -126,19 +86,14 @@ export default function Dashboard() {
               </LineChart>
             </ResponsiveContainer>
           </div>
-        </div>
+        </DashboardActivitySection>
 
-        {/* Project Progress */}
-        <div className="bg-border/50 rounded-xl p-6">
-          <div className="flex justify-between mb-6">
-            <h3 className="text-lg font-semibold text-foreground">
-              Project Progress
-            </h3>
+        <DashboardActivitySection title="Project Progress" subtitle="">
+          <div className="flex justify-end mb-2">
             <span className="text-xs bg-blue-500/20 text-blue-400 px-4 font-semibold py-2 rounded-full">
               3 Active
             </span>
           </div>
-
           <div className="h-56">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={data} layout="vertical">
@@ -175,15 +130,11 @@ export default function Dashboard() {
               </BarChart>
             </ResponsiveContainer>
           </div>
-        </div>
+        </DashboardActivitySection>
       </div>
 
-      {/* BOTTOM SECTION */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Pending Actions */}
-        <div className="bg-border/50 rounded-xl p-6">
-          <h3 className="text-lg text-foreground font-semibold mb-4">Pending Actions</h3>
-
+        <DashboardActivitySection title="Pending Actions" subtitle="">
           <div className="flex justify-between items-center bg-yellow-400/5 rounded-lg p-4 mb-3">
             <div>
               <p className="font-semibold text-sm text-yellow-600 dark:text-yellow-400">Leave Requests</p>
@@ -199,12 +150,9 @@ export default function Dashboard() {
             </div>
             <span className="text-red-400 font-bold">2</span>
           </div>
-        </div>
+        </DashboardActivitySection>
 
-        {/* Financial Overview */}
-        <div className="bg-border/50 rounded-xl p-6">
-          <h3 className="text-lg text-foreground font-semibold mb-4">Financial Overview</h3>
-
+        <DashboardActivitySection title="Financial Overview" subtitle="">
           <div className="mb-4">
             <div className="flex justify-between text-sm mb-1">
               <span className="text-muted-foreground">Cash Inflow</span>
@@ -229,12 +177,9 @@ export default function Dashboard() {
             <span className="text-foreground text-sm">Net Cash Flow</span>
             <span className="text-purple-400">-$12,500</span>
           </div>
-        </div>
+        </DashboardActivitySection>
 
-        {/* Quick Stats */}
-        <div className="bg-border/50 rounded-xl p-6">
-          <h3 className="text-lg text-foreground font-semibold mb-4">Quick Stats</h3>
-
+        <DashboardActivitySection title="Quick Stats" subtitle="">
           {[
             ["Total Employees", "6"],
             ["On Leave Today", "1"],
@@ -246,7 +191,7 @@ export default function Dashboard() {
               <span className="font-semibold text-foreground">{item[1]}</span>
             </div>
           ))}
-        </div>
+        </DashboardActivitySection>
       </div>
     </div>
   );

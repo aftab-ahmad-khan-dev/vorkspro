@@ -58,6 +58,10 @@ const ProjectSchema = new Schema(
   { timestamps: true }
 );
 
+ProjectSchema.index({ client: 1 });
+ProjectSchema.index({ status: 1, isDeleted: 1 });
+ProjectSchema.index({ projectManager: 1 });
+
 /**
  * ────────────────────────────────────────────────
  * Helper: Recalculate client revenue

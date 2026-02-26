@@ -6,6 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { jwtDecode } from "jwt-decode";
+import { apiGet } from "@/interceptor/interceptor";
 
 function Profile() {
   const [activeTab, setActiveTab] = useState("personalInfo");
@@ -58,7 +59,50 @@ function Profile() {
     });
   };
 
-  const loadEmployeeFromToken = () => {
+  const applyEmployeeToState = (emp) => {
+    if (!emp) return;
+    setEmployee(emp);
+    setOriginalEmployee(emp);
+    setFormData({
+      personalInfo: {
+        firstName: emp.firstName || "",
+        lastName: emp.lastName || "",
+        personalEmail: (emp.email || "").replace(/[<>]/g, ""),
+        companyEmail: (emp.companyEmail || "").replace(/[<>]/g, ""),
+        phoneNumber: emp.phone || "",
+        dateOfBirth: emp.dateOfBirth ? emp.dateOfBirth.split("T")[0] : "",
+        gender: emp.gender || "",
+        languageSpoken: Array.isArray(emp.languageSpoken)
+          ? emp.languageSpoken.join(", ")
+          : "",
+      },
+      employment: {
+        employeeId: emp.employeeId || "",
+        joinDate: emp.joinDate ? emp.joinDate.split("T")[0] : "",
+        department: emp.department?.name || emp.department || "",
+        subDepartment: emp.subDepartment?.name || emp.subDepartment || "",
+        jobTitle: emp.jobTitle || "",
+        employmentType: emp.employmentType || "",
+        workLocation: emp.workLocation || "",
+        reportingManager: emp.reportingManager || "None",
+        probationPeriodInMonths: emp.probationPeriodInMonths?.toString() || "",
+        noticePeriod: emp.noticePeriod?.toString() || "",
+      },
+      compensation: {
+        baseSalary: emp.baseSalary?.toString() || "",
+      },
+      educationSkills: {
+        skills: Array.isArray(emp.education?.skills)
+          ? emp.education.skills.join(", ")
+          : "",
+        certifications: Array.isArray(emp.education?.certifications)
+          ? emp.education.certifications.join(", ")
+          : "",
+      },
+    });
+  };
+
+  const loadEmployeeFromToken = async () => {
     if (!token) {
       toast.error("No authentication token found. Please log in again.");
       return;
@@ -66,55 +110,21 @@ function Profile() {
 
     try {
       const decoded = jwtDecode(token);
-      const emp = decoded.employee;
+      let emp = decoded.employee;
 
       if (!emp) {
-        toast.error("Employee information not found in session.");
-        return;
+        const data = await apiGet("user/me");
+        if (data?.isSuccess && data?.employee) {
+          emp = data.employee;
+        } else {
+          toast.error("Employee information not found in session. Please ensure your account is linked to an employee record, or contact your admin.");
+          return;
+        }
       }
 
-      setEmployee(emp);
-      setOriginalEmployee(emp);
-
-      setFormData({
-        personalInfo: {
-          firstName: emp.firstName || "",
-          lastName: emp.lastName || "",
-          personalEmail: (emp.email || "").replace(/[<>]/g, ""),
-          companyEmail: (emp.companyEmail || "").replace(/[<>]/g, ""),
-          phoneNumber: emp.phone || "",
-          dateOfBirth: emp.dateOfBirth ? emp.dateOfBirth.split("T")[0] : "",
-          gender: emp.gender || "",
-          languageSpoken: Array.isArray(emp.languageSpoken)
-            ? emp.languageSpoken.join(", ")
-            : "",
-        },
-        employment: {
-          employeeId: emp.employeeId || "",
-          joinDate: emp.joinDate ? emp.joinDate.split("T")[0] : "",
-          department: emp.department?.name || emp.department || "",
-          subDepartment: emp.subDepartment?.name || emp.subDepartment || "",
-          jobTitle: emp.jobTitle || "",
-          employmentType: emp.employmentType || "",
-          workLocation: emp.workLocation || "",
-          reportingManager: emp.reportingManager || "None",
-          probationPeriodInMonths: emp.probationPeriodInMonths?.toString() || "",
-          noticePeriod: emp.noticePeriod?.toString() || "",
-        },
-        compensation: {
-          baseSalary: emp.baseSalary?.toString() || "",
-        },
-        educationSkills: {
-          skills: Array.isArray(emp.education?.skills)
-            ? emp.education.skills.join(", ")
-            : "",
-          certifications: Array.isArray(emp.education?.certifications)
-            ? emp.education.certifications.join(", ")
-            : "",
-        },
-      });
+      applyEmployeeToState(emp);
     } catch (error) {
-      console.error("Invalid token:", error);
+      console.error("Invalid token or profile fetch:", error);
       toast.error("Session expired or invalid. Please log in again.");
     }
   };
@@ -145,7 +155,7 @@ function Profile() {
 
   const handleSave = async () => {
     if (!token) {
-      toast.error("No session found.");
+      toast.error("Employee information not found in session. Please log in again.");
       return;
     }
 

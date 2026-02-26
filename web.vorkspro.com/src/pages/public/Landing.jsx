@@ -382,6 +382,15 @@ export default function Landing() {
                 {l.label}
               </a>
             ))}
+            <Link to="/demo">
+              <motion.button
+                whileHover={{ scale: 1.04 }}
+                whileTap={{ scale: 0.97 }}
+                className="syne text-sm font-semibold px-5 py-2.5 rounded-xl text-white border border-white/20"
+              >
+                Live Demo
+              </motion.button>
+            </Link>
             <Link to="/login">
               <motion.button
                 whileHover={{ scale: 1.04 }}
@@ -415,8 +424,13 @@ export default function Landing() {
                   {l.label}
                 </a>
               ))}
+              <Link to="/demo" onClick={() => setMobileMenuOpen(false)}>
+                <button className="syne mt-3 w-full py-3 rounded-xl text-sm font-semibold text-white border border-white/20">
+                  Live Demo
+                </button>
+              </Link>
               <Link to="/login" onClick={() => setMobileMenuOpen(false)}>
-                <button className="syne mt-4 w-full py-3 rounded-xl text-sm font-semibold text-white"
+                <button className="syne mt-3 w-full py-3 rounded-xl text-sm font-semibold text-white"
                   style={{ background: `linear-gradient(135deg, ${THEME}, ${THEME_MED})`, boxShadow: "0 0 20px rgba(37,26,60,0.4)" }}>
                   Get Started
                 </button>
@@ -514,6 +528,15 @@ export default function Landing() {
             transition={{ duration: 0.8, delay: 0.5 }}
             className="mt-10 flex flex-wrap items-center justify-center gap-4"
           >
+            <Link to="/demo">
+              <motion.button
+                whileHover={{ scale: 1.03 }}
+                whileTap={{ scale: 0.97 }}
+                className="syne font-semibold px-8 py-4 rounded-xl text-base flex items-center gap-2 text-white border border-white/20 hover:border-white/40"
+              >
+                Live Demo
+              </motion.button>
+            </Link>
             <Link to="/login">
               <motion.button
                 whileHover={{ scale: 1.05, boxShadow: "0 0 40px rgba(37,26,60,0.6)" }}
@@ -957,16 +980,27 @@ export default function Landing() {
             <p className="mt-5 text-lg text-white/60 max-w-lg mx-auto">
               Join hundreds of teams who replaced 5+ apps with Vorks Pro Admin — and never went back.
             </p>
-            <Link to="/login">
-              <motion.button
-                whileHover={{ scale: 1.05, boxShadow: "0 0 60px rgba(37,26,60,0.6)" }}
-                whileTap={{ scale: 0.97 }}
-                className="syne mt-10 font-bold px-10 py-4 rounded-xl text-base flex items-center gap-2 mx-auto text-white"
-                style={{ background: `linear-gradient(135deg, ${THEME} 0%, ${ACCENT} 100%)`, boxShadow: "0 0 40px rgba(37,26,60,0.5)" }}
-              >
-                Start for free — no card needed <ArrowRight size={16} />
-              </motion.button>
-            </Link>
+            <div className="mt-10 flex flex-wrap items-center justify-center gap-4">
+              <Link to="/demo">
+                <motion.button
+                  whileHover={{ scale: 1.03 }}
+                  whileTap={{ scale: 0.97 }}
+                  className="syne font-semibold px-8 py-4 rounded-xl text-base text-white border border-white/30 hover:border-white/50"
+                >
+                  Try Live Demo
+                </motion.button>
+              </Link>
+              <Link to="/login">
+                <motion.button
+                  whileHover={{ scale: 1.05, boxShadow: "0 0 60px rgba(37,26,60,0.6)" }}
+                  whileTap={{ scale: 0.97 }}
+                  className="syne font-bold px-10 py-4 rounded-xl text-base flex items-center gap-2 text-white"
+                  style={{ background: `linear-gradient(135deg, ${THEME} 0%, ${ACCENT} 100%)`, boxShadow: "0 0 40px rgba(37,26,60,0.5)" }}
+                >
+                  Start for free — no card needed <ArrowRight size={16} />
+                </motion.button>
+              </Link>
+            </div>
           </motion.div>
         </div>
       </section>

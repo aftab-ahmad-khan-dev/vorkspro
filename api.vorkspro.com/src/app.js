@@ -1,5 +1,6 @@
 import express from "express";
 import cors from "cors";
+import compression from "compression";
 import routes from "./startup/routes.js";
 import { tokenChecker } from "./middlewares/token.middleware.js";
 import logger from "./services/logger.js";
@@ -17,20 +18,29 @@ const noOpRedis = {
 
 let client = noOpRedis;
 
-try {
-  const redisClient = createClient({ url: redisUrl });
-  await redisClient.connect();
-  client = redisClient;
-  logger.banner("Redis connected");
-} catch (err) {
-  logger.banner("Redis not available — running without cache");
-  console.warn(`  → ${err.message}`);
-}
+(async () => {
+  try {
+    const redisClient = createClient({
+      url: redisUrl,
+      socket: { connectTimeout: 3000 },
+    });
+    await Promise.race([
+      redisClient.connect(),
+      new Promise((_, reject) => setTimeout(() => reject(new Error("Redis connect timeout")), 3000)),
+    ]);
+    client = redisClient;
+    logger.banner("Redis connected");
+  } catch (err) {
+    logger.banner("Redis not available — running without cache");
+    console.warn(`  → ${err.message}`);
+  }
+})();
 
 export { client };
 
 const app = express();
 
+app.use(compression());
 app.use(
   cors({
     origin: process.env.CORS_ORIGIN,
@@ -38,8 +48,8 @@ app.use(
   }),
 );
 
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(express.json({ limit: "1mb" }));
+app.use(express.urlencoded({ extended: true, limit: "1mb" }));
 app.use(express.static("public"));
 app.use(tokenChecker);
 (async () => {})();

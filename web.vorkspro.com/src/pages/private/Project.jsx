@@ -49,7 +49,7 @@ import {
 } from "@/components/ui/tooltip";
 import { useTabs } from "@/context/TabsContext";
 import CustomTooltip from "@/components/Tooltip";
-import { apiGet, apiGetByFilter } from "@/interceptor/interceptor";
+import { apiGet, apiGetByFilter, apiDelete } from "@/interceptor/interceptor";
 import EmptyState from "@/components/EmptyState";
 
 function Project() {
@@ -101,9 +101,6 @@ function Project() {
   const [selectedTeamMembers, setSelectedTeamMembers] = useState([]);
   const [selectedClient, setSelectedClient] = useState("all");
   const [selectedManager, setSelectedManager] = useState("all");
-
-  const baseUrl = import.meta.env.VITE_APP_BASE_URL;
-  const token = localStorage.getItem("token");
 
   // ── TAB MAPPING ─────────────────────────────────────
   const tabKeys = {
@@ -187,19 +184,30 @@ function Project() {
 
       const data = await apiGetByFilter("project/get-by-filter", params);
 
-      if (data.isSuccess) {
-        setProjects(data.filteredData?.projects || []);
+      if (data?.isSuccess) {
+        const fd = data.filteredData;
+        const projectsList = Array.isArray(fd) ? fd : (fd?.projects ?? []);
+        const pag = fd?.pagination;
+        setProjects(projectsList);
         setPagination({
-          page: data.filteredData.pagination.page,
-          size: data.filteredData.pagination.size,
-          totalItems: data.filteredData.pagination.totalItems,
-          totalPages: data.filteredData.pagination.totalPages,
-          lastPage: data.filteredData.pagination.lastPage,
+          page: pag?.page ?? 1,
+          size: pag?.size ?? pagination.size,
+          totalItems: pag?.totalItems ?? 0,
+          totalPages: pag?.totalPages ?? 1,
+          lastPage: pag?.lastPage ?? 1,
         });
       }
     } catch (err) {
       console.error(err);
-      toast.error("Failed to load projects");
+      setProjects([]);
+      const m = err?.message || "";
+      const isNetwork = /failed to fetch|networkerror|load failed/i.test(m);
+      const msg = isNetwork
+        ? "Unable to connect to the server. Please check your connection and that the API is running."
+        : m.toLowerCase().includes("permission")
+          ? "You don't have permission to view projects."
+          : "Failed to load projects.";
+      toast.error(msg);
     } finally {
       setLoading(false);
     }
@@ -207,10 +215,7 @@ function Project() {
 
   const handleDelete = async () => {
     try {
-      await fetch(`${baseUrl}project/delete/${selectedProject}`, {
-        method: "DELETE",
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      await apiDelete(`project/delete/${selectedProject}`);
       toast.success("Project deleted successfully");
       setOpenConfirmation(false);
       await fetchProjects(pagination.page, searchTerm, activeTab, [], "", "");
@@ -223,11 +228,8 @@ function Project() {
   // ── FETCH CLIENTS & EMPLOYEES ───────────────────────────
   const fetchClients = async () => {
     try {
-      const res = await fetch(`${baseUrl}client/get-active-client`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      const data = await res.json();
-      if (data.isSuccess) setClients(data.filteredData?.clients || []);
+      const data = await apiGet("client/get-active-client");
+      if (data?.isSuccess) setClients(data.filteredData?.clients || []);
     } catch (err) {
       console.error(err);
     }
@@ -235,11 +237,8 @@ function Project() {
 
   const fetchEmployees = async () => {
     try {
-      const res = await fetch(`${baseUrl}employee/get-active-employees`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      const data = await res.json();
-      if (data.isSuccess) setEmployees(data.filteredData?.employees || []);
+      const data = await apiGet("employee/get-active-employees");
+      if (data?.isSuccess) setEmployees(data.filteredData?.employees || []);
     } catch (err) {
       console.error(err);
     }
@@ -249,11 +248,8 @@ function Project() {
   const fetchStats = async () => {
     try {
       setStatsLoading(true);
-      const res = await fetch(`${baseUrl}project/get-stats`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      const data = await res.json();
-      if (data.isSuccess) setStats(data.stats || {});
+      const data = await apiGet("project/get-stats");
+      if (data?.isSuccess) setStats(data.stats || {});
     } catch (err) {
       console.error(err);
     } finally {
@@ -656,7 +652,16 @@ function Project() {
             return (
               <div
                 key={project._id}
-                className="relative rounded-xl border border-[var(--border)] hover:shadow-lg transition-all duration-300 max-w-full overflow-hidden"
+                role="button"
+                tabIndex={0}
+                onClick={() => hasPermission("Projects", "View Records") && navigate(`/app/projects/project-detail/${project._id}`)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    hasPermission("Projects", "View Records") && navigate(`/app/projects/project-detail/${project._id}`);
+                  }
+                }}
+                className="relative rounded-xl border border-[var(--border)] hover:shadow-lg transition-all duration-300 max-w-full overflow-hidden cursor-pointer"
               >
                 {/* Header */}
                 <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-2 mb-3 sm:mb-4">
@@ -969,9 +974,10 @@ function Project() {
                     {hasPermission("Projects", 'View Records') && (
                       <Button
                         className="flex-1 border-button sm:flex-none "
-                        onClick={() =>
-                          navigate(`/app/projects/project-detail/${project._id}`)
-                        }
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          navigate(`/app/projects/project-detail/${project._id}`);
+                        }}
                       >
                         View detail
                       </Button>
@@ -980,7 +986,8 @@ function Project() {
                     {hasPermission("Projects", 'Edit Records') && (
                       <CustomTooltip tooltipContent="Update Project">
                         <Button
-                          onClick={() => {
+                          onClick={(e) => {
+                            e.stopPropagation();
                             setShowCreateDialog(true);
                             setSelectedProject(project);
                           }}
@@ -994,7 +1001,8 @@ function Project() {
                     {hasPermission("Projects", 'Delete Records') && (
                       <CustomTooltip tooltipContent="Delete Project">
                         <Button
-                          onClick={() => {
+                          onClick={(e) => {
+                            e.stopPropagation();
                             setOpenConfirmation(true);
                             setSelectedProject(project?._id);
                           }}

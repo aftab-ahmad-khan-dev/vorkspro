@@ -1,14 +1,79 @@
 import React, { useState, useEffect, useCallback, memo } from "react";
 import { Outlet, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
-import { apiGet } from "@/interceptor/interceptor";
+import { apiGet, apiPost } from "@/interceptor/interceptor";
 import { THEMES_LIGHT, THEMES_DARK } from "@/constants/themes";
 import { applyThemePreference, getThemePreference } from "@/lib/theme";
+import { UserX, Loader2 } from "lucide-react";
+import { toast } from "sonner";
 
 import Sidebar from "./components/Sidebar";
 import Topbar from "./components/Topbar";
 import { jwtDecode } from "jwt-decode";
 import { useTabs } from "@/context/TabsContext";
+
+// ====================
+// No-role screen (assign default role or sign out)
+// ====================
+function NoRoleScreen({ setTabs, setActions }) {
+  const [assigning, setAssigning] = useState(false);
+
+  const handleAssignDefault = async () => {
+    setAssigning(true);
+    try {
+      const data = await apiPost("user/assign-default-role");
+      if (data?.isSuccess && data?.role) {
+        setTabs(data.role);
+        setActions(data.role);
+        toast.success("Role assigned. Loading app…");
+      } else {
+        toast.error(data?.message || "Could not assign role.");
+      }
+    } catch (err) {
+      toast.error(err?.message || "Could not assign default role.");
+    } finally {
+      setAssigning(false);
+    }
+  };
+
+  return (
+    <div className="min-h-screen flex flex-col items-center justify-center gap-6 p-6 bg-[var(--background)]">
+      <div className="rounded-2xl border border-[var(--border)] bg-[var(--card)] p-8 max-w-md w-full text-center shadow-lg">
+        <div className="mx-auto w-14 h-14 rounded-full bg-amber-500/20 flex items-center justify-center mb-4">
+          <UserX className="w-7 h-7 text-amber-600 dark:text-amber-400" />
+        </div>
+        <h1 className="text-xl font-bold text-[var(--foreground)] mb-2">
+          No role assigned
+        </h1>
+        <p className="text-sm text-[var(--muted-foreground)] mb-6">
+          Your account does not have a role yet. You can assign yourself the default role (if one exists) or sign out and ask an administrator to assign you a role.
+        </p>
+        <div className="flex flex-col sm:flex-row gap-3 justify-center">
+          <button
+            type="button"
+            onClick={handleAssignDefault}
+            disabled={assigning}
+            className="px-4 py-2 rounded-lg bg-[var(--primary)] text-[var(--primary-foreground)] font-medium hover:opacity-90 disabled:opacity-70 flex items-center justify-center gap-2"
+          >
+            {assigning ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
+            {assigning ? "Assigning…" : "Assign me the default role"}
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              localStorage.removeItem("token");
+              localStorage.removeItem("refreshToken");
+              window.location.href = "/login";
+            }}
+            className="px-4 py-2 rounded-lg border border-[var(--border)] text-[var(--foreground)] font-medium hover:bg-[var(--muted)]"
+          >
+            Sign out
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 // ====================
 // Memoized Sidebar
@@ -26,7 +91,7 @@ function Layout() {
     }
   }
 
-  const { setTabs, setActions } = useTabs();
+  const { tabs, setTabs, setActions } = useTabs();
   const location = useLocation();
 
   // ===== Responsive Sidebar State =====
@@ -47,10 +112,10 @@ function Layout() {
     return () => window.removeEventListener("storage", storageHandler);
   }, []);
 
-  // When not neon-purple, apply accent color from existing localStorage keys
+  // When mode is light/dark, apply accent from localStorage (skip when preference is an accent key)
   useEffect(() => {
     const pref = getThemePreference();
-    if (pref === "neon-purple") return;
+    if (pref !== "light" && pref !== "dark") return;
     const savedTheme = localStorage.getItem("themeMode") || "light";
     const savedLightColor = localStorage.getItem("lightColor") || "vorkspro";
     const savedDarkColor = localStorage.getItem("darkColor") || "vorkspro";
@@ -85,12 +150,34 @@ function Layout() {
     const fetchRoles = async () => {
       try {
         const data = await apiGet("user/get-roles");
+        if (data?.noRole) {
+          setTabs({ noRole: true });
+          setActions({ noRole: true });
+          return;
+        }
         if (data?.isSuccess && data.role) {
           setTabs(data.role);
           setActions(data.role);
-          // Apply user's saved theme preference (persisted to profile)
-          if (data.themePreference) {
-            applyThemePreference(data.themePreference);
+          // Apply user's saved theme and accent colors (persisted to profile)
+          const themePreference = data.themePreference || data.role?.themePreference;
+          const themeMode = data.themeMode || data.role?.themeMode;
+          const lightColor = data.lightColor || data.role?.lightColor;
+          const darkColor = data.darkColor || data.role?.darkColor;
+          if (themeMode === "light" || themeMode === "dark") {
+            try {
+              localStorage.setItem("themeMode", themeMode);
+              if (themeMode === "dark") document.documentElement.classList.add("dark");
+              else document.documentElement.classList.remove("dark");
+            } catch (_) {}
+          }
+          if (lightColor && THEMES_LIGHT[lightColor]) {
+            try { localStorage.setItem("lightColor", lightColor); } catch (_) {}
+          }
+          if (darkColor && THEMES_DARK[darkColor]) {
+            try { localStorage.setItem("darkColor", darkColor); } catch (_) {}
+          }
+          if (themePreference) {
+            applyThemePreference(themePreference);
           }
         } else {
           setTabs(emptyRole);
@@ -98,22 +185,68 @@ function Layout() {
         }
       } catch (error) {
         console.error("Failed to fetch roles", error);
-        setTabs(emptyRole);
-        setActions(emptyRole);
+        const msg = error?.message ?? "";
+        const isNoRole =
+          msg.includes("No role assigned to the user") ||
+          msg.includes("Your role is inactive or invalid");
+        if (isNoRole) {
+          setTabs({ noRole: true });
+          setActions({ noRole: true });
+        } else {
+          setTabs({ loadFailed: true });
+          setActions({ loadFailed: true });
+        }
       }
     };
 
     fetchRoles();
   }, [location.pathname, setTabs, setActions]);
 
+  const isLoading = tabs === null || tabs === undefined;
+  const isNoRole = tabs && (tabs.noRole === true);
+  const isLoadFailed = tabs && (tabs.loadFailed === true);
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[var(--background)]">
+        <Loader2 className="w-8 h-8 animate-spin text-[var(--primary)]" />
+      </div>
+    );
+  }
+
+  if (isNoRole) {
+    return (
+      <NoRoleScreen setTabs={setTabs} setActions={setActions} />
+    );
+  }
+
+  if (isLoadFailed) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center gap-4 p-6 bg-[var(--background)]">
+        <p className="text-[var(--foreground)]">Could not load your session.</p>
+        <button
+          type="button"
+          onClick={() => {
+            localStorage.removeItem("token");
+            localStorage.removeItem("refreshToken");
+            window.location.href = "/login";
+          }}
+          className="px-4 py-2 rounded-lg bg-[var(--primary)] text-[var(--primary-foreground)] font-medium"
+        >
+          Sign out
+        </button>
+      </div>
+    );
+  }
+
   return (
-    <div className="flex h-screen overflow-hidden bg-gray-50 dark:bg-[var(--background)]">
+    <div className="flex h-screen overflow-hidden bg-[var(--background)]">
 
       {/* Desktop Sidebar */}
       {!isMobile && (
         <aside
           className={cn(
-            "h-full flex-shrink-0 overflow-y-auto border-r border-slate-200 bg-white dark:border-slate-800 dark:bg-[var(--background)] transition-all duration-300",
+            "h-full flex-shrink-0 overflow-y-auto border-r border-[var(--border)] bg-[var(--background)] transition-all duration-300",
             isSidebarOpen ? "w-64" : "w-20"
           )}
         >
@@ -143,7 +276,7 @@ function Layout() {
       {/* Mobile Sidebar */}
       {isMobile && isSidebarOpen && (
         <div className="fixed inset-0 z-30 flex lg:hidden">
-          <div className="h-full w-64 border-r border-slate-200 bg-white shadow-xl dark:border-slate-800 dark:bg-[var(--background)]">
+          <div className="h-full w-64 border-r border-[var(--border)] bg-[var(--background)] shadow-xl">
             <SidebarMemo
               isSidebarOpen={isSidebarOpen}
               toggleSidebar={toggleSidebar}

@@ -1,51 +1,26 @@
-import {
-  Calendar,
-  CheckSquare,
-  Clock,
-  SquareCheckBig,
-  TrendingUp,
-} from "lucide-react";
+import { Calendar, CheckSquare, Clock, SquareCheckBig, TrendingUp } from "lucide-react";
 import React from "react";
+import { DASHBOARD_SUMMARIES } from "@/config/dashboardConfig";
+import {
+  DashboardSummaryCard,
+  DashboardInsightCard,
+  DashboardQuickActions,
+  DashboardActivitySection,
+} from "@/components/dashboard";
 
 export default function EmployeeDashboard() {
   return (
     <div className="min-h-screen bg-background sm:p-6 ">
-      {/* Top Stats — use theme color */}
-      <div className="mb-6 grid gap-4 md:grid-cols-4">
-        <StatCard
-          title="Pending Tasks"
-          value="2"
-          iconBg="bg-[var(--primary)]"
-          Icon={SquareCheckBig}
-        />
-        <StatCard
-          title="Completed Tasks"
-          value="1"
-          sub="↑ 18% vs last month"
-          subColor="text-green-500 dark:text-green-400"
-          iconBg="bg-[var(--primary)]"
-          Icon={TrendingUp}
-        />
-        <StatCard
-          title="Upcoming Meetings"
-          value="2"
-          iconBg="bg-[var(--primary)]"
-          Icon={Calendar}
-        />
-        <StatCard
-          title="Work Hours Today"
-          value="9h"
-          iconBg="bg-[var(--primary)]"
-          Icon={Clock}
-        />
+      <DashboardSummaryCard title="Your dashboard" summary={DASHBOARD_SUMMARIES.employee} />
+      <div className="mb-8 grid gap-4 md:grid-cols-4">
+        <DashboardInsightCard title="Pending Tasks" value="2" Icon={SquareCheckBig} iconBg="bg-[var(--primary)]" />
+        <DashboardInsightCard title="Completed Tasks" value="1" subtitle="↑ 18% vs last month" Icon={TrendingUp} iconBg="bg-[var(--primary)]" />
+        <DashboardInsightCard title="Upcoming Meetings" value="2" Icon={Calendar} iconBg="bg-[var(--primary)]" />
+        <DashboardInsightCard title="Work Hours Today" value="9h" Icon={Clock} iconBg="bg-[var(--primary)]" />
       </div>
+      <DashboardQuickActions className="mb-8" />
 
-      {/* Today's Summary */}
-      <div className="mb-6 rounded-xl bg-border/50 p-6 ">
-        <h2 className="mb-4 text-xl text-foreground font-semibold">
-          Today's Summary
-        </h2>
-
+      <DashboardActivitySection title="Today's Summary" subtitle="">
         <div className="grid gap-4 md:grid-cols-3">
           <SummaryCard
             label="Check-in Time"
@@ -66,16 +41,10 @@ export default function EmployeeDashboard() {
             bg="from-[var(--primary)]/10 via-[var(--primary)]/10 to-transparent"
           />
         </div>
-      </div>
+      </DashboardActivitySection>
 
-      {/* Projects & Tasks */}
       <div className="grid gap-6 md:grid-cols-2">
-        {/* My Projects */}
-        <div className="rounded-xl bg-border/50 p-6 ">
-          <h2 className="mb-4 text-xl text-foreground font-semibold">
-            My Projects
-          </h2>
-
+        <DashboardActivitySection title="My Projects" subtitle="">
           <ProjectCard
             title="Project Phoenix"
             client="TechCorp Inc."
@@ -94,14 +63,9 @@ export default function EmployeeDashboard() {
             progress={55}
             due="4/30/2026"
           />
-        </div>
+        </DashboardActivitySection>
 
-        {/* My Tasks */}
-        <div className="rounded-xl bg-border/50 p-6 ">
-          <h2 className="mb-4 text-xl text-foreground font-semibold">
-            My Tasks
-          </h2>
-
+        <DashboardActivitySection title="My Tasks" subtitle="">
           <TaskCard
             title="Review project proposals"
             desc="Review and approve Q1 project proposals from team leads"
@@ -119,14 +83,11 @@ export default function EmployeeDashboard() {
             due="1/25/2026"
             color="yellow"
           />
-        </div>
+        </DashboardActivitySection>
       </div>
 
       <div className="space-y-8 mt-6">
-        {/* Upcoming Meetings */}
-        <div className="rounded-2xl bg-border/50 p-6 ">
-          <h2 className="text-xl font-semibold text-foreground mb-6">Upcoming Meetings</h2>
-
+        <DashboardActivitySection title="Upcoming Meetings" subtitle="">
           {/* Meeting Item */}
           <div className="mb-4 rounded-xl bg-border/50 p-5">
             <div className="flex gap-6">
@@ -174,9 +135,9 @@ export default function EmployeeDashboard() {
               </div>
             </div>
           </div>
-        </div>
+        </DashboardActivitySection>
 
-        {/* Action Cards */}
+        <DashboardActivitySection title="Quick actions" subtitle="">
         <div className="grid grid-cols-1 md:grid-cols-3 text-center gap-5">
           <button className="rounded-2xl mb-1 cursor-pointer bg-[var(--primary)] hover:opacity-90 transition-opacity p-6 text-white shadow-lg">
             <Calendar size={32} className="mb-4 mx-auto" />
@@ -194,25 +155,7 @@ export default function EmployeeDashboard() {
             <p className="text-sm opacity-90">Manage your tasks</p>
           </button>
         </div>
-      </div>
-    </div>
-  );
-}
-
-/* ---------- Components ---------- */
-
-function StatCard({ title, value, sub, subColor, iconBg, Icon }) {
-  return (
-    <div className="flex items-center justify-between rounded-xl bg-border/50 p-5 ">
-      <div>
-        <p className="text-sm text-muted-foreground">{title}</p>
-        <p className="mt-1 text-2xl text-foreground font-bold">{value}</p>
-        {sub && <p className={`mt-1 text-xs ${subColor}`}>{sub}</p>}
-      </div>
-      <div
-        className={`h-12 w-12 rounded-lg flex items-center justify-center ${iconBg}`}
-      >
-        <Icon className="text-white" />
+        </DashboardActivitySection>
       </div>
     </div>
   );

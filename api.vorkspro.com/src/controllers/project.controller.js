@@ -111,12 +111,19 @@ export const projectController = {
       const employee = await Employee.findOne({ user: userId }).select("_id");
 
       if (!employee) {
+        const emptyPagination = {
+          page: 1,
+          size: parseInt(req.query.size, 10) || 10,
+          totalItems: 0,
+          totalPages: 0,
+          lastPage: 0,
+        };
         return generateApiResponse(
           res,
           StatusCodes.OK,
           true,
           "No projects found",
-          { filteredData: [] }
+          { filteredData: { projects: [], pagination: emptyPagination } }
         );
       }
 
@@ -247,7 +254,25 @@ export const projectController = {
   }),
 
   getAllProjects: asyncHandler(async (req, res) => {
-    const projects = await Project.find().select("name");
+    const userId = req.user._id;
+    const user = await User.findById(userId).populate("role");
+    if (!user) {
+      return generateApiResponse(res, StatusCodes.NOT_FOUND, false, "User not found");
+    }
+
+    let whereStatement = { isDeleted: false };
+    if (user.role?.name !== "Admin") {
+      const employee = await Employee.findOne({ user: userId }).select("_id");
+      if (!employee) {
+        return generateApiResponse(res, StatusCodes.OK, true, "Projects fetched successfully", { filteredData: { projects: [] } });
+      }
+      whereStatement.$or = [
+        { projectManager: employee._id },
+        { teamMembers: employee._id },
+      ];
+    }
+
+    const projects = await Project.find(whereStatement).select("name _id");
 
     return generateApiResponse(
       res,
@@ -494,25 +519,27 @@ export const projectController = {
 
   getById: asyncHandler(async (req, res) => {
     const { id } = req.params;
-    const project = await Project.findById(id).populate([
-      { path: 'client' },
-      { path: 'projectManager' },
-      { path: 'milestones' },
-      { path: 'blockages' },
-      {
-        path: 'teamMembers',
-        select: 'firstName lastName email',
-        populate: {
-          path: 'subDepartment',
-          select: 'name',
+    const [project, timeLines] = await Promise.all([
+      Project.findById(id).populate([
+        { path: 'client' },
+        { path: 'projectManager' },
+        { path: 'milestones' },
+        { path: 'blockages' },
+        {
+          path: 'teamMembers',
+          select: 'firstName lastName email',
+          populate: { path: 'subDepartment', select: 'name' },
         },
-      },
+      ]).lean(),
+      Timeline.find({ project: id }).populate([
+        { path: "user", select: "firstName lastName email" },
+        { path: "employee", select: "firstName lastName" },
+      ]).lean(),
     ]);
 
-    const timeLines = await Timeline.find({ project: id }).populate([
-      { path: "user", select: "firstName lastName email" },
-      { path: "employee", select: "firstName lastName" },
-    ]);
+    if (!project) {
+      return generateApiResponse(res, StatusCodes.NOT_FOUND, false, "Project not found", null);
+    }
 
     return generateApiResponse(
       res,

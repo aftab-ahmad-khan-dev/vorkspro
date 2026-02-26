@@ -328,7 +328,7 @@ export const milestoneController = {
   getMilestoneByProject: asyncHandler(async (req, res) => {
     const { id } = req.params;
 
-    const milestones = await Milestone.find({ project: id }).select("name startDate endDate");
+    const milestones = await Milestone.find({ project: id }).select("name description startDate endDate cost");
 
     return generateApiResponse(
       res,

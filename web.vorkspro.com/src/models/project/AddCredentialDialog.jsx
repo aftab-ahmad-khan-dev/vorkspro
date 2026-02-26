@@ -16,6 +16,7 @@ import {
   Database,
   Eye,
   EyeOff,
+  FolderOpen,
   Lock,
   Server,
   Shield,
@@ -27,11 +28,13 @@ function AddCredentialDialog({
   onClose,
   onSuccess,
   projectId,
-  onRefresh
+  onRefresh,
+  projects = [],
 }) {
   const isEditMode = !!selectedApiKey;
   const token = localStorage.getItem("token");
   const baseUrl = import.meta.env.VITE_APP_BASE_URL;
+  const showProjectDropdown = !isEditMode && Array.isArray(projects) && projects.length > 0;
 
   const defaultForm = {
     name: "",
@@ -45,6 +48,7 @@ function AddCredentialDialog({
   const [loading, setLoading] = useState(false);
   const [showKey, setShowKey] = useState(false);
   const [formData, setFormData] = useState(defaultForm);
+  const [selectedProjectId, setSelectedProjectId] = useState(projectId || (projects[0]?._id) || "");
 
   // 🔧 Normalizers so Select values match options exactly
   const normalizeEnvironment = (env) => {
@@ -101,6 +105,11 @@ function AddCredentialDialog({
     }
   }, [isEditMode, selectedApiKey]);
 
+  useEffect(() => {
+    if (projectId) setSelectedProjectId(projectId);
+    else if (projects.length > 0 && !selectedProjectId) setSelectedProjectId(projects[0]._id);
+  }, [projectId, projects]);
+
   const handleChange = (field, value) => {
     setFormData((prev) => ({
       ...prev,
@@ -132,6 +141,13 @@ function AddCredentialDialog({
 
     setLoading(true);
 
+    const effectiveProjectId = showProjectDropdown ? selectedProjectId : projectId;
+    if (!effectiveProjectId && !isEditMode) {
+      toast.error("Please select a project.");
+      setLoading(false);
+      return;
+    }
+
     const payload = {
       _id: selectedApiKey?._id,
       name: formData.name.trim(),
@@ -145,7 +161,7 @@ function AddCredentialDialog({
     try {
       const url = isEditMode
         ? `${baseUrl}credential/update/${projectId}`
-        : `${baseUrl}credential/create/${projectId}`;
+        : `${baseUrl}credential/create/${effectiveProjectId}`;
       const method = isEditMode ? "PATCH" : "POST";
 
       const res = await fetch(url, {
@@ -180,6 +196,31 @@ function AddCredentialDialog({
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      {/* Project (when creating with projects list) */}
+      {showProjectDropdown && (
+        <div className="space-y-2 md:col-span-2">
+          <label className="text-sm font-medium flex items-center gap-2">
+            <FolderOpen className="h-4 w-4 text-[var(--muted-foreground)]" />
+            Project <span className="text-red-500">*</span>
+          </label>
+          <Select
+            value={selectedProjectId}
+            onValueChange={setSelectedProjectId}
+          >
+            <SelectTrigger className="flex w-full items-center gap-2 rounded-sm border border-[var(--border)] px-3 py-2 cursor-pointer">
+              <SelectValue placeholder="Select project" />
+            </SelectTrigger>
+            <SelectContent>
+              {projects.map((p) => (
+                <SelectItem key={p._id} value={p._id}>
+                  {p.name || p.projectName || p._id}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      )}
+
       {/* Name */}
       <div className="space-y-2 md:col-span-2">
         <label className="text-sm font-medium">

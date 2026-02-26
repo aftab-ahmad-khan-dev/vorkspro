@@ -8,8 +8,6 @@ import { Label } from "@/components/ui/label";
 import { AlertTriangle, Clock, CheckCircle, AlertCircle, Users, ExternalLink, Code, User, Plus, Edit, Construction } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useTabs } from "@/context/TabsContext";
-const baseUrl = import.meta.env.VITE_APP_BASE_URL;
-const token = localStorage.getItem("token");
 import SearchableSelect from "@/components/SearchableSelect";
 import { apiGet, apiPatch, apiPost } from "@/interceptor/interceptor";
 import { toast } from "sonner";
@@ -435,7 +433,7 @@ const CreateBlockageDialog = ({ onAdd, projects, employees }) => {
 
     return (
         <>
-            {open && <div className="fixed inset-0 bg-black/20 backdrop-blur-sm z-40" />}
+            {open && <div className="fixed inset-0 z-40 w-screen h-screen bg-black/60 backdrop-blur-sm" style={{ width: "100vw", height: "100vh" }} />}
             <Dialog open={open} onOpenChange={setOpen}>
                 <DialogTrigger asChild>
                     <Button className="w-full sm:w-auto">
@@ -671,31 +669,32 @@ export default function Blockages() {
 
     const fetchEmployees = async () => {
         try {
-            const res = await fetch(`${baseUrl}employee/get-active-employees`, {
-                headers: { Authorization: `Bearer ${token}` },
-            });
-            const data = await res.json();
-            if (data.isSuccess) setEmployees(data.filteredData?.employees || []);
+            const data = await apiGet("employee/get-active-employees");
+            if (data?.isSuccess) setEmployees(data.filteredData?.employees || []);
         } catch (err) {
             console.error(err);
         }
     };
     const fetchProjects = async () => {
         try {
-            const res = await fetch(`${baseUrl}project/get-inprogress-onhold`, {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
-            });
-            if (!res.ok) {
-                throw new Error(`HTTP error! status: ${res.status}`);
-            }
-            const data = await res.json();
-            if (data.isSuccess) {
+            const data = await apiGet("project/get-inprogress-onhold");
+            if (data?.isSuccess) {
                 setProjects(data.filteredData?.projects || []);
+            } else {
+                setProjects([]);
+                toast.error(data?.message || "Failed to load projects.");
             }
         } catch (err) {
             console.error("❌ fetchProjects error:", err);
+            setProjects([]);
+            const m = err?.message || "";
+            const isNetwork = /failed to fetch|networkerror|load failed/i.test(m);
+            const msg = isNetwork
+                ? "Unable to connect to the server. Please check your connection and that the API is running."
+                : m.toLowerCase().includes("permission")
+                    ? "You don't have permission to view projects."
+                    : "Failed to load projects.";
+            toast.error(msg);
         }
     };
 

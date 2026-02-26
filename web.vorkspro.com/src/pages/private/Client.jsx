@@ -621,7 +621,16 @@ function Client() {
                   return (
                     <tr
                       key={client._id}
-                      className="border-b border-[var(--border)] hover:bg-[var(--border)]/30"
+                      role="button"
+                      tabIndex={0}
+                      onClick={() => hasPermission("Client Management", "View Details") && navigate(`/app/clients/client-detail/${client._id}`)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" || e.key === " ") {
+                          e.preventDefault();
+                          hasPermission("Client Management", "View Details") && navigate(`/app/clients/client-detail/${client._id}`);
+                        }
+                      }}
+                      className="border-b border-[var(--border)] hover:bg-[var(--border)]/30 cursor-pointer"
                     >
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-3">
@@ -694,7 +703,8 @@ function Client() {
                             <Button
                               className="bg-transparent hover:text-[var(--button)] text-[var(--button)] hover:bg-[var(--button)]/20"
                               size="sm"
-                              onClick={() => {
+                              onClick={(e) => {
+                                e.stopPropagation();
                                 setSelectedChatClient(client);
                                 setIsChatDialogOpen(true);
                               }}
@@ -706,9 +716,10 @@ function Client() {
                               <Button
                                 className="bg-transparent hover:text-[var(--button)] text-[var(--button)] hover:bg-[var(--button)]/20"
                                 size="sm"
-                                onClick={() =>
-                                  navigate(`/app/clients/client-detail/${client._id}`)
-                                }
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  navigate(`/app/clients/client-detail/${client._id}`);
+                                }}
                               >
                                 <Eye size={16} />
                               </Button>
@@ -717,7 +728,7 @@ function Client() {
                           {hasPermission("Client Management", "Edit Records") && (
                             <CustomTooltip tooltipContent="Update Client">
                               <Button
-                                onClick={() => handleEdit(client)}
+                                onClick={(e) => { e.stopPropagation(); handleEdit(client); }}
                                 className="bg-transparent text-green-500 hover:bg-green-500/20 hover:text-green-500"
                                 size="sm"
                                 variant="ghost"
@@ -729,7 +740,7 @@ function Client() {
                           {hasPermission("Client Management", "Edit Records") && (
                             <CustomTooltip tooltipContent="Update Status">
                               <Button
-                                onClick={() => openStatusDialog(client)}
+                                onClick={(e) => { e.stopPropagation(); openStatusDialog(client); }}
                                 className="bg-transparent text-orange-500 hover:bg-orange-500/20 hover:text-orange-500"
                                 size="sm"
                                 variant="ghost"

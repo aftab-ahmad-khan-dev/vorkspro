@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "react-router-dom";
 import { cn } from "@/lib/utils";
 
 function StatCard({
@@ -11,15 +12,10 @@ function StatCard({
   icon,
   iconClass,
   isLoading = false,
+  to,
 }) {
-  return (
-    <div
-      className={`rounded-xl p-6 transition-all hover:shadow-md text-foreground ${
-        cardClass
-          ? cardClass
-          : "bg-[var(--background)] border border-[var(--border)]"
-      }`}
-    >
+  const content = (
+    <>
       {/* ─── Header ─── */}
       <div className="flex items-center justify-between mb-4">
         <h3
@@ -65,8 +61,24 @@ function StatCard({
           <p className="text-sm text-[var(--muted-foreground)]">{subtitle}</p>
         )
       )}
-    </div>
+    </>
   );
+
+  const cardClassName = `rounded-xl p-6 transition-all hover:shadow-md text-foreground ${
+    cardClass
+      ? cardClass
+      : "bg-[var(--background)] border border-[var(--border)]"
+  } ${to ? "cursor-pointer block" : ""}`;
+
+  if (to) {
+    return (
+      <Link to={to} className={cardClassName}>
+        {content}
+      </Link>
+    );
+  }
+
+  return <div className={cardClassName}>{content}</div>;
 }
 
 export default StatCard;

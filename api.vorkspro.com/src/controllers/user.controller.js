@@ -1,11 +1,18 @@
 import { StatusCodes } from "http-status-codes";
 import { asyncHandler } from "../services/asynchandler.js";
 import { generateApiResponse } from "../services/utilities.service.js";
-import { Config, Employee, ResetCode, User } from "../startup/models.js";
+import { Config, Employee, ResetCode, Role, User } from "../startup/models.js";
 import { tokenCreator } from "../services/token.service.js";
 import { jwtDecode } from "jwt-decode";
 import { client } from "../app.js";
 import { fetchUsdToPkrRate } from "../services/exchangeRate.service.js";
+
+/** Allowed theme values: mode (light/dark) or 10 accent keys. */
+const ALLOWED_THEME_PREFERENCES = [
+    "light", "dark", "neon-purple",
+    "vorkspro", "neonCyan", "neonGreen", "neonPink", "neonPurple",
+    "electricBlue", "amber", "coral", "teal", "violet"
+];
 
 export const userController = {
     registerUser: asyncHandler(async (req, res) => {
@@ -16,17 +23,11 @@ export const userController = {
     loginUser: asyncHandler(async (req, res) => {
         const { identifier, password } = req.body;
 
-        // Try finding by username or email
-        let user = await User.findOne({ username: identifier }).populate('role');
+        // Single query: find by username OR email (one round trip instead of two)
+        const user = await User.findOne({
+            $or: [{ username: identifier }, { email: identifier }],
+        }).populate('role');
 
-        console.log("username user:", user)
-
-        if (!user) {
-            user = await User.findOne({ email: identifier }).populate('role');
-        }
-
-        console.log("email user:", user)
-        // If still not found
         if (!user) {
             return generateApiResponse(
                 res,
@@ -47,7 +48,7 @@ export const userController = {
             );
         }
 
-        const employee = await Employee.findOne({ user: user._id });
+        const employee = await Employee.findOne({ user: user._id }).lean();
 
         // Generate token
         const token = tokenCreator({
@@ -197,57 +198,98 @@ export const userController = {
                 StatusCodes.OK,
                 true,
                 "Roles fetched successfully (cache)",
-                { role: parsed.role, themePreference: parsed.themePreference || "neon-purple" }
+                {
+                    role: parsed.role,
+                    noRole: !!parsed.noRole,
+                    themePreference: parsed.themePreference || "neonPurple",
+                    themeMode: parsed.themeMode,
+                    lightColor: parsed.lightColor,
+                    darkColor: parsed.darkColor,
+                }
             );
         }
 
-        // 2️⃣ Fetch from DB if not in cache
-        const user = await User.findById(_id).populate('role');
+        // 2️⃣ Fetch from DB if not in cache (select only needed fields, lean for speed)
+        const user = await User.findById(_id)
+            .select('role themePreference themeMode lightColor darkColor isSuperAdmin')
+            .populate('role')
+            .lean();
         if (!user) {
             return generateApiResponse(res, StatusCodes.NOT_FOUND, false, "User not found", null);
         }
 
-        // Build role payload: role doc + isSuperAdmin so frontend can show correct sidebar per user
+        const noRole = !user.role;
         const rolePayload = user.role
-            ? { ...user.role.toObject(), isSuperAdmin: !!user.isSuperAdmin }
+            ? { ...user.role, isSuperAdmin: !!user.isSuperAdmin }
             : { isSuperAdmin: !!user.isSuperAdmin, modulePermissions: [] };
-        const themePreference = user.themePreference || "neon-purple";
+        const themePreference = user.themePreference || "neonPurple";
+        const themeMode = user.themeMode;
+        const lightColor = user.lightColor;
+        const darkColor = user.darkColor;
 
         // 3️⃣ Store in Redis (TTL 10 minutes)
-        await client.set(cacheKey, JSON.stringify({ role: rolePayload, themePreference }), { EX: 600 });
+        await client.set(cacheKey, JSON.stringify({
+            role: rolePayload,
+            noRole,
+            themePreference,
+            themeMode,
+            lightColor,
+            darkColor,
+        }), { EX: 600 });
 
         return generateApiResponse(
             res,
             StatusCodes.OK,
             true,
             "Roles fetched successfully",
-            { role: rolePayload, themePreference }
+            { role: rolePayload, noRole, themePreference, themeMode, lightColor, darkColor }
         );
     }),
 
-    /** Update current user profile (e.g. theme preference). Body: { themePreference } */
+    /** Get current user's employee (for Profile when token has no employee). Any authenticated user. */
+    getMe: asyncHandler(async (req, res) => {
+        const employee = await Employee.findOne({ user: req.user._id })
+            .populate("department", "name")
+            .populate("subDepartment", "name")
+            .lean();
+        return generateApiResponse(
+            res,
+            StatusCodes.OK,
+            true,
+            "Current user profile",
+            { employee: employee || null }
+        );
+    }),
+
+    /** Update current user profile (e.g. theme preference). Body: { themePreference, themeMode?, lightColor?, darkColor? } */
     updateProfile: asyncHandler(async (req, res) => {
         const { _id } = req.user;
-        const { themePreference } = req.body;
-        if (themePreference && !["light", "dark", "neon-purple"].includes(themePreference)) {
+        const { themePreference, themeMode, lightColor, darkColor } = req.body;
+        if (themePreference && !ALLOWED_THEME_PREFERENCES.includes(themePreference)) {
             return generateApiResponse(res, StatusCodes.BAD_REQUEST, false, "Invalid theme preference");
         }
         const user = await User.findById(_id);
         if (!user) {
             return generateApiResponse(res, StatusCodes.NOT_FOUND, false, "User not found");
         }
-        if (themePreference) {
-            user.themePreference = themePreference;
-            await user.save();
-            const cacheKey = `user:${_id}:role`;
-            await client.del(cacheKey).catch(() => {});
-        }
+        if (themePreference) user.themePreference = themePreference;
+        if (themeMode) user.themeMode = themeMode;
+        if (lightColor) user.lightColor = lightColor;
+        if (darkColor) user.darkColor = darkColor;
+        await user.save();
+        const cacheKey = `user:${_id}:role`;
+        await client.del(cacheKey).catch(() => {});
         return generateApiResponse(
             res,
             StatusCodes.OK,
             true,
             "Profile updated successfully",
-            { themePreference: user.themePreference || "neon-purple" }
+            {
+                themePreference: user.themePreference || "neonPurple",
+                themeMode: user.themeMode,
+                lightColor: user.lightColor,
+                darkColor: user.darkColor,
+            }
         );
     }),
 
@@ -311,6 +353,35 @@ export const userController = {
             true,
             "Users fetched successfully",
             { users }
+        );
+    }),
+
+    /** Self-service: assign the first available active role to the current user when they have no role (so they can access the app). */
+    assignDefaultRole: asyncHandler(async (req, res) => {
+        const _id = req.user._id;
+        const user = await User.findById(_id).select("role").lean();
+        if (!user) {
+            return generateApiResponse(res, StatusCodes.NOT_FOUND, false, "User not found");
+        }
+        if (user.role) {
+            return generateApiResponse(res, StatusCodes.BAD_REQUEST, false, "You already have a role assigned.");
+        }
+        // Prefer Admin role (has full permissions) so user can access all modules; otherwise first active role
+        const defaultRole = await Role.findOne({ name: "Admin", isActive: true }).lean()
+            || await Role.findOne({ isActive: true }).sort({ createdAt: 1 }).lean();
+        if (!defaultRole) {
+            return generateApiResponse(res, StatusCodes.BAD_REQUEST, false, "No active role exists. Create a role in Settings first (requires an admin).");
+        }
+        await User.findByIdAndUpdate(_id, { role: defaultRole._id });
+        const cacheKey = `user:${_id}:role`;
+        await client.del(cacheKey).catch(() => {});
+        const rolePayload = { ...defaultRole, isSuperAdmin: false };
+        return generateApiResponse(
+            res,
+            StatusCodes.OK,
+            true,
+            "Default role assigned. Reload the app.",
+            { role: rolePayload, noRole: false }
         );
     }),
 

@@ -25,6 +25,8 @@ import { ForwardGuard } from "./guards/ForwardGuard";
 import { RouteGuard } from "./guards/RouteGuard";
 import NotFound from "./pages/public/NotFound";
 import Landing from "./pages/public/Landing";
+import LiveDemo from "./pages/public/LiveDemo";
+import DemoAdmin from "./pages/public/DemoAdmin";
 import AdminAssets from "./pages/private/Admin&Assets";
 import FollowHub from "./pages/private/FollowUpHub";
 import ToDoList from "./pages/private/MyToDoList";
@@ -32,18 +34,11 @@ import ClientDetail from "./pages/private/ClientDetail";
 import ProjectDetail from "./pages/private/ProjectDetail";
 import MilestoneDetail from "./pages/private/MilestoneDetail";
 import { ProjectDetailProvider } from "./context/ProjectDetailContext";
-import { useTabs } from "./context/TabsContext";
-import AdminDashboard from "./pages/private/Dashboards/AdminDashboard";
-import HRDashboard from "./pages/private/Dashboards/HRDashboard";
-import ProjectManagerDashboard from "./pages/private/Dashboards/ProjectManagerDashboard";
-import FinanceManagerDashboard from "./pages/private/Dashboards/FinanceManagerDashboard"
-import EmployeeDashboard from "./pages/private/Dashboards/EmployeeDashboard";
 import KeysAndCredentials from "./pages/private/Keys&Credentials";
 import { AuthGuard } from "./guards/AuthGuard";
 import Blockages from "./pages/private/Blockages";
 
 function App() {
-  const { tabs } = useTabs();
   const token = localStorage.getItem("token");
 
 
@@ -55,6 +50,8 @@ function App() {
     <Routes>
       {/* Landing (public) */}
       <Route path="/" element={<Landing />} />
+      <Route path="/demo" element={<LiveDemo />} />
+      <Route path="/demo/admin" element={<DemoAdmin />} />
 
       <Route
         path="/login"
@@ -78,53 +75,13 @@ function App() {
       >
         <Route index element={<Navigate to="/app/dashboard" replace />} />
 
-        {/* Dashboard */}
+        {/* Single dashboard for all roles (including admin-created). Uses tabs/role for title/summary and modules. */}
         <Route path="dashboard" element={<Dashboard />} />
-
-        <Route
-          path="admin-dashboard"
-          element={
-            // <ProtectedModuleRoute module="Admin Dashboard">
-              <AdminDashboard />
-            // </ProtectedModuleRoute>
-          }
-        />
-
-        <Route
-          path="hr-dashboard"
-          element={
-            // <ProtectedModuleRoute module="Admin Dashboard">
-              <HRDashboard />
-            // </ProtectedModuleRoute>
-          }
-        />
-
-        <Route
-          path="project-manager-dashboard"
-          element={
-            // <ProtectedModuleRoute module="Admin Dashboard">
-              <ProjectManagerDashboard />
-            // </ProtectedModuleRoute>
-          }
-        />
-
-        <Route
-          path="finance-manager-dashboard"
-          element={
-            // <ProtectedModuleRoute module="Admin Dashboard">
-              <FinanceManagerDashboard />
-            // </ProtectedModuleRoute>
-          }
-        />
-
-        <Route
-          path="employee-dashboard"
-          element={
-            // <ProtectedModuleRoute module="Admin Dashboard">
-              <EmployeeDashboard />
-            // </ProtectedModuleRoute>
-          }
-        />
+        <Route path="admin-dashboard" element={<Navigate to="/app/dashboard" replace />} />
+        <Route path="hr-dashboard" element={<Navigate to="/app/dashboard" replace />} />
+        <Route path="project-manager-dashboard" element={<Navigate to="/app/dashboard" replace />} />
+        <Route path="finance-manager-dashboard" element={<Navigate to="/app/dashboard" replace />} />
+        <Route path="employee-dashboard" element={<Navigate to="/app/dashboard" replace />} />
 
         {/* Employee Management */}
         <Route path="employees" element={<Employee />} />
@@ -139,7 +96,8 @@ function App() {
 
         {/* Project Management */}
         <Route path="projects" element={<Project />} />
-        <Route path="credentials" element={<KeysAndCredentials />} />
+        <Route path="projects/credentials" element={<KeysAndCredentials />} />
+        <Route path="credentials" element={<Navigate to="/app/projects/credentials" replace />} />
         <Route path="blockages" element={<Blockages />} />
         <Route
           path="projects/project-detail/:id"

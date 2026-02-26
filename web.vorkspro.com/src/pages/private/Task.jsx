@@ -60,6 +60,7 @@ import MilestoneEvents from "@/components/MilestoneEvents";
 import { useTabs } from "@/context/TabsContext";
 import CustomTooltip from "@/components/Tooltip";
 import EmptyState from "@/components/EmptyState";
+import { apiGet, apiGetByFilter, apiPatch, apiPost } from "@/interceptor/interceptor";
 
 const localizer = dateFnsLocalizer({
   format,
@@ -384,40 +385,42 @@ function Task() {
     );
   };
 
-  // API Calls
-  const baseUrl = import.meta.env.VITE_APP_BASE_URL + "milestone";
-  const projectUrl = import.meta.env.VITE_APP_BASE_URL + "project";
-  const token = localStorage.getItem("token");
-
+  // API Calls (use interceptor for same base URL and auth)
   const fetchInprogressProjects = async () => {
     try {
-      const res = await fetch(`${projectUrl}/get-inprogress`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      const data = await res.json();
-      setInprogressProjects(data?.filteredData?.projects || []);
+      const data = await apiGet("project/get-inprogress");
+      if (data?.isSuccess) {
+        setInprogressProjects(data.filteredData?.projects || []);
+      } else {
+        setInprogressProjects([]);
+        toast.error(data?.message || "Failed to load projects.");
+      }
     } catch (err) {
       console.error(err);
+      setInprogressProjects([]);
+      const m = err?.message || "";
+      const isNetwork = /failed to fetch|networkerror|load failed/i.test(m);
+      const msg = isNetwork
+        ? "Unable to connect to the server. Please check your connection and that the API is running."
+        : m.toLowerCase().includes("permission")
+          ? "You don't have permission to view projects."
+          : "Failed to load projects.";
+      toast.error(msg);
     }
   };
 
   const fetchMilestonesWithPagination = async () => {
     setLoading(true);
     try {
-      const params = new URLSearchParams({
+      const params = {
         page: paginationData.page,
         size: paginationData.size,
         ...(selectedProjectId && { projectId: selectedProjectId }),
         ...(statusFilter !== "all" && { status: statusFilter }),
         ...(searchTerm.trim() && { search: searchTerm.trim() })
-      });
-
-      const res = await fetch(`${baseUrl}/get-by-filter?${params}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      const data = await res.json();
-
-      if (data.isSuccess) {
+      };
+      const data = await apiGetByFilter("milestone/get-by-filter", params);
+      if (data?.isSuccess) {
         setFilteredMilestones(data.filteredData?.milestones || []);
         setPaginationData(prev => ({
           ...prev,
@@ -436,10 +439,7 @@ function Task() {
   const fetchMilestoneStats = async () => {
     setStatsLoading(true);
     try {
-      const res = await fetch(`${baseUrl}/get-stats`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      const data = await res.json();
+      const data = await apiGet("milestone/get-stats");
       setMilestoneStats(data?.stats || {});
     } catch (err) {
       console.error(err);
@@ -455,17 +455,14 @@ function Task() {
       const start = startOfMonth(date);
       const end = endOfMonth(date);
 
-      const params = new URLSearchParams({
+      const params = {
         startDate: format(start, "yyyy-MM-dd"),
         endDate: format(end, "yyyy-MM-dd"),
-      });
+      };
 
       try {
-        const res = await fetch(`${baseUrl}/get-by-date?${params}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        const data = await res.json();
-        if (data.isSuccess) {
+        const data = await apiGetByFilter("milestone/get-by-date", params);
+        if (data?.isSuccess) {
           setCalendarMilestones(data.milestones || []);
         } else {
           toast.error("Failed to load milestones for this month");
@@ -479,21 +476,13 @@ function Task() {
         setCalendarLoading(false);
       }
     },
-    [token]
+    []
   );
 
   const changeMilestoneStatus = async (id, status) => {
     try {
-      const res = await fetch(`${baseUrl}/change-status/${id}`, {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ status }),
-      });
-      const data = await res.json();
-      if (data.isSuccess) {
+      const data = await apiPatch(`milestone/change-status/${id}`, { status });
+      if (data?.isSuccess) {
         toast.success("Status updated!");
         fetchMilestonesWithPagination();
         fetchMilestoneStats();
@@ -511,10 +500,7 @@ function Task() {
 
   const handleDeleteConfirm = async () => {
     try {
-      await fetch(`${baseUrl}/delete/${selectedMilestone._id}`, {
-        method: "POST",
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      await apiPost(`milestone/delete/${selectedMilestone._id}`);
       toast.success("Deleted!");
       fetchMilestonesWithPagination();
       fetchMilestoneStats();

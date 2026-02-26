@@ -15,9 +15,10 @@ function Confirmation({
 
   return (
     <>
-      {/* ─── Backdrop ─── */}
+      {/* ─── Full viewport backdrop ─── */}
       <div
-        className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 transition-opacity duration-200"
+        className="fixed inset-0 z-40 w-screen h-screen bg-black/60 backdrop-blur-sm transition-opacity duration-200"
+        style={{ width: "100vw", height: "100vh" }}
         onClick={onClose}
       />
 

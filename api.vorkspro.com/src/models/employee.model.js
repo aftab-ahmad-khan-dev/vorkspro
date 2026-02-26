@@ -156,6 +156,10 @@ const EmployeeSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
+EmployeeSchema.index({ user: 1 });
+EmployeeSchema.index({ department: 1, isDeleted: 1 });
+EmployeeSchema.index({ status: 1, isDeleted: 1 });
+
 // ✅ Automatically create a SalaryHistory entry when a new Employee is added
 // EmployeeSchema.pre("save", async function (next) {
 //   try {

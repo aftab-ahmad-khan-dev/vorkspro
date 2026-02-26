@@ -101,7 +101,7 @@ function Sidebar({ isSidebarOpen, toggleSidebar, isMobile }) {
       initial={{ x: -300, opacity: 0 }}
       animate={{ x: 0, opacity: 1 }}
       transition={{ duration: 0.3, ease: "easeOut" }}
-      className="h-full flex flex-col bg-white dark:bg-[var(--background)]"
+      className="h-full flex flex-col bg-[var(--background)]"
     >
       {/* Header: Logo + Toggle */}
       <motion.div
@@ -228,8 +228,8 @@ function Sidebar({ isSidebarOpen, toggleSidebar, isMobile }) {
                     icon: <Briefcase size={16} />,
                   },
                   hasPermission("Keys & Credentials") && {
-                    label: "Key & Credentials",
-                    link: "/app/credentials",
+                    label: "Keys & Credentials",
+                    link: "/app/projects/credentials",
                     icon: <Key size={16} />,
                   },
                   hasPermission("Milestones") && {
@@ -502,21 +502,22 @@ function NavGroup({
         )}
       </motion.button>
 
-      <AnimatePresence initial={false}>
-        {open && (
-          <motion.div
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: "auto", opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.3, ease: "easeInOut" }}
-            className={cn("mt-1 space-y-1 overflow-hidden", isSidebarOpen ? "ml-9" : "ml-2")}
-          >
-            {items.map((item) => {
-              const isChildActive =
-                location.pathname === item.link ||
-                location.pathname.startsWith(item.link + "/");
+          <AnimatePresence initial={false}>
+            {open && (
+              <motion.div
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: "auto", opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                transition={{ duration: 0.3, ease: "easeInOut" }}
+                className={cn("mt-1 space-y-1 overflow-hidden", isSidebarOpen ? "ml-9" : "ml-2")}
+              >
+                {items.map((item) => {
+                  const matches = (it) =>
+                    location.pathname === it.link || location.pathname.startsWith(it.link + "/");
+                  const activeItem = items.filter(matches).sort((a, b) => b.link.length - a.link.length)[0];
+                  const isChildActive = activeItem && item.link === activeItem.link;
 
-              return (
+                  return (
                 <motion.div
                   key={item.label}
                   initial={{ opacity: 0, x: -20 }}

@@ -1,12 +1,16 @@
-import { Card, CardContent } from "@/components/ui/card";
 import {
-  ArrowUpRight,
-  ArrowDownRight,
   DollarSign,
   CreditCard,
   TrendingUp,
   TrendingDown,
 } from "lucide-react";
+import { DASHBOARD_SUMMARIES } from "@/config/dashboardConfig";
+import {
+  DashboardSummaryCard,
+  DashboardInsightCard,
+  DashboardQuickActions,
+  DashboardActivitySection,
+} from "@/components/dashboard";
 import {
   BarChart,
   Bar,
@@ -62,48 +66,18 @@ const CustomTooltip = ({ active, payload, label }) => {
 export default function FinanceManagerDashboard() {
   return (
     <div className="min-h-screen bg-background sm:p-6 text-foreground">
-      <div className="grid grid-cols-1 gap-6 md:grid-cols-4">
-        <StatCard
-          title="Total Inflow"
-          value="$40K"
-          change="+15% vs last month"
-          icon={<TrendingUp />}
-          color="bg-gradient-to-br from-emerald-500 to-green-400"
-          text="text-green-500"
-        />
-
-        <StatCard
-          title="Total Outflow"
-          value="$53K"
-          change="-5% vs last month"
-          icon={<TrendingDown />}
-          color="bg-gradient-to-br from-orange-700 to-orange-500"
-          text="text-orange-500"
-        />
-
-        <StatCard
-          title="Net Cash Flow"
-          value="$-13K"
-          change="+22% vs last month"
-          icon={<DollarSign />}
-          color="bg-gradient-to-br from-purple-500 via-indigo-500 to-blue-500"
-          text="text-violet-500"
-        />
-
-        <StatCard
-          title="Pending Payments"
-          value="$55K"
-          icon={<CreditCard />}
-          color="bg-gradient-to-br from-yellow-400 to-amber-600"
-        />
+      <DashboardSummaryCard title="Finance dashboard" summary={DASHBOARD_SUMMARIES.finance} />
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-4 mb-8">
+        <DashboardInsightCard title="Total Inflow" value="$40K" subtitle="+15% vs last month" Icon={TrendingUp} iconBg="bg-gradient-to-br from-emerald-500 to-green-400" />
+        <DashboardInsightCard title="Total Outflow" value="$53K" subtitle="-5% vs last month" Icon={TrendingDown} iconBg="bg-gradient-to-br from-orange-700 to-orange-500" />
+        <DashboardInsightCard title="Net Cash Flow" value="$-13K" subtitle="+22% vs last month" Icon={DollarSign} iconBg="bg-gradient-to-br from-purple-500 via-indigo-500 to-blue-500" />
+        <DashboardInsightCard title="Pending Payments" value="$55K" Icon={CreditCard} iconBg="bg-gradient-to-br from-yellow-400 to-amber-600" />
       </div>
+      <DashboardQuickActions className="mb-8" />
 
-      <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-2">
-        {/* Bar Chart */}
-        <Card className="bg-border/50 border-none">
-          <CardContent className="p-6">
-            <h2 className="mb-4 text-xl font-semibold">6-Month Cash Flow</h2>
-            <div className="h-72">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+        <DashboardActivitySection title="6-Month Cash Flow" subtitle="">
+          <div className="h-72">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={cashFlowData}>
                   <XAxis dataKey="month" />
@@ -114,17 +88,9 @@ export default function FinanceManagerDashboard() {
                 </BarChart>
               </ResponsiveContainer>
             </div>
-          </CardContent>
-        </Card>
+        </DashboardActivitySection>
 
-        {/* Pie Chart */}
-        {/* Pie Chart */}
-        <Card className="bg-border/50 border-none">
-          <CardContent className="p-6">
-            <h2 className="mb-4 text-xl font-semibold text-foreground">
-              Expense Breakdown
-            </h2>
-
+        <DashboardActivitySection title="Expense Breakdown" subtitle="">
             <div className="h-72">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
@@ -156,15 +122,10 @@ export default function FinanceManagerDashboard() {
                 </PieChart>
               </ResponsiveContainer>
             </div>
-          </CardContent>
-        </Card>
+        </DashboardActivitySection>
       </div>
 
-      <div className=" mt-6 bg-background  text-muted-foreground">
-      {/* Recent Transactions */}
-      <div className="mb-6 rounded-xl bg-border/50 p-6 ">
-        <h2 className="mb-4 text-xl text-foreground font-semibold">Recent Transactions</h2>
-
+      <DashboardActivitySection title="Recent Transactions" subtitle="" className="mt-6 mb-6">
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead className="border-b border-muted-foreground/50 text-foreground/80">
@@ -239,12 +200,9 @@ export default function FinanceManagerDashboard() {
             </tbody>
           </table>
         </div>
-      </div>
+      </DashboardActivitySection>
 
-      {/* Payment Status */}
-      <div className="rounded-xl bg-border/50 p-6 ">
-        <h2 className="mb-4 text-xl text-foreground font-semibold">Payment Status</h2>
-
+      <DashboardActivitySection title="Payment Status" subtitle="">
         <div className="grid gap-4 md:grid-cols-3">
           {/* Paid */}
           <div className="rounded-xl border border-green-500 bg-green-500/10 p-5">
@@ -298,25 +256,7 @@ export default function FinanceManagerDashboard() {
             <p className="mt-1 text-xs ">2/5/2026</p>
           </div>
         </div>
-      </div>
+      </DashboardActivitySection>
     </div>
-    </div>
-  );
-}
-
-/* -------------------- Stat Card -------------------- */
-
-function StatCard({ title, value, change, icon, color, text }) {
-  return (
-    <Card className="bg-border/50 border-none">
-      <CardContent className="flex items-center justify-between px-6 py-4">
-        <div>
-          <p className="text-sm text-muted-foreground">{title}</p>
-          <p className="text-2xl font-bold">{value}</p>
-          {change && <p className={`text-sm ${text}`}>{change}</p>}
-        </div>
-        <div className={`rounded-lg p-3 text-white ${color}`}>{icon}</div>
-      </CardContent>
-    </Card>
   );
 }

@@ -352,9 +352,20 @@ export const employeeController = {
 
   getProfile: asyncHandler(async (req, res) => {
     const user = req.user?._id;
-    const id = await Employee.findOne({ user }).select('_id');
+    const employeeDoc = await Employee.findOne({ user })
+      .select("_id")
+      .lean();
+    if (!employeeDoc) {
+      return generateApiResponse(
+        res,
+        StatusCodes.NOT_FOUND,
+        false,
+        "Employee information not found in session"
+      );
+    }
+    const employeeId = employeeDoc._id;
 
-    const employee = await Employee.findById(id)
+    const employee = await Employee.findById(employeeId)
       .populate("user", "name email phone role")
       .populate("department", "name")
       .populate("subDepartment", "name")
@@ -362,22 +373,22 @@ export const employeeController = {
       .populate("achievements", "-__v -createdAt -updatedAt -employee")
       .populate("leaveAllocation.leaveType", "name");
 
-    const salaryHistory = await SalaryHistory.find({
-      userId: employee.user._id,
-    }).sort({ date: -1 });
-
     if (!employee) {
       return generateApiResponse(
         res,
         StatusCodes.NOT_FOUND,
         false,
-        "Employee not found"
+        "Employee information not found in session"
       );
     }
 
-    const employeeTotalAttendance = await Attendance.find({ employee: id });
-    const employeePresentAttendance = await Attendance.find({ employee: id, status: { $in: ["present", "late-arrival", "over-time"] } });
-    const employeeAbsentAttendance = await Attendance.find({ employee: id, status: { $in: ["absent", "on-leave"] } });
+    const salaryHistory = await SalaryHistory.find({
+      userId: employee.user._id,
+    }).sort({ date: -1 });
+
+    const employeeTotalAttendance = await Attendance.find({ employee: employeeId });
+    const employeePresentAttendance = await Attendance.find({ employee: employeeId, status: { $in: ["present", "late-arrival", "over-time"] } });
+    const employeeAbsentAttendance = await Attendance.find({ employee: employeeId, status: { $in: ["absent", "on-leave"] } });
     const attendanceRate = employeeTotalAttendance.length > 0 ? (employeePresentAttendance.length / employeeTotalAttendance.length) * 100 : 0;
 
     return generateApiResponse(

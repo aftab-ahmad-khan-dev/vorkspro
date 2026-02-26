@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useMemo } from "react";
+import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Loader2, Moon, Plus, Shield, Sun, Trash2, Palette, Building2, Users, Bell } from "lucide-react";
+import { Loader2, Moon, Plus, Shield, Sun, Trash2, Palette, Building2, Users, Bell, User, Lock } from "lucide-react";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import AddRoleDialog from "@/models/settings/AddRoleDialog";
@@ -27,6 +28,7 @@ import {
   THEMES_DARK,
   THEME_GLOW,
 } from "@/constants/themes";
+import { applyThemePreference } from "@/lib/theme";
 
 function Settings() {
   const [activeTab, setActiveTab] = useState("preferences");
@@ -73,9 +75,9 @@ function Settings() {
     return module.tabs.some((action) => tabs.includes(action));
   };
 
+  // Every role gets Preferences (appearance) and Account (profile + password); Company and Roles require Settings permission
   const allowedTabs = useMemo(() => {
-    const tabs = [];
-    if (tabsPermission("Settings", ["Preferences"])) tabs.push("preferences");
+    const tabs = ["preferences", "account"];
     if (tabsPermission("Settings", ["Company Info"])) tabs.push("company");
     if (tabsPermission("Settings", ["Role & Management"])) tabs.push("roles");
     return tabs;
@@ -212,27 +214,19 @@ function Settings() {
     return THEME_KEYS.includes(saved) ? saved : "vorkspro";
   });
 
-  // Apply saved theme and colors on mount and updates
+  const [passwordForm, setPasswordForm] = useState({
+    currentPassword: "",
+    newPassword: "",
+    confirmPassword: "",
+  });
+  const [passwordSaving, setPasswordSaving] = useState(false);
+
+  // Apply full theme (bg, card, border, primary) so dark mode stays visible when changing accent
   useEffect(() => {
     if (typeof window !== "undefined") {
-      // Apply theme
-      if (themeMode === "dark") {
-        document.documentElement.classList.add("dark");
-      } else {
-        document.documentElement.classList.remove("dark");
-      }
-
-      // Apply light color only if in light mode
-      if (themeMode === "light" && THEMES_LIGHT[lightColor]) {
-        document.documentElement.style.setProperty("--primary", THEMES_LIGHT[lightColor]);
-        document.documentElement.style.setProperty("--button", THEMES_LIGHT[lightColor]);
-      }
-
-      // Apply dark color only if in dark mode
-      if (themeMode === "dark" && THEMES_DARK[darkColor]) {
-        document.documentElement.style.setProperty("--primary", THEMES_DARK[darkColor]);
-        document.documentElement.style.setProperty("--button", THEMES_DARK[darkColor]);
-      }
+      const accent = themeMode === "light" ? lightColor : darkColor;
+      const pref = THEME_KEYS.includes(accent) ? accent : themeMode;
+      applyThemePreference(pref);
     }
   }, [themeMode, lightColor, darkColor]);
 
@@ -244,16 +238,17 @@ function Settings() {
     setNotifications({ ...notifications, [e.target.name]: e.target.checked });
   };
 
-  const handleThemeChange = (mode) => {
+  const handleThemeChange = async (mode) => {
     setThemeMode(mode);
     localStorage.setItem("themeMode", mode);
-    if (typeof window !== "undefined") {
-      if (mode === "dark") {
-        document.documentElement.classList.add("dark");
-      } else {
-        document.documentElement.classList.remove("dark");
-      }
-    }
+    if (typeof window !== "undefined") applyThemePreference(mode);
+    try {
+      await apiPatch("user/profile", {
+        themePreference: mode,
+        lightColor,
+        darkColor,
+      });
+    } catch (_) {}
   };
 
   function SwitchToggle({
@@ -363,35 +358,72 @@ function Settings() {
   //   const res = await fetch(`${baseUrl}0role/${id}`, {});
   // }
 
-  const handleColorChange = (colorName, mode) => {
+  const handleColorChange = async (colorName, mode) => {
     const value = mode === "light" ? THEMES_LIGHT[colorName] : THEMES_DARK[colorName];
-    if (value && typeof window !== "undefined") {
-      requestAnimationFrame(() => {
-        document.documentElement.style.setProperty("--primary", value);
-        document.documentElement.style.setProperty("--button", value);
-      });
-      if (mode === "light") {
-        setLightColor(colorName);
-        localStorage.setItem("lightColor", colorName);
-      } else {
-        setDarkColor(colorName);
-        localStorage.setItem("darkColor", colorName);
-      }
+    if (!value || typeof window === "undefined") return;
+    if (mode === "light") {
+      setLightColor(colorName);
+      localStorage.setItem("lightColor", colorName);
+    } else {
+      setDarkColor(colorName);
+      localStorage.setItem("darkColor", colorName);
     }
+    localStorage.setItem("themePreference", colorName);
+    // Apply full palette (dark bg/card/border in dark mode) so UI stays visible
+    applyThemePreference(colorName);
+    try {
+      await apiPatch("user/profile", {
+        themePreference: colorName,
+        themeMode: mode,
+        lightColor: mode === "light" ? colorName : lightColor,
+        darkColor: mode === "dark" ? colorName : darkColor,
+      });
+    } catch (_) {}
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     localStorage.setItem("themeMode", themeMode);
     localStorage.setItem("lightColor", lightColor);
     localStorage.setItem("darkColor", darkColor);
-    console.log("Saved:", {
-      companyInfo,
-      roles,
-      notifications,
-      themeMode,
-      lightColor,
-      darkColor,
-    });
+    try {
+      const res = await apiPatch("user/profile", {
+        themePreference: themeMode,
+        lightColor,
+        darkColor,
+      });
+      if (res?.isSuccess) toast.success("Preferences saved to your account");
+    } catch (e) {
+      toast.error("Could not save to server; preferences saved locally.");
+    }
+  };
+
+  const handleChangePassword = async (e) => {
+    e.preventDefault();
+    if (passwordForm.newPassword !== passwordForm.confirmPassword) {
+      toast.error("New passwords do not match");
+      return;
+    }
+    if (passwordForm.newPassword.length < 6) {
+      toast.error("New password must be at least 6 characters");
+      return;
+    }
+    setPasswordSaving(true);
+    try {
+      const res = await apiPatch("user/change-password", {
+        currentPassword: passwordForm.currentPassword,
+        newPassword: passwordForm.newPassword,
+      });
+      if (res?.isSuccess) {
+        toast.success("Password updated successfully");
+        setPasswordForm({ currentPassword: "", newPassword: "", confirmPassword: "" });
+      } else {
+        toast.error(res?.message || "Failed to change password");
+      }
+    } catch (err) {
+      toast.error(err?.message || "Failed to change password");
+    } finally {
+      setPasswordSaving(false);
+    }
   };
 
   const handleEditPermissions = (role) => {
@@ -405,7 +437,8 @@ function Settings() {
   }, []);
 
   const settingsNav = [
-    allowedTabs.includes("preferences") && { id: "preferences", label: "Appearance", icon: Palette },
+    { id: "preferences", label: "Appearance", icon: Palette },
+    { id: "account", label: "Account", icon: User },
     allowedTabs.includes("company") && { id: "company", label: "Company Info", icon: Building2 },
     allowedTabs.includes("roles") && { id: "roles", label: "Roles & Permissions", icon: Users },
   ].filter(Boolean);
@@ -423,8 +456,8 @@ function Settings() {
       </div>
 
       <div className="flex flex-col lg:flex-row gap-8">
-        {/* Sidebar nav (Notion/ClickUp style) */}
-        {hasPermission("Settings", "Access Settings") && settingsNav.length >= 2 && (
+        {/* Sidebar nav: all roles see Appearance + Account; Company/Roles if permitted */}
+        {settingsNav.length >= 1 && (
           <nav className="lg:w-56 flex-shrink-0">
             <div className="sticky top-24 space-y-0.5 rounded-xl border border-[var(--border)] bg-[var(--background)]/60 p-1.5">
               {settingsNav.map(({ id, label, icon: Icon }) => (
@@ -448,45 +481,33 @@ function Settings() {
 
         <div className="flex-1 min-w-0">
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        {hasPermission("Settings", "Access Settings") &&
-          allowedTabs.length >= 2 && (
-            <TabsList className="hidden lg:flex mb-6 rounded-2xl bg-[var(--foreground)]/10">
-              {allowedTabs.includes("preferences") && (
-                <TabsTrigger
-                  value="preferences"
-                  className="rounded-2xl py-2 text-sm font-medium data-[state=active]:text-[var(--foreground)] transition-colors duration-300 ease-in-out"
-                >
-                  Preferences
-                </TabsTrigger>
-              )}
-              {allowedTabs.includes("company") && (
-                <TabsTrigger
-                  value="company"
-                  className="rounded-2xl py-2 text-sm font-medium data-[state=active]:text-[var(--foreground)] transition-colors duration-300 ease-in-out"
-                >
-                  Company Info
-                </TabsTrigger>
-              )}
-              {allowedTabs.includes("roles") && (
-                <TabsTrigger
-                  value="roles"
-                  className="rounded-2xl py-2 text-sm font-medium data-[state=active]:text-[var(--foreground)] transition-colors duration-300 ease-in-out"
-                >
-                  Role & Management
-                </TabsTrigger>
-              )}
-            </TabsList>)
-        }
-        {allowedTabs.length >= 2 && (
+        <TabsList className="hidden lg:flex mb-6 rounded-2xl bg-[var(--foreground)]/10">
+          <TabsTrigger value="preferences" className="rounded-2xl py-2 text-sm font-medium data-[state=active]:text-[var(--foreground)] transition-colors duration-300 ease-in-out">
+            Preferences
+          </TabsTrigger>
+          <TabsTrigger value="account" className="rounded-2xl py-2 text-sm font-medium data-[state=active]:text-[var(--foreground)] transition-colors duration-300 ease-in-out">
+            Account
+          </TabsTrigger>
+          {allowedTabs.includes("company") && (
+            <TabsTrigger value="company" className="rounded-2xl py-2 text-sm font-medium data-[state=active]:text-[var(--foreground)] transition-colors duration-300 ease-in-out">
+              Company Info
+            </TabsTrigger>
+          )}
+          {allowedTabs.includes("roles") && (
+            <TabsTrigger value="roles" className="rounded-2xl py-2 text-sm font-medium data-[state=active]:text-[var(--foreground)] transition-colors duration-300 ease-in-out">
+              Role & Management
+            </TabsTrigger>
+          )}
+        </TabsList>
+        {settingsNav.length >= 1 && (
           <div className="sm:hidden text-[var(--foreground)] mb-3">
             <Select value={activeTab} onValueChange={setActiveTab}>
               <SelectTrigger className="w-full border rounded-lg px-3 py-2 text-sm">
                 <SelectValue placeholder="Select status" />
               </SelectTrigger>
               <SelectContent>
-                {allowedTabs.includes("preferences") && (
-                  <SelectItem value="preferences">Preferences</SelectItem>
-                )}
+                <SelectItem value="preferences">Preferences</SelectItem>
+                <SelectItem value="account">Account</SelectItem>
                 {allowedTabs.includes("company") && (
                   <SelectItem value="company">Company Info</SelectItem>
                 )}
@@ -497,6 +518,70 @@ function Settings() {
             </Select>
           </div>
         )}
+        {/* ───── Account Tab (all roles): Update profile + Change password ───── */}
+        <TabsContent value="account" className="transition-opacity duration-300 ease-in-out">
+          <div className="p-6 border border-[var(--border)] rounded-[var(--radius-md)] transition-colors duration-300 ease-in-out space-y-8">
+            <div>
+              <h2 className="text-xl font-semibold mb-2">Update profile</h2>
+              <p className="text-sm text-[var(--muted-foreground)] mb-4">
+                Edit your personal information, employment details, and preferences.
+              </p>
+              <Link to="/app/profile">
+                <Button variant="outline" className="gap-2">
+                  <User className="h-4 w-4" />
+                  Open Profile
+                </Button>
+              </Link>
+            </div>
+            <div className="border-t border-[var(--border)] pt-8">
+              <h2 className="text-xl font-semibold mb-2">Change password</h2>
+              <p className="text-sm text-[var(--muted-foreground)] mb-4">
+                Update your password to keep your account secure.
+              </p>
+              <form onSubmit={handleChangePassword} className="max-w-md space-y-4">
+                <div>
+                  <label className="block text-sm font-medium mb-1">Current password</label>
+                  <Input
+                    type="password"
+                    value={passwordForm.currentPassword}
+                    onChange={(e) => setPasswordForm((p) => ({ ...p, currentPassword: e.target.value }))}
+                    placeholder="Enter current password"
+                    required
+                    className="transition-colors duration-300 ease-in-out"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-1">New password</label>
+                  <Input
+                    type="password"
+                    value={passwordForm.newPassword}
+                    onChange={(e) => setPasswordForm((p) => ({ ...p, newPassword: e.target.value }))}
+                    placeholder="At least 6 characters"
+                    required
+                    minLength={6}
+                    className="transition-colors duration-300 ease-in-out"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-1">Confirm new password</label>
+                  <Input
+                    type="password"
+                    value={passwordForm.confirmPassword}
+                    onChange={(e) => setPasswordForm((p) => ({ ...p, confirmPassword: e.target.value }))}
+                    placeholder="Confirm new password"
+                    required
+                    className="transition-colors duration-300 ease-in-out"
+                  />
+                </div>
+                <Button type="submit" disabled={passwordSaving} className="gap-2 bg-[var(--button)] text-[var(--button-text)]">
+                  {passwordSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Lock className="h-4 w-4" />}
+                  {passwordSaving ? "Updating..." : "Change password"}
+                </Button>
+              </form>
+            </div>
+          </div>
+        </TabsContent>
+
         {/* ───── Company Info Tab ───── */}
         <TabsContent
           value="company"
@@ -944,6 +1029,13 @@ function Settings() {
                 </motion.div>
               )}
             </AnimatePresence>
+
+            <p className="text-xs text-[var(--muted-foreground)] mt-6">
+              Your theme and accent colors are saved to your account so you see them on every device.
+            </p>
+            <Button onClick={handleSave} className="mt-4 bg-[var(--button)] text-[var(--button-text)]">
+              Save preferences to my account
+            </Button>
           </motion.div>
         </TabsContent>
       </Tabs>

@@ -527,7 +527,16 @@ const hasPermission = (moduleName, requiredAction) => {
                 employees.map((emp) => (
                   <tr
                     key={emp._id}
-                    className="border-b border-[var(--border)] hover:bg-[var(--border)]/30"
+                    role="button"
+                    tabIndex={0}
+                    onClick={() => hasPermission("Employees", "View Details") && handleDetail(emp)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" || e.key === " ") {
+                        e.preventDefault();
+                        hasPermission("Employees", "View Details") && handleDetail(emp);
+                      }
+                    }}
+                    className="border-b border-[var(--border)] hover:bg-[var(--border)]/30 cursor-pointer"
                   >
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-3">
@@ -578,7 +587,7 @@ const hasPermission = (moduleName, requiredAction) => {
                               }
                               size="sm"
                               variant="ghost"
-                              onClick={() => handleDetail(emp)}
+                              onClick={(e) => { e.stopPropagation(); handleDetail(emp); }}
                             >
                               <Eye size={16} />
                             </Button>
@@ -591,7 +600,7 @@ const hasPermission = (moduleName, requiredAction) => {
                               size="sm"
                               variant="ghost"
                               className="bg-transparent text-green-500 hover:bg-green-500/20 hover:text-green-500"
-                              onClick={() => handleUpdate(emp)}
+                              onClick={(e) => { e.stopPropagation(); handleUpdate(emp); }}
                             >
                               <Edit2 size={16} />
                             </Button>
@@ -605,7 +614,8 @@ const hasPermission = (moduleName, requiredAction) => {
                               variant="ghost"
                               className="bg-transparent text-yellow-500 hover:bg-yellow-500/20 hover:text-yellow-500"
                               disabled={hasPermission("Employees", "Edit Records" ) ? false : true}
-                              onClick={() => {
+                              onClick={(e) => {
+                                e.stopPropagation();
                                 setSelectedEmployee(emp);
                                 setOpenConfirmationDialog(true);
                               }}

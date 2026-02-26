@@ -14,11 +14,25 @@ const UserSchema = new mongoose.Schema(
         isSuperAdmin: { type: Boolean, default: false },
         isActive: { type: Boolean, default: true },
         oneSignalPlayerId: { type: String },
-        themePreference: { type: String, enum: ["light", "dark", "neon-purple"], default: "neon-purple" }
+        themePreference: {
+            type: String,
+            enum: [
+                "light", "dark", "neon-purple",
+                "vorkspro", "neonCyan", "neonGreen", "neonPink", "neonPurple",
+                "electricBlue", "amber", "coral", "teal", "violet"
+            ],
+            default: "neonPurple"
+        },
+        themeMode: { type: String, enum: ["light", "dark"] },
+        lightColor: { type: String },
+        darkColor: { type: String }
 
     },
     { timestamps: true }
 );
+
+UserSchema.index({ username: 1 });
+UserSchema.index({ email: 1 });
 
 /**
  * Pre-save middleware

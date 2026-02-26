@@ -411,7 +411,7 @@ const CreateBlockageDialog = ({ onAdd, project, employees, refresh }) => {
 
     return (
         <>
-            {open && <div className="fixed inset-0 bg-black/20 backdrop-blur-sm z-40" />}
+            {open && <div className="fixed inset-0 z-40 w-screen h-screen bg-black/60 backdrop-blur-sm" style={{ width: "100vw", height: "100vh" }} />}
             <Dialog open={open} onOpenChange={setOpen}>
                 <DialogTrigger asChild>
                     <Button className="w-full sm:w-auto">

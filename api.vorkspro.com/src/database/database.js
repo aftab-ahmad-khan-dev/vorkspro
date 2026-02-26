@@ -43,8 +43,10 @@ const initializeDatabase = async () => {
 
     logger.banner(`Connecting to MongoDB… (${dbName})`);
     await mongoose.connect(DB_PATH, {
-      serverSelectionTimeoutMS: 30000,
-      connectTimeoutMS: 30000,
+      serverSelectionTimeoutMS: 10000,
+      connectTimeoutMS: 10000,
+      maxPoolSize: 10,
+      minPoolSize: 2,
     });
 
     const conn = mongoose.connection;

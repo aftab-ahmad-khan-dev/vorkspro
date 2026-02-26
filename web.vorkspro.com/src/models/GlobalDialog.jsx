@@ -28,22 +28,24 @@ function GlobalDialog({ open, onClose, children, className, label }) {
       role="dialog"
       aria-modal="true"
     >
-      {/* Overlay */}
+      {/* Full viewport overlay */}
       <div
-        className="absolute inset-0 bg-black/60 backdrop-blur-sm opacity-100 transition-opacity duration-200"
+        className="fixed inset-0 w-screen h-screen bg-black/60 backdrop-blur-sm opacity-100 transition-opacity duration-200"
+        style={{ width: '100vw', height: '100vh' }}
         onClick={onClose}
       />
 
-      {/* Dialog Content */}
+      {/* Dialog Content - same size as before */}
       <div
         className={cn(
-          `relative bg-white dark:bg-[#0E1628] text-black dark:text-white rounded-2xl shadow-2xl ${className? className : 'max-w-lg w-full max-h-[600px]'} overflow-y-auto transform transition-all duration-200`,
+          "relative z-10 bg-white dark:bg-[var(--background)] text-black dark:text-white rounded-2xl shadow-2xl overflow-y-auto transform transition-all duration-200",
+          className ?? "max-w-lg w-full max-h-[600px]"
         )}
         onClick={(e) => e.stopPropagation()}
       >
         {/* Sticky Header */}
         {label && (
-          <div className="sticky -top-0 z-10 flex items-center justify-between bg-white dark:bg-[#0E1628]  p-6">
+          <div className="sticky top-0 z-10 flex items-center justify-between bg-white dark:bg-[var(--background)] p-6">
             <h2 className="text-xl font-semibold">{label}</h2>
             <button
               onClick={onClose}

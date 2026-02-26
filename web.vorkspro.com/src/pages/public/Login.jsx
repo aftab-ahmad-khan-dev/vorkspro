@@ -13,36 +13,77 @@ const DARK_BG_2 = "#0c0818";
 function GeoPattern() {
   return (
     <svg
-      className="absolute inset-0 w-full h-full opacity-[0.07]"
-      xmlns="http://www.w3.org/2000/svg"
+      className='absolute inset-0 w-full h-full opacity-[0.07]'
+      xmlns='http://www.w3.org/2000/svg'
       style={{ pointerEvents: "none" }}
     >
       <defs>
-        <pattern id="grid" x="0" y="0" width="60" height="60" patternUnits="userSpaceOnUse">
-          <path d="M 60 0 L 0 0 0 60" fill="none" stroke={NEON_PURPLE} strokeWidth="0.5" />
+        <pattern
+          id='grid'
+          x='0'
+          y='0'
+          width='60'
+          height='60'
+          patternUnits='userSpaceOnUse'
+        >
+          <path
+            d='M 60 0 L 0 0 0 60'
+            fill='none'
+            stroke={NEON_PURPLE}
+            strokeWidth='0.5'
+          />
         </pattern>
-        <radialGradient id="fade" cx="50%" cy="50%" r="50%">
-          <stop offset="0%" stopColor="white" stopOpacity="1" />
-          <stop offset="100%" stopColor="white" stopOpacity="0" />
+        <radialGradient id='fade' cx='50%' cy='50%' r='50%'>
+          <stop offset='0%' stopColor='white' stopOpacity='1' />
+          <stop offset='100%' stopColor='white' stopOpacity='0' />
         </radialGradient>
-        <mask id="vignette">
-          <rect width="100%" height="100%" fill="url(#fade)" />
+        <mask id='vignette'>
+          <rect width='100%' height='100%' fill='url(#fade)' />
         </mask>
       </defs>
-      <rect width="100%" height="100%" fill="url(#grid)" mask="url(#vignette)" />
+      <rect width='100%' height='100%' fill='url(#grid)' mask='url(#vignette)' />
     </svg>
   );
 }
 
 // ─── Floating orbs (neon purple & indigo) ───────────────────────────────────
 const ORBS = [
-  { w: 320, h: 320, top: "-10%", left: "-8%", color: "rgba(168, 85, 247, 0.22)", delay: "0s" },
-  { w: 240, h: 240, top: "55%", left: "60%", color: "rgba(99, 102, 241, 0.18)", delay: "2.5s" },
-  { w: 180, h: 180, top: "25%", left: "42%", color: "rgba(168, 85, 247, 0.14)", delay: "1.2s" },
+  {
+    w: 320,
+    h: 320,
+    top: "-10%",
+    left: "-8%",
+    color: "rgba(168, 85, 247, 0.22)",
+    delay: "0s",
+  },
+  {
+    w: 240,
+    h: 240,
+    top: "55%",
+    left: "60%",
+    color: "rgba(99, 102, 241, 0.18)",
+    delay: "2.5s",
+  },
+  {
+    w: 180,
+    h: 180,
+    top: "25%",
+    left: "42%",
+    color: "rgba(168, 85, 247, 0.14)",
+    delay: "1.2s",
+  },
 ];
 
 // ─── Input ────────────────────────────────────────────────────────────────
-function Field({ label, type = "text", value, onChange, placeholder, extra, autoComplete }) {
+function Field({
+  label,
+  type = "text",
+  value,
+  onChange,
+  placeholder,
+  extra,
+  autoComplete,
+}) {
   return (
     <div style={{ marginBottom: "18px" }}>
       <label style={styles.label}>{label}</label>
@@ -54,8 +95,8 @@ function Field({ label, type = "text", value, onChange, placeholder, extra, auto
           placeholder={placeholder}
           autoComplete={autoComplete}
           style={styles.input}
-          onFocus={e => (e.target.style.borderColor = NEON_PURPLE)}
-          onBlur={e => (e.target.style.borderColor = "rgba(255,255,255,0.1)")}
+          onFocus={(e) => (e.target.style.borderColor = NEON_PURPLE)}
+          onBlur={(e) => (e.target.style.borderColor = "rgba(255,255,255,0.1)")}
         />
         {extra}
       </div>
@@ -83,7 +124,14 @@ function PrimaryBtn({ children, loading, onClick, type = "submit" }) {
       }}
     >
       {loading ? (
-        <span style={{ display: "flex", alignItems: "center", gap: 8, justifyContent: "center" }}>
+        <span
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 8,
+            justifyContent: "center",
+          }}
+        >
           <span style={styles.spinner} /> Processing…
         </span>
       ) : (
@@ -97,11 +145,11 @@ function PrimaryBtn({ children, loading, onClick, type = "submit" }) {
 function BackLink({ onClick, children }) {
   return (
     <button
-      type="button"
+      type='button'
       onClick={onClick}
       style={styles.backLink}
-      onMouseEnter={e => (e.target.style.color = NEON_PURPLE)}
-      onMouseLeave={e => (e.target.style.color = "#64748B")}
+      onMouseEnter={(e) => (e.target.style.color = NEON_PURPLE)}
+      onMouseLeave={(e) => (e.target.style.color = "#64748B")}
     >
       <ArrowLeft size={14} style={{ flexShrink: 0 }} /> {children}
     </button>
@@ -113,7 +161,9 @@ export default function Login() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [baseUrl] = useState(
-    typeof import.meta !== "undefined" ? import.meta.env?.VITE_APP_BASE_URL || "" : ""
+    typeof import.meta !== "undefined"
+      ? import.meta.env?.VITE_APP_BASE_URL || ""
+      : "",
   );
   const [view, setView] = useState("login");
   const [username, setUsername] = useState("");
@@ -130,18 +180,30 @@ export default function Login() {
     setTimeout(() => setMounted(true), 50);
   }, []);
 
-  const toast = { success: (m) => console.log("✓", m), error: (m) => console.error("✗", m) };
+  const toast = {
+    success: (m) => console.log("✓", m),
+    error: (m) => console.error("✗", m),
+  };
 
   const resetFields = () => {
-    setUsername(""); setPassword(""); setEmail(""); setCode("");
-    setNewPassword(""); setConfirmPassword(""); setResetToken("");
+    setUsername("");
+    setPassword("");
+    setEmail("");
+    setCode("");
+    setNewPassword("");
+    setConfirmPassword("");
+    setResetToken("");
   };
-  const goTo = (v) => { resetFields(); setView(v); };
+  const goTo = (v) => {
+    resetFields();
+    setView(v);
+  };
 
   // ── Handlers (same logic as original) ──────────────────────────────────
   const handleSignIn = async (e) => {
     e.preventDefault();
-    if (!username || !password) return toast.error("Please enter both username and password.");
+    if (!username || !password)
+      return toast.error("Please enter both username and password.");
     setLoading(true);
     try {
       const res = await fetch(`${baseUrl}user/login`, {
@@ -156,8 +218,11 @@ export default function Login() {
         localStorage.setItem("refreshToken", data.refreshToken);
         navigate("/app/dashboard", { replace: true });
       } else toast.error(data?.message || "Login failed.");
-    } catch { toast.error("Network error."); }
-    finally { setLoading(false); }
+    } catch {
+      toast.error("Network error.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleSendResetCode = async (e) => {
@@ -166,48 +231,72 @@ export default function Login() {
     setLoading(true);
     try {
       const res = await fetch(`${baseUrl}user/forgot-password`, {
-        method: "POST", headers: { "Content-Type": "application/json" },
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email }),
       });
       const data = await res.json();
-      if (data?.isSuccess) { toast.success("Reset code sent!"); setView("verify"); }
-      else toast.error(data?.message || "Failed to send reset code.");
-    } catch { toast.error("Network error."); }
-    finally { setLoading(false); }
+      if (data?.isSuccess) {
+        toast.success("Reset code sent!");
+        setView("verify");
+      } else toast.error(data?.message || "Failed to send reset code.");
+    } catch {
+      toast.error("Network error.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleVerifyCode = async (e) => {
     e.preventDefault();
-    if (!code || code.length !== 6) return toast.error("Enter a valid 6-digit code.");
+    if (!code || code.length !== 6)
+      return toast.error("Enter a valid 6-digit code.");
     setLoading(true);
     try {
       const res = await fetch(`${baseUrl}user/verify-reset-code`, {
-        method: "POST", headers: { "Content-Type": "application/json" },
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, code }),
       });
       const data = await res.json();
-      if (data?.isSuccess) { toast.success("Code verified!"); setResetToken(data?.data?.token || data?.token); setView("reset"); }
-      else toast.error(data?.message || "Invalid or expired code.");
-    } catch { toast.error("Network error."); }
-    finally { setLoading(false); }
+      if (data?.isSuccess) {
+        toast.success("Code verified!");
+        setResetToken(data?.data?.token || data?.token);
+        setView("reset");
+      } else toast.error(data?.message || "Invalid or expired code.");
+    } catch {
+      toast.error("Network error.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleResetPassword = async (e) => {
     e.preventDefault();
-    if (newPassword !== confirmPassword) return toast.error("Passwords do not match.");
-    if (newPassword.length < 6) return toast.error("Password must be at least 6 characters.");
+    if (newPassword !== confirmPassword)
+      return toast.error("Passwords do not match.");
+    if (newPassword.length < 6)
+      return toast.error("Password must be at least 6 characters.");
     setLoading(true);
     try {
       const res = await fetch(`${baseUrl}user/reset-password`, {
         method: "POST",
-        headers: { "Content-Type": "application/json", Authorization: `Bearer ${resetToken}` },
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${resetToken}`,
+        },
         body: JSON.stringify({ password: newPassword }),
       });
       const data = await res.json();
-      if (data?.isSuccess) { toast.success("Password reset successfully!"); goTo("login"); }
-      else toast.error(data?.message || "Failed to reset password.");
-    } catch { toast.error("Network error."); }
-    finally { setLoading(false); }
+      if (data?.isSuccess) {
+        toast.success("Password reset successfully!");
+        goTo("login");
+      } else toast.error(data?.message || "Failed to reset password.");
+    } catch {
+      toast.error("Network error.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   // ── Render ──────────────────────────────────────────────────────────────
@@ -240,77 +329,96 @@ export default function Login() {
       `}</style>
 
       {/* ── Root layout ─────────────────────────────────────────── */}
-      <div style={{
-        display: "flex",
-        minHeight: "100vh",
-        fontFamily: "'DM Sans', sans-serif",
-        background: DARK_BG,
-        overflow: "hidden",
-      }}>
-
-        {/* ════════════════ LEFT PANEL ════════════════ */}
-        <div style={{
-          flex: "0 0 48%",
-          position: "relative",
+      <div
+        style={{
           display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          justifyContent: "center",
-          background: `linear-gradient(155deg, ${DARK_BG} 0%, #1e1b4b 45%, #312e81 70%, ${DARK_BG_2} 100%)`,
+          minHeight: "100vh",
+          fontFamily: "'DM Sans', sans-serif",
+          background: DARK_BG,
           overflow: "hidden",
-          padding: "60px 48px",
-        }}>
+        }}
+      >
+        {/* ════════════════ LEFT PANEL ════════════════ */}
+        <div
+          style={{
+            flex: "0 0 48%",
+            position: "relative",
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+            background: `linear-gradient(155deg, ${DARK_BG} 0%, #1e1b4b 45%, #312e81 70%, ${DARK_BG_2} 100%)`,
+            overflow: "hidden",
+            padding: "60px 48px",
+          }}
+        >
           {/* Grid pattern */}
           <GeoPattern />
 
           {/* Floating orbs */}
           {ORBS.map((o, i) => (
-            <div key={i} style={{
-              position: "absolute",
-              width: o.w, height: o.h,
-              top: o.top, left: o.left,
-              borderRadius: "50%",
-              background: o.color,
-              filter: "blur(60px)",
-              animation: `${["floatA","floatB","floatC"][i]} ${6 + i * 1.5}s ease-in-out infinite`,
-              animationDelay: o.delay,
-            }} />
+            <div
+              key={i}
+              style={{
+                position: "absolute",
+                width: o.w,
+                height: o.h,
+                top: o.top,
+                left: o.left,
+                borderRadius: "50%",
+                background: o.color,
+                filter: "blur(60px)",
+                animation: `${["floatA", "floatB", "floatC"][i]} ${6 + i * 1.5}s ease-in-out infinite`,
+                animationDelay: o.delay,
+              }}
+            />
           ))}
 
           {/* Diagonal accent line (logo color) */}
-          <div style={{
-            position: "absolute",
-            top: 0, right: 0,
-            width: 2, height: "100%",
-            background: `linear-gradient(to bottom, transparent 0%, ${NEON_PURPLE}40 40%, ${NEON_INDIGO}60 60%, transparent 100%)`,
-          }} />
+          <div
+            style={{
+              position: "absolute",
+              top: 0,
+              right: 0,
+              width: 2,
+              height: "100%",
+              background: `linear-gradient(to bottom, transparent 0%, ${NEON_PURPLE}40 40%, ${NEON_INDIGO}60 60%, transparent 100%)`,
+            }}
+          />
 
           {/* Content */}
-          <div style={{
-            position: "relative",
-            zIndex: 2,
-            textAlign: "center",
-            opacity: mounted ? 1 : 0,
-            transition: "opacity 0.8s ease",
-          }}>
+          <div
+            style={{
+              position: "relative",
+              zIndex: 2,
+              textAlign: "center",
+              opacity: mounted ? 1 : 0,
+              transition: "opacity 0.8s ease",
+            }}
+          >
             {/* Logo box */}
-            <div style={{
-              width: 140,
-              height: 140,
-              margin: "0 auto 32px",
-              borderRadius: 28,
-              background: "linear-gradient(145deg, rgba(30,27,75,0.9), rgba(15,10,31,0.95))",
-              border: `1px solid rgba(168,85,247,0.4)`,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              animation: "logoFloat 5s ease-in-out infinite, borderGlow 4s ease-in-out infinite",
-              boxShadow: "0 24px 60px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.06)",
-              backdropFilter: "blur(10px)",
-            }}>
+            <div
+              style={{
+                width: 140,
+                height: 140,
+                margin: "0 auto 32px",
+                borderRadius: 28,
+                background:
+                  "linear-gradient(145deg, rgba(30,27,75,0.9), rgba(15,10,31,0.95))",
+                border: `1px solid rgba(168,85,247,0.4)`,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                animation:
+                  "logoFloat 5s ease-in-out infinite, borderGlow 4s ease-in-out infinite",
+                boxShadow:
+                  "0 24px 60px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.06)",
+                backdropFilter: "blur(10px)",
+              }}
+            >
               <img
                 src={logo}
-                alt="Vorks Pro"
+                alt='Vorks Pro'
                 style={{
                   width: 80,
                   height: "auto",
@@ -322,31 +430,35 @@ export default function Login() {
             </div>
 
             {/* Brand name */}
-            <h1 style={{
-              fontFamily: "'Syne', sans-serif",
-              fontSize: 36,
-              fontWeight: 800,
-              letterSpacing: "-0.02em",
-              color: "#F8FAFC",
-              marginBottom: 8,
-              background: `linear-gradient(135deg, #e2e8f0 0%, ${NEON_PURPLE} 40%, ${NEON_INDIGO} 100%)`,
-              backgroundSize: "200% auto",
-              WebkitBackgroundClip: "text",
-              WebkitTextFillColor: "transparent",
-              backgroundClip: "text",
-              animation: "shimmer 4s linear infinite",
-            }}>
+            <h1
+              style={{
+                fontFamily: "'Syne', sans-serif",
+                fontSize: 36,
+                fontWeight: 800,
+                letterSpacing: "-0.02em",
+                color: "#F8FAFC",
+                marginBottom: 8,
+                background: `linear-gradient(135deg, #e2e8f0 0%, ${NEON_PURPLE} 40%, ${NEON_INDIGO} 100%)`,
+                backgroundSize: "200% auto",
+                WebkitBackgroundClip: "text",
+                WebkitTextFillColor: "transparent",
+                backgroundClip: "text",
+                animation: "shimmer 4s linear infinite",
+              }}
+            >
               Vorks Pro Admin
             </h1>
 
-            <p style={{
-              fontSize: 14,
-              color: "rgba(148,163,184,0.7)",
-              letterSpacing: "0.18em",
-              textTransform: "uppercase",
-              fontWeight: 500,
-              marginBottom: 52,
-            }}>
+            <p
+              style={{
+                fontSize: 14,
+                color: "rgba(148,163,184,0.7)",
+                letterSpacing: "0.18em",
+                textTransform: "uppercase",
+                fontWeight: 500,
+                marginBottom: 52,
+              }}
+            >
               HR, projects & finance in one workspace
             </p>
 
@@ -356,126 +468,195 @@ export default function Login() {
               { Icon: Lock, text: "Enterprise-grade security" },
               { Icon: Globe, text: "Multi-market coverage" },
             ].map((f, i) => (
-              <div key={i} style={{
-                display: "flex",
-                alignItems: "center",
-                gap: 12,
-                marginBottom: 16,
-                padding: "12px 20px",
-                borderRadius: 14,
-                background: "rgba(255,255,255,0.03)",
-                border: "1px solid rgba(255,255,255,0.06)",
-                backdropFilter: "blur(8px)",
-                animation: `fadeUp 0.6s ${0.4 + i * 0.12}s both`,
-              }}>
-                <f.Icon size={18} style={{ color: NEON_PURPLE, flexShrink: 0, opacity: 0.9 }} />
-                <span style={{ fontSize: 13, color: "rgba(203,213,225,0.8)", fontWeight: 400 }}>
+              <div
+                key={i}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 12,
+                  marginBottom: 16,
+                  padding: "12px 20px",
+                  borderRadius: 14,
+                  background: "rgba(255,255,255,0.03)",
+                  border: "1px solid rgba(255,255,255,0.06)",
+                  backdropFilter: "blur(8px)",
+                  animation: `fadeUp 0.6s ${0.4 + i * 0.12}s both`,
+                }}
+              >
+                <f.Icon
+                  size={18}
+                  style={{ color: NEON_PURPLE, flexShrink: 0, opacity: 0.9 }}
+                />
+                <span
+                  style={{
+                    fontSize: 13,
+                    color: "rgba(203,213,225,0.8)",
+                    fontWeight: 400,
+                  }}
+                >
                   {f.text}
                 </span>
               </div>
             ))}
 
             {/* Decorative dots */}
-            <div style={{ display: "flex", gap: 6, justifyContent: "center", marginTop: 40 }}>
-              {[1,2,3].map(i => (
-                <div key={i} style={{
-                  width: i === 2 ? 22 : 6,
-                  height: 6,
-                  borderRadius: 99,
-                  background: i === 2 ? NEON_PURPLE : "rgba(168,85,247,0.5)",
-                  animation: `pulse ${1.2 + i * 0.3}s ease-in-out infinite`,
-                }} />
+            <div
+              style={{
+                display: "flex",
+                gap: 6,
+                justifyContent: "center",
+                marginTop: 40,
+              }}
+            >
+              {[1, 2, 3].map((i) => (
+                <div
+                  key={i}
+                  style={{
+                    width: i === 2 ? 22 : 6,
+                    height: 6,
+                    borderRadius: 99,
+                    background: i === 2 ? NEON_PURPLE : "rgba(168,85,247,0.5)",
+                    animation: `pulse ${1.2 + i * 0.3}s ease-in-out infinite`,
+                  }}
+                />
               ))}
             </div>
           </div>
         </div>
 
         {/* ════════════════ RIGHT PANEL ════════════════ */}
-        <div style={{
-          flex: 1,
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          background: `linear-gradient(155deg, ${DARK_BG_2} 0%, #1e1b4b 100%)`,
-          position: "relative",
-          padding: "40px 32px",
-          overflow: "hidden",
-        }}>
+        <div
+          style={{
+            flex: 1,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            background: `linear-gradient(155deg, ${DARK_BG_2} 0%, #1e1b4b 100%)`,
+            position: "relative",
+            padding: "40px 32px",
+            overflow: "hidden",
+          }}
+        >
           {/* Subtle top-right glow */}
-          <div style={{
-            position: "absolute",
-            top: -80, right: -80,
-            width: 300, height: 300,
-            borderRadius: "50%",
-            background: "rgba(168,85,247,0.12)",
-            filter: "blur(80px)",
-            pointerEvents: "none",
-          }} />
+          <div
+            style={{
+              position: "absolute",
+              top: -80,
+              right: -80,
+              width: 300,
+              height: 300,
+              borderRadius: "50%",
+              background: "rgba(168,85,247,0.12)",
+              filter: "blur(80px)",
+              pointerEvents: "none",
+            }}
+          />
 
           {/* Card */}
-          <div style={{
-            width: "100%",
-            maxWidth: 420,
-            borderRadius: 24,
-            background: "linear-gradient(145deg, rgba(30,27,75,0.95), rgba(15,10,31,0.98))",
-            border: "1px solid rgba(168,85,247,0.2)",
-            padding: "44px 40px",
-            boxShadow: "0 32px 80px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.05)",
-            backdropFilter: "blur(20px)",
-            position: "relative",
-            animation: "fadeUp 0.7s 0.15s both",
-          }}>
+          <div
+            style={{
+              width: "100%",
+              maxWidth: 420,
+              borderRadius: 24,
+              background:
+                "linear-gradient(145deg, rgba(30,27,75,0.95), rgba(15,10,31,0.98))",
+              border: "1px solid rgba(168,85,247,0.2)",
+              padding: "44px 40px",
+              boxShadow:
+                "0 32px 80px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.05)",
+              backdropFilter: "blur(20px)",
+              position: "relative",
+              animation: "fadeUp 0.7s 0.15s both",
+            }}
+          >
             {/* Blue top accent bar */}
-            <div style={{
-              position: "absolute",
-              top: 0, left: "10%",
-              width: "80%", height: 2,
-              borderRadius: "0 0 4px 4px",
-              background: `linear-gradient(90deg, transparent, ${NEON_PURPLE} 40%, ${NEON_INDIGO} 60%, transparent)`,
-            }} />
+            <div
+              style={{
+                position: "absolute",
+                top: 0,
+                left: "10%",
+                width: "80%",
+                height: 2,
+                borderRadius: "0 0 4px 4px",
+                background: `linear-gradient(90deg, transparent, ${NEON_PURPLE} 40%, ${NEON_INDIGO} 60%, transparent)`,
+              }}
+            />
 
             {/* ── LOGIN VIEW ── */}
             {view === "login" && (
-              <form onSubmit={handleSignIn} className="form-enter">
+              <form onSubmit={handleSignIn} className='form-enter'>
                 <div style={{ marginBottom: 32 }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8 }}>
-                    <img src={logo} alt="" style={{ width: 28, height: "auto", objectFit: "contain", filter: "brightness(0) invert(1)", opacity: 0.9 }} />
-                    <span style={{ fontSize: 11, color: "rgba(148,163,184,0.5)", letterSpacing: "0.14em", textTransform: "uppercase" }}>
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 10,
+                      marginBottom: 8,
+                    }}
+                  >
+                    <img
+                      src={logo}
+                      alt=''
+                      style={{
+                        width: 28,
+                        height: "auto",
+                        objectFit: "contain",
+                        filter: "brightness(0) invert(1)",
+                        opacity: 0.9,
+                      }}
+                    />
+                    <span
+                      style={{
+                        fontSize: 11,
+                        color: "rgba(148,163,184,0.5)",
+                        letterSpacing: "0.14em",
+                        textTransform: "uppercase",
+                      }}
+                    >
                       Vorks Pro Admin
                     </span>
                   </div>
                   <h2 style={styles.heading}>Welcome back</h2>
-                  <p style={styles.subheading}>Sign in with your workspace credentials to access HR, projects, and finance.</p>
+                  <p style={styles.subheading}>
+                    Sign in with your workspace credentials to access HR, projects,
+                    and finance.
+                  </p>
                 </div>
 
                 <Field
-                  label="Username / Email"
+                  label='Username / Email'
                   value={username}
-                  onChange={e => setUsername(e.target.value)}
-                  placeholder="you@company.com"
-                  autoComplete="username"
+                  onChange={(e) => setUsername(e.target.value)}
+                  placeholder='you@company.com'
+                  autoComplete='username'
                 />
 
                 <Field
-                  label="Password"
+                  label='Password'
                   type={showPwd ? "text" : "password"}
                   value={password}
-                  onChange={e => setPassword(e.target.value)}
-                  placeholder="••••••••••"
-                  autoComplete="current-password"
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder='••••••••••'
+                  autoComplete='current-password'
                   extra={
                     <button
-                      type="button"
-                      onClick={() => setShowPwd(p => !p)}
+                      type='button'
+                      onClick={() => setShowPwd((p) => !p)}
                       aria-label={showPwd ? "Hide password" : "Show password"}
                       style={{
-                        position: "absolute", right: 14, top: "50%",
+                        position: "absolute",
+                        right: 14,
+                        top: "50%",
                         transform: "translateY(-50%)",
-                        background: "none", border: "none",
+                        background: "none",
+                        border: "none",
                         color: "rgba(148,163,184,0.6)",
-                        cursor: "pointer", lineHeight: 1,
+                        cursor: "pointer",
+                        lineHeight: 1,
                         padding: 4,
-                        display: "flex", alignItems: "center", justifyContent: "center",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
                       }}
                     >
                       {showPwd ? <EyeOff size={18} /> : <Eye size={18} />}
@@ -483,13 +664,15 @@ export default function Login() {
                   }
                 />
 
-                <div style={{ textAlign: "right", marginTop: -10, marginBottom: 24 }}>
+                <div
+                  style={{ textAlign: "right", marginTop: -10, marginBottom: 24 }}
+                >
                   <button
-                    type="button"
+                    type='button'
                     onClick={() => goTo("forgot")}
                     style={{ ...styles.textLink }}
-                    onMouseEnter={e => (e.target.style.color = "#c084fc")}
-                    onMouseLeave={e => (e.target.style.color = "#a78bfa")}
+                    onMouseEnter={(e) => (e.target.style.color = "#c084fc")}
+                    onMouseLeave={(e) => (e.target.style.color = "#a78bfa")}
                   >
                     Forgot password?
                   </button>
@@ -497,30 +680,50 @@ export default function Login() {
 
                 <PrimaryBtn loading={loading}>Sign in</PrimaryBtn>
 
-                <p style={{ fontSize: 11, color: "rgba(100,116,139,0.7)", textAlign: "center", marginTop: 20, lineHeight: 1.6 }}>
+                <p
+                  style={{
+                    fontSize: 11,
+                    color: "rgba(100,116,139,0.7)",
+                    textAlign: "center",
+                    marginTop: 20,
+                    lineHeight: 1.6,
+                  }}
+                >
                   By continuing you agree to Vorks Pro{" "}
-                  <span style={{ color: "#c084fc", cursor: "pointer" }}>security & usage policies</span>.
+                  <span style={{ color: "#c084fc", cursor: "pointer" }}>
+                    security & usage policies
+                  </span>
+                  .
                 </p>
               </form>
             )}
 
             {/* ── FORGOT VIEW ── */}
             {view === "forgot" && (
-              <form onSubmit={handleSendResetCode} className="form-enter">
+              <form onSubmit={handleSendResetCode} className='form-enter'>
                 <BackLink onClick={() => goTo("login")}>Back to login</BackLink>
                 <div style={{ marginBottom: 32 }}>
                   <h2 style={styles.heading}>Reset password</h2>
-                  <p style={styles.subheading}>Enter your work email and we'll send a 6-digit verification code.</p>
+                  <p style={styles.subheading}>
+                    Enter your work email and we'll send a 6-digit verification code.
+                  </p>
                 </div>
                 <Field
-                  label="Email address"
-                  type="email"
+                  label='Email address'
+                  type='email'
                   value={email}
-                  onChange={e => setEmail(e.target.value)}
-                  placeholder="you@company.com"
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder='you@company.com'
                 />
                 <PrimaryBtn loading={loading}>Send reset code</PrimaryBtn>
-                <p style={{ fontSize: 11, color: "rgba(100,116,139,0.7)", textAlign: "center", marginTop: 20 }}>
+                <p
+                  style={{
+                    fontSize: 11,
+                    color: "rgba(100,116,139,0.7)",
+                    textAlign: "center",
+                    marginTop: 20,
+                  }}
+                >
                   Need help?{" "}
                   <span style={{ color: "#c084fc" }}>support@vorkspro.com</span>
                 </p>
@@ -529,7 +732,7 @@ export default function Login() {
 
             {/* ── VERIFY VIEW ── */}
             {view === "verify" && (
-              <form onSubmit={handleVerifyCode} className="form-enter">
+              <form onSubmit={handleVerifyCode} className='form-enter'>
                 <BackLink onClick={() => goTo("forgot")}>Back</BackLink>
                 <div style={{ marginBottom: 32 }}>
                   <h2 style={styles.heading}>Enter code</h2>
@@ -542,11 +745,11 @@ export default function Login() {
                 <div style={{ marginBottom: 24 }}>
                   <label style={styles.label}>Verification code</label>
                   <input
-                    type="text"
+                    type='text'
                     maxLength={6}
                     value={code}
-                    onChange={e => setCode(e.target.value.replace(/\D/g, ""))}
-                    placeholder="000000"
+                    onChange={(e) => setCode(e.target.value.replace(/\D/g, ""))}
+                    placeholder='000000'
                     style={{
                       ...styles.input,
                       textAlign: "center",
@@ -555,19 +758,25 @@ export default function Login() {
                       fontFamily: "'JetBrains Mono', monospace",
                       fontWeight: 500,
                     }}
-                    onFocus={e => (e.target.style.borderColor = NEON_PURPLE)}
-                    onBlur={e => (e.target.style.borderColor = "rgba(255,255,255,0.1)")}
+                    onFocus={(e) => (e.target.style.borderColor = NEON_PURPLE)}
+                    onBlur={(e) =>
+                      (e.target.style.borderColor = "rgba(255,255,255,0.1)")
+                    }
                   />
                 </div>
 
                 <PrimaryBtn loading={loading}>Verify code</PrimaryBtn>
                 <button
-                  type="button"
+                  type='button'
                   onClick={handleSendResetCode}
                   disabled={loading}
                   style={{ ...styles.ghostBtn, marginTop: 12 }}
-                  onMouseEnter={e => (e.target.style.borderColor = "rgba(168,85,247,0.4)")}
-                  onMouseLeave={e => (e.target.style.borderColor = "rgba(255,255,255,0.08)")}
+                  onMouseEnter={(e) =>
+                    (e.target.style.borderColor = "rgba(168,85,247,0.4)")
+                  }
+                  onMouseLeave={(e) =>
+                    (e.target.style.borderColor = "rgba(255,255,255,0.08)")
+                  }
                 >
                   {loading ? "Sending…" : "Resend code"}
                 </button>
@@ -576,43 +785,59 @@ export default function Login() {
 
             {/* ── RESET VIEW ── */}
             {view === "reset" && (
-              <form onSubmit={handleResetPassword} className="form-enter">
+              <form onSubmit={handleResetPassword} className='form-enter'>
                 <BackLink onClick={() => goTo("verify")}>Back</BackLink>
                 <div style={{ marginBottom: 32 }}>
                   <h2 style={styles.heading}>New password</h2>
-                  <p style={styles.subheading}>Choose a strong, unique password for your account.</p>
+                  <p style={styles.subheading}>
+                    Choose a strong, unique password for your account.
+                  </p>
                 </div>
 
                 <Field
-                  label="New password"
-                  type="password"
+                  label='New password'
+                  type='password'
                   value={newPassword}
-                  onChange={e => setNewPassword(e.target.value)}
-                  placeholder="Min. 6 characters"
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  placeholder='Min. 6 characters'
                 />
 
-                <div style={{ marginBottom: confirmPassword && newPassword !== confirmPassword ? 8 : 24 }}>
+                <div
+                  style={{
+                    marginBottom:
+                      confirmPassword && newPassword !== confirmPassword ? 8 : 24,
+                  }}
+                >
                   <label style={styles.label}>Confirm password</label>
                   <input
-                    type="password"
+                    type='password'
                     value={confirmPassword}
-                    onChange={e => setConfirmPassword(e.target.value)}
-                    placeholder="Repeat your password"
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    placeholder='Repeat your password'
                     style={{
                       ...styles.input,
-                      borderColor: confirmPassword && newPassword !== confirmPassword
-                        ? "rgba(239,68,68,0.6)"
-                        : "rgba(255,255,255,0.1)",
+                      borderColor:
+                        confirmPassword && newPassword !== confirmPassword
+                          ? "rgba(239,68,68,0.6)"
+                          : "rgba(255,255,255,0.1)",
                     }}
-                    onFocus={e => (e.target.style.borderColor = NEON_PURPLE)}
-                    onBlur={e => (e.target.style.borderColor =
-                      confirmPassword && newPassword !== confirmPassword
-                        ? "rgba(239,68,68,0.6)"
-                        : "rgba(255,255,255,0.1)"
-                    )}
+                    onFocus={(e) => (e.target.style.borderColor = NEON_PURPLE)}
+                    onBlur={(e) =>
+                      (e.target.style.borderColor =
+                        confirmPassword && newPassword !== confirmPassword
+                          ? "rgba(239,68,68,0.6)"
+                          : "rgba(255,255,255,0.1)")
+                    }
                   />
                   {confirmPassword && newPassword !== confirmPassword && (
-                    <p style={{ color: "#F87171", fontSize: 12, marginTop: 6, marginBottom: 16 }}>
+                    <p
+                      style={{
+                        color: "#F87171",
+                        fontSize: 12,
+                        marginTop: 6,
+                        marginBottom: 16,
+                      }}
+                    >
                       Passwords do not match.
                     </p>
                   )}

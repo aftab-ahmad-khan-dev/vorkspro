@@ -1,20 +1,12 @@
 import React from "react";
 import { FolderKanban, AlertTriangle, CheckCircle, Clock } from "lucide-react";
-
-const StatCard = ({ title, value, subtext, icon: Icon, iconBg }) => (
-  <div className="flex items-center justify-between rounded-xl bg-border/50 p-6 ">
-    <div>
-      <p className="text-sm text-muted-foreground">{title}</p>
-      <p className="mt-1 text-3xl font-semibold text-foreground">{value}</p>
-      {subtext && <p className="mt-1 text-sm text-green-400">{subtext}</p>}
-    </div>
-    <div
-      className={`flex h-12 w-12 items-center justify-center rounded-lg ${iconBg}`}
-    >
-      <Icon className="h-6 w-6 text-white" />
-    </div>
-  </div>
-);
+import { DASHBOARD_SUMMARIES } from "@/config/dashboardConfig";
+import {
+  DashboardSummaryCard,
+  DashboardInsightCard,
+  DashboardQuickActions,
+  DashboardActivitySection,
+} from "@/components/dashboard";
 
 const ProjectCard = ({
   title,
@@ -68,42 +60,18 @@ const ProjectCard = ({
 export default function ProjectManagerDashboard() {
   return (
     <div className="min-h-screen bg-background sm:p-8">
-      {/* Top Stats */}
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-        <StatCard
-          title="Active Projects"
-          value="3"
-          subtext="↑ 12% vs last month"
-          icon={FolderKanban}
-          iconBg="bg-gradient-to-br from-purple-500 via-indigo-500 to-blue-500"
-        />
-        <StatCard
-          title="Open Blockers"
-          value="2"
-          icon={AlertTriangle}
-          iconBg="bg-gradient-to-br from-orange-700 via-orange-600 to-orange-500"
-        />
-        <StatCard
-          title="Completed Milestones"
-          value="1"
-          subtext="↑ 23% vs last month"
-          icon={CheckCircle}
-          iconBg="bg-gradient-to-br from-green-500 to-emerald-400"
-        />
-        <StatCard
-          title="Pending Follow-ups"
-          value="1"
-          icon={Clock}
-          iconBg="bg-gradient-to-br from-yellow-400 to-amber-600"
-        />
+<DashboardSummaryCard title="Project manager dashboard" summary={DASHBOARD_SUMMARIES.projectManager} />
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4 mb-8">
+        <DashboardInsightCard title="Active Projects" value="3" subtitle="↑ 12% vs last month" Icon={FolderKanban} iconBg="bg-gradient-to-br from-purple-500 via-indigo-500 to-blue-500" />
+        <DashboardInsightCard title="Open Blockers" value="2" Icon={AlertTriangle} iconBg="bg-gradient-to-br from-orange-700 via-orange-600 to-orange-500" />
+        <DashboardInsightCard title="Completed Milestones" value="1" subtitle="↑ 23% vs last month" Icon={CheckCircle} iconBg="bg-gradient-to-br from-green-500 to-emerald-400" />
+        <DashboardInsightCard title="Pending Follow-ups" value="1" Icon={Clock} iconBg="bg-gradient-to-br from-yellow-400 to-amber-600" />
       </div>
 
-      {/* Active Projects */}
-      <div className="mt-10 bg-border/50 p-8 rounded-lg">
-        <h2 className="mb-6 text-2xl font-semibold text-foreground">
-          Active Projects
-        </h2>
+      {/* Quick Actions — dynamic: only modules assigned to your role by admin */}
+      <DashboardQuickActions className="mb-8" />
 
+      <DashboardActivitySection title="Active Projects" subtitle="" className="mt-6">
         <div className="space-y-6">
           <ProjectCard
             title="Project Phoenix"
@@ -133,13 +101,11 @@ export default function ProjectManagerDashboard() {
             highlight
           />
         </div>
-      </div>
+      </DashboardActivitySection>
 
-      <div className="min-h-screen bg-background text-foreground mt-6">
+      <div className="mt-6">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Upcoming Milestones */}
-          <div className="bg-border/50 rounded-2xl  p-6">
-            <h2 className="text-xl font-semibold mb-4">Upcoming Milestones</h2>
+          <DashboardActivitySection title="Upcoming Milestones" subtitle="">
             <div className="space-y-4">
               {[
                 {
@@ -203,13 +169,9 @@ export default function ProjectManagerDashboard() {
                 </div>
               ))}
             </div>
-          </div>
+          </DashboardActivitySection>
 
-          {/* Active Blockers */}
-          <div className="bg-border/50 rounded-2xl  p-6">
-            <h2 className="text-xl text-foreground font-semibold mb-4">
-              Active Blockers
-            </h2>
+          <DashboardActivitySection title="Active Blockers" subtitle="">
             <div className="space-y-4">
               {[
                 {
@@ -263,11 +225,9 @@ export default function ProjectManagerDashboard() {
                 </div>
               ))}
             </div>
-          </div>
+          </DashboardActivitySection>
         </div>
-        <div className="mt-6 bg-border/50 rounded-2xl  p-6">
-          <h2 className="text-xl  font-semibold mb-4">Client Follow-ups</h2>
-
+        <DashboardActivitySection title="Client Follow-ups" subtitle="" className="mt-6">
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead className="text-foreground/80 border-b border-muted-foreground/50">
@@ -312,7 +272,7 @@ export default function ProjectManagerDashboard() {
               </tbody>
             </table>
           </div>
-        </div>
+        </DashboardActivitySection>
       </div>
     </div>
   );

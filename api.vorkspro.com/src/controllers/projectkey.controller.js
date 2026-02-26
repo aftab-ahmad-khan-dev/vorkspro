@@ -85,7 +85,7 @@ const projectKeyController = {
       StatusCodes.OK,
       true,
       "Credentials fetched successfully",
-      { credentials: project.projectKeys }
+      { credentials: project.credentials || [] }
     );
   }),
 

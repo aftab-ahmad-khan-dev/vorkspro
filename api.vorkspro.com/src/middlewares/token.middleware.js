@@ -67,7 +67,7 @@ export const tokenCheckerMiddleware = async (req, res, next) => {
 
   try {
     const decoded = jwt.verify(token, tokenSecret);
-    const user = await User.findById(decoded._id);
+    const user = await User.findById(decoded._id).select('_id isActive role isSuperAdmin').lean();
 
     if (!user) {
       return res.status(401).json({ message: "User not found." });
@@ -77,9 +77,7 @@ export const tokenCheckerMiddleware = async (req, res, next) => {
       return res.status(403).json({ message: "Your account has been deactivated." });
     }
 
-    // Attach user to request
-    req.user = user.toObject();
-
+    req.user = user;
     next();
   } catch (err) {
     logger.error("Token verification failed", "Auth", err.message);

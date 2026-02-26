@@ -41,6 +41,16 @@ route.get(
     userController.getRoles
 );
 
+route.post(
+    "/assign-default-role",
+    userController.assignDefaultRole
+);
+
+route.get(
+    "/me",
+    userController.getMe
+);
+
 route.patch(
     "/profile",
     userController.updateProfile

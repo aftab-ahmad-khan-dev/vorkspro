@@ -1,4 +1,7 @@
 const BASE_URL = import.meta.env.VITE_APP_BASE_URL;
+if (!BASE_URL && import.meta.env.DEV) {
+  console.warn("VITE_APP_BASE_URL is not set in .env — API requests will fail. Use e.g. http://localhost:4000/api/");
+}
 
 /* ===============================
    AUTH HEADER HELPER (UNCHANGED)
@@ -95,8 +98,10 @@ const fetchWithRefresh = async (url, options, retry = true) => {
 };
 
 /* ===============================
-   RESPONSE HANDLER (UNCHANGED)
+   RESPONSE HANDLER
 ================================ */
+let noRoleToastShown = false;
+
 const handleResponse = async (response) => {
   if (!response.ok) {
     const text = await response.text();
@@ -109,6 +114,24 @@ const handleResponse = async (response) => {
     } catch {
       errorMessage = `HTTP ${response.status}: ${text.substring(0, 100)}`;
     }
+
+    // 403 "No role" or "inactive role" — show one clear toast so user isn’t spammed
+    if (response.status === 403 && typeof errorMessage === "string") {
+      const isNoRole =
+        errorMessage.includes("No role assigned to the user") ||
+        errorMessage.includes("Your role is inactive or invalid");
+      if (isNoRole && !noRoleToastShown) {
+        noRoleToastShown = true;
+        try {
+          const { toast } = await import("sonner");
+          toast.error(
+            "Your account has no role assigned or your role is inactive. Please contact your administrator.",
+            { duration: 8000 }
+          );
+        } catch (_) {}
+      }
+    }
+
     throw new Error(errorMessage);
   }
   return await response.json();

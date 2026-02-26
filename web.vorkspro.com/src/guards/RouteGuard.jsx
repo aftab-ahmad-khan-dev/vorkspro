@@ -21,7 +21,7 @@ const routeModuleMap = {
   "/app/knowledge-base": "Knowledge Base",
   "/app/announcements": "Announcements",
   "/app/categories": "Categories",
-  "/app/credentials": "Keys & Credentials",
+  "/app/projects/credentials": "Keys & Credentials",
   "/app/blockages": "Blockages",
 };
 
