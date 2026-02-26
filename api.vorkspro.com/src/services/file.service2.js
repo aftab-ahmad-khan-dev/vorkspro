@@ -1,4 +1,5 @@
 import fs from "fs";
+import os from "os";
 import multer from "multer";
 import sharp from "sharp";
 import path from "path";
@@ -14,13 +15,13 @@ aws_sdk.config.update({
 });
 const s3Config = new aws_sdk.S3();
 
-// Constants
-const fileDestination = 'public/';
+// Constants — on Vercel use /tmp (writable); local use public/
+const fileDestination = process.env.VERCEL ? path.join(os.tmpdir(), "vorkspro-uploads") : "public";
 const USE_AWS = false;
 
-// Multer Configuration
+// Multer Configuration — same dest used for disk storage
 const upload = multer({ storage: multer.memoryStorage() });
-export const multerSingleUploadRoute = multer({ dest: fileDestination }).single('file');
+export const multerSingleUploadRoute = multer({ dest: fileDestination }).single("file");
 export const multerMultipleUploadRoute = multer({ dest: fileDestination }).any();
 const awsMultiUploadRoute = upload.single('files');
 const awsSingleUploadRoute = upload.single('file');
