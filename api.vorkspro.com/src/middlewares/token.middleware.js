@@ -3,8 +3,11 @@ import { User } from "../startup/models.js";
 
 const tokenSecret = process.env.TOKEN_SECRET_KEY;
 
-// ✅ Public routes (no token required)
+/*
+ * Public routes (no token required)
+ */
 const publicUrls = [
+  "/",
   "/file",
   "/file/upload-single",
   "/file/upload-multiple",
@@ -18,14 +21,18 @@ const publicUrls = [
   "/uploads/:id",
 ];
 
-// ✅ Routes that require optional token (authenticated or guest)
+/*
+ * Routes that require optional token (authenticated or guest)
+ */
 const optionalAuthUrls = ["/"];
 
-// ✅ Parameterized route matchers
+/*
+ * Parameterized route matchers
+ */
 const publicUrlWithParams = ["/file/remove-single/"];
 
-/**
- * Helper — check if request URL matches public routes
+/*
+ * Check if request URL matches public routes
  */
 const isPublicUrl = (req) => {
   return (
@@ -35,14 +42,14 @@ const isPublicUrl = (req) => {
   );
 };
 
-/**
+/*
  * Helper — check if request URL matches optional-auth routes
  */
 const isOptionalAuthUrl = (req) => {
   return optionalAuthUrls.some((url) => req.url.startsWith(url));
 };
 
-/**
+/*
  * ✅ Strict Token Middleware — Requires valid JWT
  */
 export const tokenCheckerMiddleware = async (req, res, next) => {
@@ -66,9 +73,7 @@ export const tokenCheckerMiddleware = async (req, res, next) => {
     }
 
     if (!user.isActive) {
-      return res
-        .status(403)
-        .json({ message: "Your account has been deactivated." });
+      return res.status(403).json({ message: "Your account has been deactivated." });
     }
 
     // Attach user to request
@@ -81,7 +86,7 @@ export const tokenCheckerMiddleware = async (req, res, next) => {
   }
 };
 
-/**
+/*
  * ✅ Optional Token Middleware — Token may exist but is not mandatory
  */
 export const optionalTokenMiddleware = async (req, res, next) => {
@@ -105,7 +110,7 @@ export const optionalTokenMiddleware = async (req, res, next) => {
   next();
 };
 
-/**
+/*
  * ✅ Master Token Checker — decides which middleware to run
  */
 export const tokenChecker = async (req, res, next) => {
@@ -117,6 +122,8 @@ export const tokenChecker = async (req, res, next) => {
   //   return optionalTokenMiddleware(req, res, next);
   // }
 
-  // ✅ All other routes require valid JWT
+  /*
+   * All other routes require valid JWT
+   */
   return tokenCheckerMiddleware(req, res, next);
 };

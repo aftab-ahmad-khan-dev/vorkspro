@@ -17,7 +17,14 @@ const SidebarMemo = memo(Sidebar);
 
 function Layout() {
   const token = localStorage.getItem("token");
-  const decodedToken = token ? jwtDecode(token) : null;
+  let decodedToken = null;
+  if (token && typeof token === "string" && token.trim().length > 0) {
+    try {
+      decodedToken = jwtDecode(token);
+    } catch {
+      decodedToken = null;
+    }
+  }
 
   const { setTabs, setActions } = useTabs();
   const location = useLocation();

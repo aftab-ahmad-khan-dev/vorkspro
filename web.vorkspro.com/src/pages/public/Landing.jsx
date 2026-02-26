@@ -31,16 +31,14 @@ import logo from "@/assets/vorkspro-logo.svg";
 
 gsap.registerPlugin(ScrollTrigger);
 
-/* ── CONSTANTS (neon purple & indigo) ───────────────────────────── */
-const THEME       = "#6366f1";  /* indigo-500 */
-const THEME_LIGHT = "rgba(99,102,241,0.12)";
-const THEME_MED   = "rgba(99,102,241,0.25)";
-const NEON_PURPLE = "#a855f7";
-const NEON_INDIGO = "#6366f1";
-const GOLD        = "#c084fc";  /* purple-400 accent */
-const GOLD_LIGHT  = "rgba(168,85,247,0.15)";
-const CREAM       = "#0f0a1f";  /* dark purple-black base */
-const DARK        = "#0c0818";
+/* ── CONSTANTS (Vorks Pro theme: primary #251A3C) ───────────────── */
+const THEME       = "#251A3C";  /* app primary / button */
+const THEME_LIGHT = "rgba(37,26,60,0.35)";
+const THEME_MED   = "rgba(37,26,60,0.5)";
+const ACCENT      = "#a89ac9";  /* lighter purple for highlights */
+const ACCENT_LIGHT = "rgba(168,154,201,0.2)";
+const CREAM       = "#0f0a1a";  /* dark purple-black base */
+const DARK        = "#0c0815";
 
 /* ── ROLE PANELS ───────────────────────────────────────────────── */
 const ROLE_PANELS = [
@@ -185,9 +183,9 @@ function AnimatedCounter({ target, suffix = "", duration = 2 }) {
 
 /* ── CELL ICON ─────────────────────────────────────────────────── */
 function CellIcon({ value }) {
-  if (value === true)      return <CheckCircle2 className="h-5 w-5 mx-auto" style={{ color: NEON_PURPLE }} />;
+  if (value === true)      return <CheckCircle2 className="h-5 w-5 mx-auto" style={{ color: ACCENT }} />;
   if (value === false)     return <XCircle      className="h-5 w-5 mx-auto text-slate-500" />;
-  if (value === "partial") return <Minus        className="h-5 w-5 mx-auto text-indigo-400 opacity-60" />;
+  if (value === "partial") return <Minus        className="h-5 w-5 mx-auto opacity-60" style={{ color: ACCENT }} />;
   return null;
 }
 
@@ -299,7 +297,7 @@ export default function Landing() {
         }
         .hero-mesh {
           background: linear-gradient(135deg,
-            #0c0818 0%, #1e1b4b 20%, #312e81 40%, #4c1d95 60%, #2e1065 80%, #0c0818 100%
+            #0c0815 0%, #1a1528 20%, #251A3C 40%, #2d2545 60%, #1a1528 80%, #0c0815 100%
           );
           background-size: 400% 400%;
           animation: meshMove 12s ease infinite;
@@ -330,7 +328,7 @@ export default function Landing() {
           100% { background-position:  200% center; }
         }
         .gold-shimmer {
-          background: linear-gradient(90deg, #a855f7 0%, #c084fc 40%, #818cf8 60%, #a855f7 100%);
+          background: linear-gradient(90deg, #251A3C 0%, #a89ac9 40%, #7c6ba8 60%, #251A3C 100%);
           background-size: 200% auto;
           -webkit-background-clip: text;
           -webkit-text-fill-color: transparent;
@@ -349,7 +347,7 @@ export default function Landing() {
         .gsap-reveal { opacity: 0; }
 
         /* Table hover */
-        .comp-row:hover td { background: rgba(99,102,241,0.08); }
+        .comp-row:hover td { background: rgba(37,26,60,0.25); }
         .comp-row td { transition: background 0.2s; }
 
         /* Feature card hover */
@@ -358,7 +356,7 @@ export default function Landing() {
         }
         .feat-card:hover {
           transform: translateY(-4px);
-          box-shadow: 0 20px 60px rgba(168,85,247,0.2);
+          box-shadow: 0 20px 60px rgba(37,26,60,0.4);
         }
       `}</style>
 
@@ -368,7 +366,7 @@ export default function Landing() {
         style={{
           backgroundColor: scrolled ? "rgba(12,8,24,0.92)" : "transparent",
           backdropFilter: scrolled ? "blur(16px)" : "none",
-          borderBottom: scrolled ? "1px solid rgba(168,85,247,0.15)" : "none",
+          borderBottom: scrolled ? "1px solid rgba(168,154,201,0.2)" : "none",
         }}
       >
         <div className="mx-auto flex max-w-7xl items-center justify-between px-5 py-4 lg:px-10">
@@ -389,7 +387,7 @@ export default function Landing() {
                 whileHover={{ scale: 1.04 }}
                 whileTap={{ scale: 0.97 }}
                 className="syne text-sm font-semibold px-5 py-2.5 rounded-xl text-white"
-                style={{ background: `linear-gradient(135deg, ${NEON_PURPLE} 0%, ${NEON_INDIGO} 100%)`, boxShadow: "0 0 24px rgba(168,85,247,0.4)" }}
+                style={{ background: `linear-gradient(135deg, ${THEME} 0%, ${THEME_MED} 100%)`, boxShadow: "0 0 24px rgba(37,26,60,0.5)" }}
               >
                 Get Started
               </motion.button>
@@ -419,7 +417,7 @@ export default function Landing() {
               ))}
               <Link to="/login" onClick={() => setMobileMenuOpen(false)}>
                 <button className="syne mt-4 w-full py-3 rounded-xl text-sm font-semibold text-white"
-                  style={{ background: `linear-gradient(135deg, ${NEON_PURPLE}, ${NEON_INDIGO})`, boxShadow: "0 0 20px rgba(168,85,247,0.3)" }}>
+                  style={{ background: `linear-gradient(135deg, ${THEME}, ${THEME_MED})`, boxShadow: "0 0 20px rgba(37,26,60,0.4)" }}>
                   Get Started
                 </button>
               </Link>
@@ -442,8 +440,8 @@ export default function Landing() {
               top:    `${10 + (i * 7) % 80}%`,
               left:   `${5 + (i * 9) % 90}%`,
               background: i % 3 === 0
-                ? `radial-gradient(circle, rgba(168,85,247,0.5), transparent)`
-                : `radial-gradient(circle, rgba(99,102,241,0.25), transparent)`,
+                ? `radial-gradient(circle, rgba(168,154,201,0.4), transparent)`
+                : `radial-gradient(circle, rgba(37,26,60,0.4), transparent)`,
               filter: "blur(2px)",
               opacity: 0.5,
             }}
@@ -452,9 +450,9 @@ export default function Landing() {
 
         {/* Glowing orbs */}
         <div className="absolute top-1/4 left-1/4 w-96 h-96 rounded-full pointer-events-none"
-          style={{ background: `radial-gradient(circle, rgba(99,102,241,0.4) 0%, transparent 70%)`, filter: "blur(60px)" }} />
+          style={{ background: `radial-gradient(circle, rgba(37,26,60,0.5) 0%, transparent 70%)`, filter: "blur(60px)" }} />
         <div className="absolute bottom-1/3 right-1/4 w-80 h-80 rounded-full pointer-events-none"
-          style={{ background: `radial-gradient(circle, rgba(168,85,247,0.35) 0%, transparent 70%)`, filter: "blur(50px)" }} />
+          style={{ background: `radial-gradient(circle, rgba(168,154,201,0.3) 0%, transparent 70%)`, filter: "blur(50px)" }} />
 
         <motion.div
           style={{ opacity: heroOpacity, y: heroY }}
@@ -466,10 +464,10 @@ export default function Landing() {
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.6 }}
             className="inline-flex items-center gap-2 rounded-full border px-4 py-1.5 mb-8"
-            style={{ borderColor: "rgba(168,85,247,0.4)", backgroundColor: "rgba(168,85,247,0.12)" }}
+            style={{ borderColor: "rgba(168,154,201,0.4)", backgroundColor: ACCENT_LIGHT }}
           >
-            <span className="h-1.5 w-1.5 rounded-full animate-pulse" style={{ backgroundColor: NEON_PURPLE }} />
-            <span className="text-xs font-medium tracking-widest uppercase" style={{ color: "#c084fc" }}>
+            <span className="h-1.5 w-1.5 rounded-full animate-pulse" style={{ backgroundColor: ACCENT }} />
+            <span className="text-xs font-medium tracking-widest uppercase" style={{ color: ACCENT }}>
               The complete ops platform for agencies
             </span>
           </motion.div>
@@ -518,10 +516,10 @@ export default function Landing() {
           >
             <Link to="/login">
               <motion.button
-                whileHover={{ scale: 1.05, boxShadow: "0 0 40px rgba(168,85,247,0.5)" }}
+                whileHover={{ scale: 1.05, boxShadow: "0 0 40px rgba(37,26,60,0.6)" }}
                 whileTap={{ scale: 0.97 }}
                 className="syne font-semibold px-8 py-4 rounded-xl text-base flex items-center gap-2 text-white"
-                style={{ background: `linear-gradient(135deg, ${NEON_PURPLE} 0%, ${NEON_INDIGO} 100%)`, boxShadow: "0 0 30px rgba(168,85,247,0.4)" }}
+                style={{ background: `linear-gradient(135deg, ${THEME} 0%, ${THEME_MED} 100%)`, boxShadow: "0 0 30px rgba(37,26,60,0.5)" }}
               >
                 Start for free <ArrowRight size={16} />
               </motion.button>
@@ -546,7 +544,7 @@ export default function Landing() {
           >
             {["No credit card required", "5-minute setup", "Cancel anytime"].map((t, i) => (
               <span key={i} className="flex items-center gap-1.5">
-                <CheckCircle2 size={12} style={{ color: NEON_PURPLE }} /> {t}
+                <CheckCircle2 size={12} style={{ color: ACCENT }} /> {t}
               </span>
             ))}
           </motion.div>
@@ -564,7 +562,7 @@ export default function Landing() {
       </section>
 
       {/* ── STATS BAR ── */}
-      <section style={{ backgroundColor: DARK, borderTop: "1px solid rgba(168,85,247,0.1)" }}>
+      <section style={{ backgroundColor: DARK, borderTop: "1px solid rgba(168,154,201,0.12)" }}>
         <div className="mx-auto max-w-5xl px-5 py-14 lg:px-10">
           <div className="grid grid-cols-2 gap-8 md:grid-cols-4">
             {[
@@ -581,7 +579,7 @@ export default function Landing() {
                 transition={{ duration: 0.6, delay: i * 0.1 }}
                 className="text-center"
               >
-                <div className="syne text-4xl font-extrabold" style={{ color: GOLD }}>
+                <div className="syne text-4xl font-extrabold" style={{ color: ACCENT }}>
                   <AnimatedCounter target={s.value} suffix={s.suffix} />
                 </div>
                 <div className="mt-1 text-sm font-semibold text-white">{s.label}</div>
@@ -597,7 +595,7 @@ export default function Landing() {
         <div className="mx-auto max-w-7xl px-5 lg:px-10">
           <div className="text-center mb-16 gsap-reveal">
             <span className="syne text-xs font-semibold tracking-widest uppercase px-3 py-1 rounded-full"
-              style={{ backgroundColor: "rgba(168,85,247,0.2)", color: "#c084fc" }}>
+              style={{ backgroundColor: ACCENT_LIGHT, color: ACCENT }}>
               Everything included
             </span>
             <h2 className="syne mt-5 text-4xl font-extrabold sm:text-5xl text-white">
@@ -617,11 +615,11 @@ export default function Landing() {
                 viewport={{ once: true }}
                 transition={{ duration: 0.5, delay: i * 0.07 }}
                 className={`feat-card rounded-2xl p-7 border ${f.span === "col-span-2" ? "sm:col-span-2 lg:col-span-2" : ""}`}
-                style={{ backgroundColor: "rgba(30,27,75,0.5)", borderColor: "rgba(168,85,247,0.25)" }}
+                style={{ backgroundColor: THEME_LIGHT, borderColor: "rgba(168,154,201,0.25)" }}
               >
                 <div className="flex h-11 w-11 items-center justify-center rounded-xl mb-5"
-                  style={{ background: "rgba(168,85,247,0.2)" }}>
-                  <f.icon className="h-5 w-5" style={{ color: "#c084fc" }} />
+                  style={{ background: ACCENT_LIGHT }}>
+                  <f.icon className="h-5 w-5" style={{ color: ACCENT }} />
                 </div>
                 <h3 className="syne text-lg font-bold mb-2 text-white">{f.title}</h3>
                 <p className="text-sm text-slate-400 leading-relaxed">{f.desc}</p>
@@ -636,7 +634,7 @@ export default function Landing() {
         <div className="mx-auto max-w-7xl px-5 lg:px-10">
           <div className="text-center mb-16 gsap-reveal">
             <span className="syne text-xs font-semibold tracking-widest uppercase px-3 py-1 rounded-full"
-              style={{ backgroundColor: "rgba(168,85,247,0.2)", color: "#c084fc" }}>
+              style={{ backgroundColor: ACCENT_LIGHT, color: ACCENT }}>
               Real customers. Real results.
             </span>
             <h2 className="syne mt-5 text-4xl font-extrabold text-white sm:text-5xl">
@@ -656,18 +654,18 @@ export default function Landing() {
                 viewport={{ once: true }}
                 transition={{ duration: 0.6, delay: i * 0.12 }}
                 className="rounded-2xl p-7 border relative"
-                style={{ backgroundColor: "rgba(255,255,255,0.04)", borderColor: "rgba(168,85,247,0.15)" }}
+                style={{ backgroundColor: "rgba(255,255,255,0.04)", borderColor: "rgba(168,154,201,0.2)" }}
               >
                 <Quote className="absolute top-6 right-6 h-6 w-6 opacity-10 text-white" />
                 <div className="flex gap-1 mb-4">
                   {[...Array(t.rating)].map((_, s) => (
-                    <Star key={s} className="h-4 w-4 fill-current" style={{ color: NEON_PURPLE }} />
+                    <Star key={s} className="h-4 w-4 fill-current" style={{ color: ACCENT }} />
                   ))}
                 </div>
                 <p className="text-white/75 text-sm leading-relaxed mb-6">"{t.body}"</p>
                 <div className="flex items-center gap-3">
                   <div className="h-9 w-9 rounded-full flex items-center justify-center syne text-sm font-bold text-white"
-                    style={{ background: `linear-gradient(135deg, ${NEON_PURPLE}, ${NEON_INDIGO})` }}>
+                    style={{ background: `linear-gradient(135deg, ${THEME}, ${THEME_MED})` }}>
                     {t.name[0]}
                   </div>
                   <div>
@@ -702,7 +700,7 @@ export default function Landing() {
         <div className="mx-auto max-w-7xl px-5 lg:px-10">
           <div className="text-center mb-14 gsap-reveal">
             <span className="syne text-xs font-semibold tracking-widest uppercase px-3 py-1 rounded-full"
-              style={{ backgroundColor: "rgba(168,85,247,0.2)", color: "#c084fc" }}>
+              style={{ backgroundColor: ACCENT_LIGHT, color: ACCENT }}>
               Role-based experience
             </span>
             <h2 className="syne mt-5 text-4xl font-extrabold sm:text-5xl text-white">
@@ -724,8 +722,8 @@ export default function Landing() {
                   onClick={() => setSelectedRoleId(role.id)}
                   className="flex items-center justify-between gap-2 px-4 py-3 rounded-xl text-left text-sm font-semibold whitespace-nowrap transition-all"
                   style={selectedRoleId === role.id
-                    ? { backgroundColor: NEON_INDIGO, color: "white", boxShadow: "0 8px 30px rgba(99,102,241,0.4)" }
-                    : { backgroundColor: "rgba(30,27,75,0.6)", color: "#c4b5fd", border: "1px solid rgba(168,85,247,0.3)" }}
+                    ? { backgroundColor: THEME, color: "white", boxShadow: "0 8px 30px rgba(37,26,60,0.5)" }
+                    : { backgroundColor: THEME_LIGHT, color: ACCENT, border: "1px solid rgba(168,154,201,0.3)" }}
                 >
                   <span>{role.label}</span>
                   {selectedRoleId === role.id && <ChevronRight className="h-3 w-3 opacity-60" />}
@@ -743,9 +741,9 @@ export default function Landing() {
                   exit={{ opacity: 0, x: -20 }}
                   transition={{ duration: 0.3 }}
                   className="rounded-2xl border overflow-hidden lg:max-w-[260px] w-full"
-                  style={{ borderColor: "rgba(168,85,247,0.3)", backgroundColor: "rgba(30,27,75,0.6)", boxShadow: "0 4px 30px rgba(168,85,247,0.15)" }}
+                  style={{ borderColor: "rgba(168,154,201,0.3)", backgroundColor: THEME_LIGHT, boxShadow: "0 4px 30px rgba(37,26,60,0.3)" }}
                 >
-                  <div className="px-4 py-3 border-b flex items-center gap-2" style={{ backgroundColor: NEON_INDIGO, borderColor: "rgba(168,85,247,0.3)" }}>
+                  <div className="px-4 py-3 border-b flex items-center gap-2" style={{ backgroundColor: THEME, borderColor: "rgba(168,154,201,0.3)" }}>
                     <img src={logo} alt="" className="h-6 w-auto brightness-0 invert opacity-95" />
                     <span className="syne text-sm font-bold text-white">Vorks Pro</span>
                     <span className="ml-auto text-xs text-white/50">({selectedRole.label})</span>
@@ -754,7 +752,7 @@ export default function Landing() {
                     {selectedRole.modules.map((mod, idx) => (
                       <div key={idx}>
                         <div className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-slate-200 hover:bg-white/10 cursor-pointer transition-colors">
-                          <mod.icon className="h-4 w-4 flex-shrink-0" style={{ color: "#c084fc" }} />
+                          <mod.icon className="h-4 w-4 flex-shrink-0" style={{ color: ACCENT }} />
                           <span className="text-sm font-medium truncate">{mod.label}</span>
                         </div>
                         {mod.children?.map((child, ci) => (
@@ -768,9 +766,9 @@ export default function Landing() {
                 </motion.div>
               </AnimatePresence>
 
-              <div className="flex-1 rounded-2xl border p-8" style={{ backgroundColor: "rgba(30,27,75,0.5)", borderColor: "rgba(168,85,247,0.25)" }}>
-                <div className="h-9 w-9 rounded-xl mb-4 flex items-center justify-center" style={{ backgroundColor: "rgba(168,85,247,0.2)" }}>
-                  <Users className="h-4 w-4" style={{ color: "#c084fc" }} />
+              <div className="flex-1 rounded-2xl border p-8" style={{ backgroundColor: THEME_LIGHT, borderColor: "rgba(168,154,201,0.25)" }}>
+                <div className="h-9 w-9 rounded-xl mb-4 flex items-center justify-center" style={{ backgroundColor: ACCENT_LIGHT }}>
+                  <Users className="h-4 w-4" style={{ color: ACCENT }} />
                 </div>
                 <h3 className="syne text-xl font-bold mb-2 text-white">{selectedRole.label}</h3>
                 <p className="text-slate-400 text-sm leading-relaxed mb-6">{selectedRole.desc}</p>
@@ -779,7 +777,7 @@ export default function Landing() {
                     whileHover={{ scale: 1.03 }}
                     whileTap={{ scale: 0.97 }}
                     className="syne text-sm font-semibold px-5 py-2.5 rounded-xl flex items-center gap-2 text-white"
-                    style={{ background: `linear-gradient(135deg, ${NEON_PURPLE}, ${NEON_INDIGO})`, boxShadow: "0 0 20px rgba(168,85,247,0.3)" }}
+                    style={{ background: `linear-gradient(135deg, ${THEME}, ${THEME_MED})`, boxShadow: "0 0 20px rgba(37,26,60,0.4)" }}
                   >
                     Start as {selectedRole.label} <ArrowRight size={14} />
                   </motion.button>
@@ -795,7 +793,7 @@ export default function Landing() {
         <div className="mx-auto max-w-7xl px-5 lg:px-10">
           <div className="text-center mb-14 gsap-reveal">
             <span className="syne text-xs font-semibold tracking-widest uppercase px-3 py-1 rounded-full"
-              style={{ backgroundColor: "rgba(168,85,247,0.2)", color: "#c084fc" }}>
+              style={{ backgroundColor: ACCENT_LIGHT, color: ACCENT }}>
               Honest comparison
             </span>
             <h2 className="syne mt-5 text-4xl font-extrabold text-white sm:text-5xl">
@@ -817,7 +815,7 @@ export default function Landing() {
                     <th key={c.id} className="py-4 px-4 text-center">
                       <span
                         className={`syne text-sm font-bold px-3 py-1 rounded-lg inline-block ${c.highlight ? "text-white" : "text-white/50"}`}
-                        style={c.highlight ? { background: "linear-gradient(135deg, rgba(168,85,247,0.3), rgba(168,85,247,0.15))", border: "1px solid rgba(168,85,247,0.4)", color: "#c084fc" } : {}}
+                        style={c.highlight ? { background: `linear-gradient(135deg, ${THEME_LIGHT}, ${ACCENT_LIGHT})`, border: "1px solid rgba(168,154,201,0.4)", color: ACCENT } : {}}
                       >
                         {c.name}
                       </span>
@@ -842,7 +840,7 @@ export default function Landing() {
           </div>
 
           <div className="flex items-center gap-6 mt-5 justify-center text-xs text-white/35">
-            <span className="flex items-center gap-1.5"><CheckCircle2 size={12} style={{ color: NEON_PURPLE }} /> Fully supported</span>
+            <span className="flex items-center gap-1.5"><CheckCircle2 size={12} style={{ color: ACCENT }} /> Fully supported</span>
             <span className="flex items-center gap-1.5"><Minus size={12} className="text-amber-400 opacity-60" /> Partial / via plugin</span>
             <span className="flex items-center gap-1.5"><XCircle size={12} className="text-slate-500" /> Not available</span>
           </div>
@@ -854,7 +852,7 @@ export default function Landing() {
         <div className="mx-auto max-w-6xl px-5 lg:px-10">
           <div className="text-center mb-14 gsap-reveal">
             <span className="syne text-xs font-semibold tracking-widest uppercase px-3 py-1 rounded-full"
-              style={{ backgroundColor: "rgba(168,85,247,0.2)", color: "#c084fc" }}>
+              style={{ backgroundColor: ACCENT_LIGHT, color: ACCENT }}>
               Pricing
             </span>
             <h2 className="syne mt-5 text-4xl font-extrabold sm:text-5xl text-white">
@@ -894,17 +892,17 @@ export default function Landing() {
                 transition={{ duration: 0.5, delay: i * 0.1 }}
                 className={`rounded-2xl p-8 border relative overflow-hidden`}
                 style={{
-                  backgroundColor: plan.highlighted ? NEON_INDIGO : "rgba(30,27,75,0.5)",
-                  borderColor: plan.highlighted ? "transparent" : "rgba(168,85,247,0.3)",
-                  boxShadow: plan.highlighted ? "0 20px 70px rgba(99,102,241,0.4)" : "none",
+                  backgroundColor: plan.highlighted ? THEME : THEME_LIGHT,
+                  borderColor: plan.highlighted ? "transparent" : "rgba(168,154,201,0.3)",
+                  boxShadow: plan.highlighted ? "0 20px 70px rgba(37,26,60,0.5)" : "none",
                 }}
               >
                 {plan.highlighted && (
                   <>
                     <div className="absolute top-0 right-0 left-0 h-1 rounded-t-2xl"
-                      style={{ background: `linear-gradient(90deg, ${NEON_PURPLE}, ${NEON_INDIGO})` }} />
+                      style={{ background: `linear-gradient(90deg, ${THEME}, ${ACCENT})` }} />
                     <span className="absolute top-5 right-5 text-xs font-semibold px-2.5 py-1 rounded-full syne text-white"
-                      style={{ backgroundColor: "rgba(168,85,247,0.3)" }}>
+                      style={{ backgroundColor: THEME_LIGHT }}>
                       Recommended
                     </span>
                   </>
@@ -912,12 +910,12 @@ export default function Landing() {
                 <h3 className={`syne text-xl font-bold ${plan.highlighted ? "text-white" : "text-white"}`}>
                   {plan.name}
                 </h3>
-                <p className="text-2xl font-bold mt-1" style={{ color: plan.highlighted ? "#c084fc" : "#a5b4fc" }}>{plan.price}</p>
+                <p className="text-2xl font-bold mt-1" style={{ color: plan.highlighted ? ACCENT : "rgba(168,154,201,0.9)" }}>{plan.price}</p>
                 <p className={`text-sm mt-2 ${plan.highlighted ? "text-white/55" : "text-slate-400"}`}>{plan.desc}</p>
                 <ul className="mt-7 space-y-3">
                   {plan.features.map(f => (
                     <li key={f} className={`flex items-center gap-2.5 text-sm ${plan.highlighted ? "text-white/80" : "text-slate-300"}`}>
-                      <Check className="h-4 w-4 shrink-0" style={{ color: plan.highlighted ? "#c084fc" : "#818cf8" }} />
+                      <Check className="h-4 w-4 shrink-0" style={{ color: plan.highlighted ? ACCENT : "rgba(168,154,201,0.85)" }} />
                       {f}
                     </li>
                   ))}
@@ -928,8 +926,8 @@ export default function Landing() {
                     whileTap={{ scale: 0.97 }}
                     className="syne w-full py-3 rounded-xl text-sm font-semibold transition-all text-white"
                     style={plan.highlighted
-                      ? { background: `linear-gradient(135deg, ${NEON_PURPLE}, ${NEON_INDIGO})`, boxShadow: "0 0 24px rgba(168,85,247,0.4)" }
-                      : { backgroundColor: "transparent", border: "1.5px solid rgba(168,85,247,0.5)", color: "#c084fc" }}
+                      ? { background: `linear-gradient(135deg, ${THEME}, ${THEME_MED})`, boxShadow: "0 0 24px rgba(37,26,60,0.5)" }
+                      : { backgroundColor: "transparent", border: "1.5px solid rgba(168,154,201,0.5)", color: ACCENT }}
                   >
                     Get Started
                   </motion.button>
@@ -941,9 +939,9 @@ export default function Landing() {
       </section>
 
       {/* ── FINAL CTA ── */}
-      <section className="relative overflow-hidden py-28 grain" style={{ backgroundColor: NEON_INDIGO }}>
+      <section className="relative overflow-hidden py-28 grain" style={{ backgroundColor: THEME }}>
         <div className="absolute inset-0"
-          style={{ background: "radial-gradient(ellipse at 60% 50%, rgba(168,85,247,0.2) 0%, transparent 60%)" }} />
+          style={{ background: "radial-gradient(ellipse at 60% 50%, rgba(168,154,201,0.15) 0%, transparent 60%)" }} />
         <div className="relative z-10 mx-auto max-w-3xl px-5 text-center">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
@@ -961,10 +959,10 @@ export default function Landing() {
             </p>
             <Link to="/login">
               <motion.button
-                whileHover={{ scale: 1.05, boxShadow: "0 0 60px rgba(168,85,247,0.5)" }}
+                whileHover={{ scale: 1.05, boxShadow: "0 0 60px rgba(37,26,60,0.6)" }}
                 whileTap={{ scale: 0.97 }}
                 className="syne mt-10 font-bold px-10 py-4 rounded-xl text-base flex items-center gap-2 mx-auto text-white"
-                style={{ background: `linear-gradient(135deg, ${NEON_PURPLE} 0%, #818cf8 100%)`, boxShadow: "0 0 40px rgba(168,85,247,0.4)" }}
+                style={{ background: `linear-gradient(135deg, ${THEME} 0%, ${ACCENT} 100%)`, boxShadow: "0 0 40px rgba(37,26,60,0.5)" }}
               >
                 Start for free — no card needed <ArrowRight size={16} />
               </motion.button>
@@ -974,7 +972,7 @@ export default function Landing() {
       </section>
 
       {/* ── FOOTER ── */}
-      <footer style={{ backgroundColor: DARK, borderTop: "1px solid rgba(168,85,247,0.15)" }}
+      <footer style={{ backgroundColor: DARK, borderTop: "1px solid rgba(168,154,201,0.15)" }}
         className="py-14">
         <div className="mx-auto max-w-7xl px-5 lg:px-10">
           <div className="flex flex-col md:flex-row items-center justify-between gap-6">
