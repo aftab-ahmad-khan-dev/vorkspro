@@ -1,5 +1,6 @@
 import si from 'systeminformation';
 import { ProjectName } from '../constants.js';
+import logger from '../services/logger.js';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -110,7 +111,7 @@ async function getHealth(req, res) {
       connections: activeConnections,
     });
   } catch (err) {
-    console.error('Error fetching health data:', err);
+    logger.error('Failed to fetch health data', 'Health', err);
     res.setHeader('Content-Type', 'application/json');
     res.status(500).json({ status: 'High Load', message: 'Failed to fetch server health' });
   }
@@ -124,15 +125,13 @@ function getHealthPage(req, res) {
       mode === 'test' ? testHealthHTMLPath :
         healthHTMLPath;
 
-        console.log(currentHtmlPath)
-
     let htmlContent = fs.readFileSync(currentHtmlPath, 'utf8');
     htmlContent = htmlContent.replace('PROJECT_NAME', ProjectName);
     res.setHeader('Content-Type', 'text/html');
     res.setHeader('Cache-Control', 'no-store');
     res.send(htmlContent);
   } catch (err) {
-    console.error('Error reading health.html:', err);
+    logger.error('Error reading health template', 'Health', err);
     res.status(500).send('Internal Server Error');
   }
 }

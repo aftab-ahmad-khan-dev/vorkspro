@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import { generateErrorApiResponse } from "./utilities.service.js";
+import logger from "./logger.js";
 
 /**
  * Universal async handler with detailed Mongo/Mongoose error handling
@@ -8,7 +9,7 @@ const asyncHandler = (fn) => async (req, res, next) => {
     try {
         return await fn(req, res, next);
     } catch (error) {
-        console.error("❌ Error caught by asyncHandler:", error);
+        logger.error("Request handler error", "API", error);
 
         let message = "An unexpected error occurred.";
         let statusCode = 500;

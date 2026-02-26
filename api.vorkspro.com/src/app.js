@@ -1,7 +1,8 @@
-import express from 'express';
-import cors from 'cors';
+import express from "express";
+import cors from "cors";
 import routes from "./startup/routes.js";
-import { tokenChecker } from './middlewares/token.middleware.js';
+import { tokenChecker } from "./middlewares/token.middleware.js";
+import logger from "./services/logger.js";
 // Skip cron in serverless (Vercel) — it only runs in long-lived processes
 if (!process.env.VERCEL) import("./cron/reminder.cron.js");
 import { createClient } from "redis";
@@ -20,30 +21,28 @@ try {
   const redisClient = createClient({ url: redisUrl });
   await redisClient.connect();
   client = redisClient;
-  console.log("Redis connected");
+  logger.banner("Redis connected");
 } catch (err) {
-  console.warn("Redis not available — running without cache:", err.message);
+  logger.banner("Redis not available — running without cache");
+  console.warn(`  → ${err.message}`);
 }
 
 export { client };
 
-
 const app = express();
 
 app.use(
-    cors({
-        origin: process.env.CORS_ORIGIN,
-        credentials: true,
-    })
+  cors({
+    origin: process.env.CORS_ORIGIN,
+    credentials: true,
+  }),
 );
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(express.static('public'));
+app.use(express.static("public"));
 app.use(tokenChecker);
-(async () => {
-
-})();
+(async () => {})();
 
 //? routes
 routes(app);

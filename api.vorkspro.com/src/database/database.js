@@ -2,6 +2,7 @@ import dotenv from "dotenv";
 import path from "path";
 import mongoose from "mongoose";
 import { DB_NAME, TEST_DB_NAME, DEV_DB_NAME } from "../constants.js";
+import logger from "../services/logger.js";
 
 // Load .env from project root (works in local and Vercel when present)
 try {
@@ -40,18 +41,16 @@ const initializeDatabase = async () => {
       throw new Error("MONGODB_URI missing in .env");
     }
 
-    console.log("MongoDB connecting…", dbName);
+    logger.banner(`Connecting to MongoDB… (${dbName})`);
     await mongoose.connect(DB_PATH, {
       serverSelectionTimeoutMS: 30000,
       connectTimeoutMS: 30000,
     });
 
     const conn = mongoose.connection;
-    console.log(
-      `MongoDB connected — DB: ${conn.name || dbName}`
-    );
+    logger.banner(`MongoDB connected — DB: ${conn.name || dbName}`);
   } catch (error) {
-    console.error("MongoDB connection failed:", error.message);
+    logger.error("MongoDB connection failed", "DB", error.message);
     throw error;
   }
 };

@@ -1,5 +1,6 @@
 import jwt from "jsonwebtoken";
 import { User } from "../startup/models.js";
+import logger from "../services/logger.js";
 
 const tokenSecret = process.env.TOKEN_SECRET_KEY;
 
@@ -81,7 +82,7 @@ export const tokenCheckerMiddleware = async (req, res, next) => {
 
     next();
   } catch (err) {
-    console.error("Error verifying token:", err);
+    logger.error("Token verification failed", "Auth", err.message);
     return res.status(401).json({ message: "Invalid or expired token." });
   }
 };
@@ -104,7 +105,7 @@ export const optionalTokenMiddleware = async (req, res, next) => {
       req.user = user.toObject();
     }
   } catch (err) {
-    console.warn("Optional token invalid:", err.message);
+    logger.debug("Optional token invalid", "Auth", err.message);
   }
 
   next();
