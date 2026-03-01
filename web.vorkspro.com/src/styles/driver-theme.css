@@ -1,0 +1,57 @@
+/* Driver.js – themed to match VorksPro dashboard (light/dark) */
+.driver-popover {
+  background-color: var(--card) !important;
+  color: var(--foreground) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: var(--radius-lg) !important;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.12), 0 0 1px var(--border) !important;
+}
+
+.driver-popover-title {
+  color: var(--foreground) !important;
+  font-weight: 700 !important;
+}
+
+.driver-popover-description {
+  color: var(--muted-foreground) !important;
+}
+
+.driver-popover-close-btn {
+  color: var(--muted-foreground) !important;
+}
+.driver-popover-close-btn:hover,
+.driver-popover-close-btn:focus {
+  color: var(--foreground) !important;
+}
+
+.driver-popover-progress-text {
+  color: var(--muted-foreground) !important;
+}
+
+.driver-popover-footer button {
+  background-color: var(--primary) !important;
+  color: var(--primary-foreground) !important;
+  border: 1px solid var(--primary) !important;
+  border-radius: var(--radius-md) !important;
+  font-weight: 500 !important;
+}
+.driver-popover-footer button:hover,
+.driver-popover-footer button:focus {
+  opacity: 0.9 !important;
+  filter: brightness(1.05);
+}
+
+.driver-popover-arrow {
+  border-color: var(--card) !important;
+}
+
+.driver-overlay {
+  background-color: rgba(0, 0, 0, 0.5) !important;
+}
+
+/* Highlighted element – clear border and glow so the user sees what the tour is referring to */
+.driver-active-element {
+  border: 3px solid var(--primary) !important;
+  border-radius: var(--radius-lg) !important;
+  box-shadow: 0 0 0 2px var(--background), 0 0 0 5px var(--primary) !important;
+}

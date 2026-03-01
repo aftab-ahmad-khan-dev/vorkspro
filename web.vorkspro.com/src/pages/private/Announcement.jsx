@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { Plus, Pin, Eye, MessageSquare, Calendar, User, TrendingUp, Send, Edit, Trash2, Trash, Pencil, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -18,9 +18,16 @@ import Pagination from "@/components/UsePagination";
 import TimeAgo from "react-timeago";
 import { useTabs } from "@/context/TabsContext";
 import EmptyState from "@/components/EmptyState";
+import { ViewToggle, KanbanBoard, CalendarWrapper } from "@/components/views";
+
+const ANNOUNCEMENT_KANBAN_COLUMNS = [
+  { id: "pinned", title: "Pinned" },
+  { id: "unpinned", title: "Unpinned" },
+];
 
 function Announcement() {
   const [activeTab, setActiveTab] = useState("all");
+  const [viewMode, setViewMode] = useState("list");
   const [selectedSubDepartment, setSelectedSubDepartment] = useState("");
   const [pagination, setPagination] = useState({ page: 1, size: 10, totalPages: 1, totalItems: 0 });
   const [searchQuery, setSearchQuery] = useState("");
@@ -240,6 +247,41 @@ function Announcement() {
     setDialogOpen(true);
   };
 
+  const announcementCalendarEvents = useMemo(() => {
+    return (announcements || [])
+      .filter((a) => a.createdAt)
+      .map((a) => ({
+        id: a._id,
+        title: a.title,
+        start: new Date(a.createdAt),
+        end: new Date(a.createdAt),
+        resource: a,
+      }));
+  }, [announcements]);
+
+  const handleAnnouncementMove = async (announcementId, _from, toColumnId) => {
+    const isPinned = toColumnId === "pinned";
+    const oldAnn = announcements.find((a) => a._id === announcementId);
+    const delta = (isPinned ? 1 : 0) - (oldAnn?.isPinned ? 1 : 0);
+    const prevAnnouncements = announcements;
+    const prevStats = stats;
+    setAnnouncements((prev) =>
+      prev.map((a) => (a._id === announcementId ? { ...a, isPinned } : a))
+    );
+    setStats((prev) => ({
+      ...prev,
+      pinnedAnnouncement: Math.max(0, (prev?.pinnedAnnouncement || 0) + delta),
+    }));
+    try {
+      await apiPatch(`announcement/update/${announcementId}`, { isPinned });
+      toast.success(isPinned ? "Announcement pinned" : "Announcement unpinned");
+    } catch (error) {
+      setAnnouncements(prevAnnouncements);
+      setStats(prevStats);
+      toast.error(error?.message || "Failed to update");
+    }
+  };
+
   const handleDelete = async () => {
     if (!confirmDelete) return;
     const announcementToDelete = announcements.find(a => a._id === confirmDelete);
@@ -366,7 +408,46 @@ function Announcement() {
       </div>
 
 
-      {user?.isSuperAdmin && (
+      <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
+        <ViewToggle
+          value={viewMode}
+          onValueChange={setViewMode}
+          enabledViews={["list", "calendar", "kanban"]}
+          listLabel="List"
+        />
+      </div>
+
+      {viewMode === "calendar" && (
+        <div className="mb-6 p-1">
+          <CalendarWrapper events={announcementCalendarEvents} style={{ height: 540 }} />
+        </div>
+      )}
+
+      {viewMode === "kanban" && (
+        <div className="mb-6">
+          <KanbanBoard
+            columns={ANNOUNCEMENT_KANBAN_COLUMNS}
+            items={announcements}
+            getColumnId={(a) => (a.isPinned ? "pinned" : "unpinned")}
+            getItemId={(a) => a._id}
+            onMove={handleAnnouncementMove}
+            renderCard={(a) => (
+              <div>
+                <h4 className="font-semibold text-sm truncate">{a.title}</h4>
+                <p className="text-xs text-[var(--muted-foreground)] mt-1 line-clamp-2">{a.content}</p>
+                <p className="text-xs text-[var(--muted-foreground)] mt-1">
+                  {a.createdAt ? new Date(a.createdAt).toLocaleDateString() : ""}
+                </p>
+                {a.department?.name && (
+                  <p className="text-xs text-[var(--muted-foreground)]">{a.department.name}</p>
+                )}
+              </div>
+            )}
+          />
+        </div>
+      )}
+
+      {viewMode === "list" && user?.isSuperAdmin && (
         <div className="flex flex-col sm:flex-row justify-end gap-3 mb-6">
           <div className="relative w-full sm:w-[250px]">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-[var(--muted-foreground)]" />
@@ -406,6 +487,7 @@ function Announcement() {
         </div>
       )}
 
+      {viewMode === "list" && (
       <div className="w-full">
         {activeTab === "all" && (
           <div className="space-y-4">
@@ -646,6 +728,7 @@ function Announcement() {
           />
         )}
       </div>
+      )}
 
       <GlobalDialog
         open={dialogOpen}

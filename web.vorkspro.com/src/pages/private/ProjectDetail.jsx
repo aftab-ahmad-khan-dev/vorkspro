@@ -32,7 +32,7 @@ export default function ProjectDetail() {
   const [showCredentialDetail, setShowCredentialDetail] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [showEditProject, setShowEditProject] = useState(false);
-
+  const [activeTab, setActiveTab] = useState("overview");
 
   const fetchProjectDetail = async () => {
     setLoading(true);
@@ -123,9 +123,12 @@ export default function ProjectDetail() {
           employees={employees}
           onEditProject={() => setShowEditProject(true)}
           refresh={fetchProjectDetail}
+          onNavigateToTab={setActiveTab}
         />
         {/* <ProjectStatsGrid project={project} /> */}
         <ProjectTabs
+          activeTab={activeTab}
+          onTabChange={setActiveTab}
           timeline={timeline}
           project={project}
           credentials={credentials}

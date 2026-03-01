@@ -1,0 +1,138 @@
+/* react-big-calendar theme overrides - uses CSS variables for light/dark/themed support */
+
+.rbc-theme-wrapper {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 0.75rem;
+  overflow: hidden;
+}
+
+.rbc-theme-aware {
+  background: var(--card) !important;
+  color: var(--foreground) !important;
+}
+
+.rbc-theme-aware .rbc-header {
+  background: var(--muted) !important;
+  color: var(--foreground) !important;
+  border-color: var(--border) !important;
+  padding: 12px 8px;
+  font-weight: 600;
+  font-size: 0.8rem;
+}
+
+.rbc-theme-aware .rbc-month-view {
+  background: var(--card) !important;
+  border-color: var(--border) !important;
+}
+
+.rbc-theme-aware .rbc-month-row {
+  border-color: var(--border) !important;
+}
+
+.rbc-theme-aware .rbc-day-bg {
+  background: var(--card) !important;
+  border-color: var(--border) !important;
+}
+
+.rbc-theme-aware .rbc-day-bg.rbc-today {
+  background: color-mix(in oklch, var(--primary) 8%, var(--card)) !important;
+}
+
+.rbc-theme-aware .rbc-off-range-bg {
+  background: var(--muted) !important;
+}
+
+.rbc-theme-aware .rbc-off-range {
+  color: var(--muted-foreground) !important;
+}
+
+.rbc-theme-aware .rbc-toolbar {
+  background: transparent !important;
+  border-bottom: 1px solid var(--border);
+  padding: 12px 16px;
+  margin-bottom: 0;
+}
+
+.rbc-theme-aware .rbc-toolbar button {
+  color: var(--foreground) !important;
+  background: var(--muted) !important;
+  border-color: var(--border) !important;
+  padding: 6px 14px;
+  border-radius: 8px;
+  font-weight: 500;
+}
+
+.rbc-theme-aware .rbc-toolbar button:hover {
+  background: var(--accent) !important;
+  border-color: var(--border) !important;
+}
+
+.rbc-theme-aware .rbc-toolbar button:active,
+.rbc-theme-aware .rbc-toolbar button.rbc-active {
+  background: var(--primary) !important;
+  color: var(--primary-foreground) !important;
+  border-color: var(--primary) !important;
+}
+
+.rbc-theme-aware .rbc-toolbar-label {
+  color: var(--foreground) !important;
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+.rbc-theme-aware .rbc-event {
+  background: var(--primary) !important;
+  color: var(--primary-foreground) !important;
+  border: none !important;
+  border-radius: 6px;
+  padding: 2px 8px !important;
+  font-size: 0.75rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+}
+
+.rbc-theme-aware .rbc-event.rbc-selected {
+  background: color-mix(in oklch, var(--primary) 85%, black) !important;
+}
+
+.rbc-theme-aware .rbc-show-more {
+  color: var(--primary) !important;
+  font-weight: 600;
+}
+
+/* Fix long time-slot lines in week/day view - use subtle borders */
+.rbc-theme-aware .rbc-time-slot {
+  border-top: 1px solid var(--border) !important;
+}
+
+.rbc-theme-aware .rbc-time-header-content {
+  border-left: 1px solid var(--border) !important;
+}
+
+.rbc-theme-aware .rbc-time-content {
+  border-top: 1px solid var(--border) !important;
+}
+
+.rbc-theme-aware .rbc-timeslot-group {
+  border-color: var(--border) !important;
+  min-height: 48px;
+}
+
+.rbc-theme-aware .rbc-day-slot .rbc-time-slot {
+  border-top-style: dotted !important;
+}
+
+/* Agenda view */
+.rbc-theme-aware .rbc-agenda-view {
+  background: var(--card) !important;
+}
+
+.rbc-theme-aware .rbc-agenda-view table {
+  border-color: var(--border) !important;
+}
+
+.rbc-theme-aware .rbc-agenda-date-cell,
+.rbc-theme-aware .rbc-agenda-time-cell {
+  color: var(--muted-foreground) !important;
+  border-color: var(--border) !important;
+}

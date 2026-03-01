@@ -1,6 +1,7 @@
 import StatCard from "@/components/Stats";
 import { useTabs } from "@/context/TabsContext";
 import { Clock, Calendar, DollarSign, User, DollarSignIcon } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 const formatDate = (date) => date ? new Date(date).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : "N/A";
 
@@ -9,7 +10,7 @@ const daysUntil = (date) => {
   return Math.max(0, Math.ceil(diff / (1000 * 60 * 60 * 24)));
 };
 
-export default function ProjectStatsGrid({ project }) {
+export default function ProjectStatsGrid({ project, onNavigateToTab }) {
   // Calculate progress based on milestone completion
   const calculateMilestoneProgress = () => {
     if (!project?.milestones || project.milestones.length === 0) {
@@ -21,7 +22,31 @@ export default function ProjectStatsGrid({ project }) {
   };
 
   const progress = Math.max(0, Math.min(100, calculateMilestoneProgress()));
-  const { actions } = useTabs()
+  const { tabs: modules, actions } = useTabs();
+  const isSuperAdmin = !modules?.length || modules == null;
+
+  const hasDetailTabsPermission = (moduleName, tabName) => {
+    if (isSuperAdmin) return true;
+    if (!actions?.modulePermissions) return false;
+    return actions.modulePermissions.some(
+      (m) => m.module === moduleName && m.detailTabs?.includes(tabName)
+    );
+  };
+  const hasMilestonesView = isSuperAdmin || actions?.modulePermissions?.some(
+    (m) => m.module === "Milestones" && m.actions?.includes("View Records")
+  );
+
+  const canNavigate = Boolean(onNavigateToTab);
+  const cardBase = cn(
+    "relative h-full p-4 sm:p-5 rounded-2xl border border-[var(--border)] backdrop-blur-sm shadow-sm transition-all duration-200 flex flex-col gap-4",
+    canNavigate && "cursor-pointer hover:shadow-lg hover:border-[var(--primary)]/30 hover:-translate-y-0.5 active:scale-[0.99]"
+  );
+
+  const progressTarget = hasMilestonesView ? "milestones" : hasDetailTabsPermission("Projects", "Overview") ? "overview" : null;
+  const timelineTarget = hasDetailTabsPermission("Projects", "Activity") ? "activity" : null;
+  const remainingTarget = hasMilestonesView ? "milestones" : hasDetailTabsPermission("Projects", "Activity") ? "activity" : null;
+  const teamTarget = hasDetailTabsPermission("Projects", "Team") ? "team" : null;
+  const budgetTarget = hasDetailTabsPermission("Projects", "Budget Breakdown") ? "Budget Breakdown" : null;
 
   const remainingDays = project?.endDate ? daysUntil(project?.endDate) : null;
   const teamCount = project?.teamMembers?.length ?? 0;
@@ -41,7 +66,15 @@ export default function ProjectStatsGrid({ project }) {
   return (
     <div className={`grid grid-cols-1 sm:grid-cols-2 ${actions.cost ? "xl:grid-cols-5" : "xl:grid-cols-4"} gap-4 xl:gap-5 mt-4`}>
       {/* Progress */}
-      <div className="relative h-full p-4 sm:p-5 rounded-2xl border border-[var(--border)] bg-[var(--background)]/90 backdrop-blur-sm shadow-sm hover:shadow-md transition-all duration-200 flex flex-col gap-4">
+      <div
+        {...(canNavigate && progressTarget && {
+          role: "button",
+          tabIndex: 0,
+          onClick: () => onNavigateToTab(progressTarget),
+          onKeyDown: (e) => e.key === "Enter" && onNavigateToTab(progressTarget),
+        })}
+        className={cn(cardBase, "bg-[var(--background)]/90")}
+      >
         <div className="flex items-start justify-between gap-3">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-indigo-500/12 flex items-center justify-center">
@@ -83,7 +116,15 @@ export default function ProjectStatsGrid({ project }) {
       </div>
 
       {/* Timeline */}
-      <div className="relative h-full p-4 sm:p-5 rounded-2xl border border-[var(--border)] bg-[var(--background)]/90 backdrop-blur-sm shadow-sm hover:shadow-md transition-all duration-200 flex flex-col justify-between">
+      <div
+        {...(canNavigate && timelineTarget && {
+          role: "button",
+          tabIndex: 0,
+          onClick: () => onNavigateToTab(timelineTarget),
+          onKeyDown: (e) => e.key === "Enter" && onNavigateToTab(timelineTarget),
+        })}
+        className={cn(cardBase, "bg-[var(--background)]/90 flex-col justify-between")}
+      >
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-xl bg-sky-500/12 flex items-center justify-center">
             <Calendar className="w-5 h-5 text-sky-500" />
@@ -112,10 +153,17 @@ export default function ProjectStatsGrid({ project }) {
 
       {/* Remaining Days */}
       <div
-        className={`relative h-full p-4 sm:p-5 rounded-2xl border border-[var(--border)] backdrop-blur-sm shadow-sm hover:shadow-md transition-all duration-200 flex flex-col justify-between ${remainingDays != null && remainingDays < 0
-          ? "bg-red-500/4"
-          : "bg-[var(--background)]/90"
-          }`}
+        {...(canNavigate && remainingTarget && {
+          role: "button",
+          tabIndex: 0,
+          onClick: () => onNavigateToTab(remainingTarget),
+          onKeyDown: (e) => e.key === "Enter" && onNavigateToTab(remainingTarget),
+        })}
+        className={cn(
+          cardBase,
+          "flex-col justify-between",
+          remainingDays != null && remainingDays < 0 ? "bg-red-500/4" : "bg-[var(--background)]/90"
+        )}
       >
         <div className="flex items-start justify-between gap-3">
           <div className="flex items-center gap-3">
@@ -166,7 +214,15 @@ export default function ProjectStatsGrid({ project }) {
 
       {/* Budget */}
       {actions.cost &&
-        <div className="relative h-full p-4 sm:p-5 rounded-2xl border border-[var(--border)] bg-[var(--background)]/90 backdrop-blur-sm shadow-sm hover:shadow-md transition-all duration-200 flex flex-col justify-between">
+        <div
+          {...(canNavigate && budgetTarget && {
+            role: "button",
+            tabIndex: 0,
+            onClick: () => onNavigateToTab(budgetTarget),
+            onKeyDown: (e) => e.key === "Enter" && onNavigateToTab(budgetTarget),
+          })}
+          className={cn(cardBase, "bg-[var(--background)]/90 flex-col justify-between")}
+        >
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-emerald-500/12 flex items-center justify-center">
               <DollarSignIcon className="w-5 h-5 text-emerald-500" />
@@ -200,7 +256,15 @@ export default function ProjectStatsGrid({ project }) {
         </div>}
 
       {/* Team */}
-      <div className="relative h-full p-4 sm:p-5 rounded-2xl border border-[var(--border)] bg-[var(--background)]/90 backdrop-blur-sm shadow-sm hover:shadow-md transition-all duration-200 flex flex-col justify-between">
+      <div
+        {...(canNavigate && teamTarget && {
+          role: "button",
+          tabIndex: 0,
+          onClick: () => onNavigateToTab(teamTarget),
+          onKeyDown: (e) => e.key === "Enter" && onNavigateToTab(teamTarget),
+        })}
+        className={cn(cardBase, "bg-[var(--background)]/90 flex-col justify-between")}
+      >
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-xl bg-purple-500/12 flex items-center justify-center">
             <User className="w-5 h-5 text-purple-500" />

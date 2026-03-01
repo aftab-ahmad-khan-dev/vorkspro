@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
@@ -14,6 +14,7 @@ import { toast } from "sonner";
 import Chip from "@/components/Chip";
 import EmptyState from "@/components/EmptyState";
 import Confirmation from "@/models/Confirmation";
+import { ViewToggle, KanbanBoard, CalendarWrapper, ListGridToggle } from "@/components/views";
 
 const BlockageStats = ({ blockages }) => {
     const total = blockages.length;
@@ -35,13 +36,13 @@ const BlockageStats = ({ blockages }) => {
             {stats.map((stat, index) => {
                 const Icon = stat.icon;
                 return (
-                    <div key={index} className="p-6 border border-border rounded-2xl bg-gradient-to-br from-background to-background/50">
+                    <div key={index} className="p-6 rounded-2xl border border-[var(--border)] bg-[var(--card)]/80 backdrop-blur-sm transition-all duration-200 hover:shadow-md hover:border-[var(--primary)]/20">
                         <div className="flex items-center justify-between">
-                            <div className="space-y-3">
-                                <p className="text-2xl font-bold text-foreground">{stat.value}</p>
-                                <p className="text-sm text-muted-foreground">{stat.label}</p>
+                            <div className="space-y-2">
+                                <p className="text-2xl font-bold text-[var(--foreground)]">{stat.value}</p>
+                                <p className="text-sm text-[var(--muted-foreground)]">{stat.label}</p>
                             </div>
-                            <div className={cn("w-12 h-12 rounded-lg flex items-center justify-center", stat.bg)}>
+                            <div className={cn("w-12 h-12 rounded-xl flex items-center justify-center shrink-0", stat.bg)}>
                                 <Icon className={cn("w-6 h-6", stat.color)} />
                             </div>
                         </div>
@@ -642,11 +643,19 @@ const BlockageSkeleton = () => {
     );
 };
 
+const BLOCKAGE_KANBAN_COLUMNS = [
+    { id: "in-progress", title: "In Progress" },
+    { id: "resolved", title: "Resolved" },
+    { id: "closed", title: "Closed" },
+];
+
 export default function Blockages() {
     const [searchTerm, setSearchTerm] = useState("");
     const [typeFilter, setTypeFilter] = useState("all");
     const [severityFilter, setSeverityFilter] = useState("all");
     const [statusFilter, setStatusFilter] = useState("all");
+    const [viewMode, setViewMode] = useState("list");
+    const [listLayout, setListLayout] = useState("grid");
     const [blockages, setBlockages] = useState([]);
     const [loading, setLoading] = useState(true);
     const [employees, setEmployees] = useState([]);
@@ -752,6 +761,37 @@ export default function Blockages() {
         setBlockages(blockages.map((b) => (b.id === updatedBlockage.id ? updatedBlockage : b)));
     };
 
+    const handleBlockageStatusMove = async (blockageId, _from, toColumnId) => {
+        const prev = blockages;
+        setBlockages((blist) =>
+            blist.map((b) => (b.id === blockageId ? { ...b, status: toColumnId } : b))
+        );
+        try {
+            const data = await apiPatch(`project/blockage/update`, { _id: blockageId, status: toColumnId });
+            if (data?.isSuccess) {
+                toast.success("Blockage status updated");
+            } else {
+                setBlockages(prev);
+                toast.error(data?.message || "Failed to update");
+            }
+        } catch (err) {
+            setBlockages(prev);
+            toast.error("Failed to update blockage status");
+        }
+    };
+
+    const blockageCalendarEvents = useMemo(() => {
+        return blockages
+            .filter((b) => b.createdAt)
+            .map((b) => ({
+                id: b.id,
+                title: b.title,
+                start: new Date(b.createdAt),
+                end: new Date(b.createdAt),
+                resource: b,
+            }));
+    }, [blockages]);
+
     // Filter blockages based on search and filter criteria
     const filteredBlockages = blockages.filter((blockage) => {
         const matchesSearch =
@@ -770,9 +810,53 @@ export default function Blockages() {
     }
 
     return (
-        <div className="space-y-8">
+        <div className="min-h-screen w-full text-[var(--foreground)] pb-8 flex flex-col gap-8">
+            {/* Header */}
+            <div className="mb-0">
+                <h1 className="text-2xl sm:text-3xl font-bold text-[var(--foreground)]">
+                    Blockages
+                </h1>
+                <p className="mt-1 text-sm text-[var(--muted-foreground)]">
+                    Report and resolve project blockages. View in List, Calendar, or Kanban.
+                </p>
+            </div>
             <BlockageStats blockages={blockages} />
-            <div className="flex flex-col sm:flex-row gap-4">
+            <div className="flex flex-wrap items-center justify-between gap-4">
+                <div className="flex flex-wrap items-center gap-3">
+                    <ViewToggle value={viewMode} onValueChange={setViewMode} enabledViews={["list", "calendar", "kanban"]} listLabel="List" />
+                    {viewMode === "list" && (
+                        <div className="flex items-center border-l border-[var(--border)] pl-3">
+                            <ListGridToggle value={listLayout} onValueChange={setListLayout} />
+                        </div>
+                    )}
+                </div>
+            </div>
+            {viewMode === "calendar" && (
+                <div className="p-1">
+                    <CalendarWrapper events={blockageCalendarEvents} style={{ height: 540 }} />
+                </div>
+            )}
+            {viewMode === "kanban" && (
+                <KanbanBoard
+                    columns={BLOCKAGE_KANBAN_COLUMNS}
+                    items={filteredBlockages}
+                    getColumnId={(b) => b.status || "in-progress"}
+                    getItemId={(b) => b.id}
+                    onMove={handleBlockageStatusMove}
+                    renderCard={(b) => (
+                        <div>
+                            <h4 className="font-semibold text-sm truncate">{b.title}</h4>
+                            <p className="text-xs text-[var(--muted-foreground)] mt-1 truncate">{b.project}</p>
+                            {b.createdAt && (
+                                <p className="text-xs text-[var(--muted-foreground)] mt-1">Reported: {b.createdAt}</p>
+                            )}
+                        </div>
+                    )}
+                />
+            )}
+            {viewMode === "list" && (
+            <>
+            <div className="flex flex-col sm:flex-row gap-4 mb-4">
                 <Input
                     placeholder="Search blockages..."
                     value={searchTerm}
@@ -806,20 +890,48 @@ export default function Blockages() {
                 )}
             </div>
             {filteredBlockages.length > 0 ? (
-                <BlockageTable
-                    blockages={blockages}
-                    search={searchTerm}
-                    typeFilter={typeFilter}
-                    severityFilter={severityFilter}
-                    statusFilter={statusFilter}
-                    onUpdate={handleUpdateBlockage}
-                />
+                listLayout === "list" ? (
+                    <div className="rounded-2xl border border-[var(--border)] overflow-hidden bg-[var(--card)]" id="driver-main-content">
+                        <div className="overflow-x-auto">
+                            <table className="w-full">
+                                <thead>
+                                    <tr className="border-b border-[var(--border)] bg-[var(--muted)]/50">
+                                        <th className="text-left px-4 py-3 text-sm font-semibold text-[var(--foreground)]">Title</th>
+                                        <th className="text-left px-4 py-3 text-sm font-semibold text-[var(--foreground)]">Project</th>
+                                        <th className="text-left px-4 py-3 text-sm font-semibold text-[var(--foreground)]">Status</th>
+                                        <th className="text-left px-4 py-3 text-sm font-semibold text-[var(--foreground)]">Severity</th>
+                                        <th className="text-left px-4 py-3 text-sm font-semibold text-[var(--foreground)]">Assigned</th>
+                                        <th className="text-left px-4 py-3 text-sm font-semibold text-[var(--foreground)]">Reported</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {filteredBlockages.map((b) => (
+                                        <tr key={b.id} className="border-b border-[var(--border)] hover:bg-[var(--muted)]/30">
+                                            <td className="px-4 py-3 font-medium text-[var(--foreground)]">{b.title}</td>
+                                            <td className="px-4 py-3 text-[var(--foreground)]">{b.project}</td>
+                                            <td className="px-4 py-3"><Chip status={b.status} /></td>
+                                            <td className="px-4 py-3"><Chip status={b.severity} /></td>
+                                            <td className="px-4 py-3 text-[var(--muted-foreground)]">{b.assignedTo || "—"}</td>
+                                            <td className="px-4 py-3 text-[var(--muted-foreground)]">{b.createdAt || "—"}</td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                ) : (
+                    <div id="driver-main-content">
+                        <BlockageTable blockages={blockages} search={searchTerm} typeFilter={typeFilter} severityFilter={severityFilter} statusFilter={statusFilter} onUpdate={handleUpdateBlockage} />
+                    </div>
+                )
             ) : (
                 <EmptyState 
                     icon={Construction} 
                     title={blockages.length === 0 ? "No blockages found" : "No blockages match your filters"} 
                     subtitle={blockages.length === 0 ? "Start by adding your first blockage to get started" : "Try adjusting your search or filter criteria"}
                 />
+            )}
+            </>
             )}
             <div className="p-6 border text-foreground border-border rounded-2xl border-l-4 border-l-primary">
                 <h3 className="text-lg font-bold flex items-center gap-2 mb-4">

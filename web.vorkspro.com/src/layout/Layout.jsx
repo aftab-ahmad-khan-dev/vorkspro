@@ -245,6 +245,7 @@ function Layout() {
       {/* Desktop Sidebar */}
       {!isMobile && (
         <aside
+          id="driver-sidebar"
           className={cn(
             "h-full flex-shrink-0 overflow-y-auto border-r border-[var(--border)] bg-[var(--background)] transition-all duration-300",
             isSidebarOpen ? "w-64" : "w-20"
@@ -266,6 +267,7 @@ function Layout() {
           isMobile={isMobile}
         />
         <main
+          id="driver-main-content"
           className="flex-1 overflow-y-auto px-4 py-5 lg:px-6 bg-[var(--background)]"
           key={location.pathname} // ensures Outlet remount per route change
         >
@@ -276,7 +278,7 @@ function Layout() {
       {/* Mobile Sidebar */}
       {isMobile && isSidebarOpen && (
         <div className="fixed inset-0 z-30 flex lg:hidden">
-          <div className="h-full w-64 border-r border-[var(--border)] bg-[var(--background)] shadow-xl">
+          <div id="driver-sidebar" className="h-full w-64 border-r border-[var(--border)] bg-[var(--background)] shadow-xl">
             <SidebarMemo
               isSidebarOpen={isSidebarOpen}
               toggleSidebar={toggleSidebar}

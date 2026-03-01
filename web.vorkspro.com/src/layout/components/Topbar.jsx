@@ -1,6 +1,7 @@
 import React, { useState } from "react";
-import { Menu, Sparkles, Shield } from "lucide-react";
+import { Menu, Shield, Compass } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
+import { useTour } from "@/context/TourContext";
 import { cn } from "@/lib/utils";
 import Confirmation from "@/models/Confirmation";
 import Attendee from "@/pages/private/Attendee";
@@ -9,6 +10,7 @@ import { useTabs } from "@/context/TabsContext";
 export default function Topbar({ toggleSidebar, isSidebarOpen }) {
   const navigate = useNavigate();
   const location = useLocation();
+  const { triggerTour } = useTour();
   const { tabs } = useTabs();
   const [confirmationOpen, setConfirmationOpen] = useState(false);
   const roleName = tabs?.name?.trim() || "Admin";
@@ -114,6 +116,7 @@ export default function Topbar({ toggleSidebar, isSidebarOpen }) {
 
   return (
     <header
+      id="driver-page-header"
       className={cn(
         "sticky top-0 z-10",
         "backdrop-blur-3xl",
@@ -122,7 +125,6 @@ export default function Topbar({ toggleSidebar, isSidebarOpen }) {
         "shadow-[0_2px_12px_-3px_rgba(0,0,0,0.08)]",
       )}
     >
-      <div className='absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-[var(--border)] to-transparent pointer-events-none' />
 
       <nav className='flex h-16 items-center justify-between  px-4 lg:px-6'>
         <div className='flex justify-between w-full items-center gap-4'>
@@ -246,8 +248,17 @@ export default function Topbar({ toggleSidebar, isSidebarOpen }) {
             </div>
           </div>
           <div className='flex items-center gap-2'>
-            <span className='text-sm inline-flex justify center items-center  text-muted-foreground border rounded-lg px-1 py-1 min-w-[100px] text-center'>
-              <Shield className='h-4 w-4 mr-2 text-yellow-500' /> {roleName}
+            <button
+              type="button"
+              onClick={() => triggerTour(location.pathname)}
+              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-sm text-[var(--muted-foreground)] hover:text-[var(--foreground)] hover:bg-[var(--muted)]/50 transition-colors border border-transparent hover:border-[var(--border)]"
+              title="Guide Ride – Dashboard walkthrough"
+            >
+              <Compass className="h-4 w-4" />
+              <span className="hidden sm:inline">Guide Ride</span>
+            </button>
+            <span className='text-sm inline-flex justify-center items-center text-muted-foreground border rounded-lg px-2 py-1 min-w-[80px] text-center'>
+              <Shield className='h-4 w-4 mr-1.5 text-yellow-500' /> {roleName}
             </span>
           </div>
         </div>

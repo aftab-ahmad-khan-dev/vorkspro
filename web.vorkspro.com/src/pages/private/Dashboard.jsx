@@ -25,6 +25,7 @@ import {
   Calendar1,
   Loader2,
   Inbox,
+  HelpCircle,
 } from "lucide-react";
 import GlobalDialog from "@/models/GlobalDialog";
 import { EmployeeDialog } from "@/models/dashboard/EmployeeDialog";
@@ -35,6 +36,7 @@ import { AnnouncementDialog } from "@/models/dashboard/AnnouncementDialog";
 import { InvoiceDialog } from "@/models/dashboard/InvoiceDialog";
 import StatCard from "@/components/Stats";
 import { useTabs } from "@/context/TabsContext";
+import { useTour } from "@/context/TourContext";
 import { apiGet } from "@/interceptor/interceptor";
 import { Link } from "react-router-dom";
 import {
@@ -47,6 +49,7 @@ import { DashboardSummaryCard, DashboardQuickActions } from "@/components/dashbo
 
 function Dashboard() {
   const { tabs } = useTabs();
+  const { triggerTour } = useTour();
   const isSuperAdmin = tabs?.isSuperAdmin ?? false;
   const modulePermissions = tabs?.modulePermissions ?? [];
   // Dynamic: departments & sub-departments are admin-created; access from role's assigned modules
@@ -258,11 +261,24 @@ function Dashboard() {
 
   return (
     <div className='min-h-screen w-full pb-8 flex flex-col gap-y-8'>
-      {/* Role-based summary: same layout for every role (including admin-created). */}
-      <DashboardSummaryCard
-        title={getDashboardTitleFromRole(tabs)}
-        summary={getDashboardSummaryFromRole(tabs)}
-      />
+      {/* Role-based summary + Tour */}
+      <div className="flex items-start justify-between gap-4">
+        <div className="flex-1 min-w-0">
+          <DashboardSummaryCard
+            title={getDashboardTitleFromRole(tabs)}
+            summary={getDashboardSummaryFromRole(tabs)}
+          />
+        </div>
+        <button
+          type="button"
+          onClick={() => triggerTour("/app/dashboard")}
+          className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium text-[var(--muted-foreground)] hover:text-[var(--foreground)] hover:bg-[var(--muted)]/50 transition-colors flex-shrink-0"
+          title="Take a tour"
+        >
+          <HelpCircle size={18} />
+          <span className="hidden sm:inline">Take a tour</span>
+        </button>
+      </div>
 
       {/* Real-time stats — only for modules the logged-in role can access */}
       {(hasPermission("Employees") ||
@@ -270,7 +286,7 @@ function Dashboard() {
         hasPermission("Client Management") ||
         hasPermission("HR Management") ||
         hasPermission("My To-Do Hub")) && (
-        <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6'>
+        <div id="driver-dashboard-stats" className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6'>
           {hasPermission("Employees") && (
             <StatCard
               title='Total Employees'
@@ -348,7 +364,7 @@ function Dashboard() {
       <DashboardQuickActions />
 
       {hasPermission("Projects") && (
-        <div className='rounded-xl p-6 border border-[var(--border)] bg-[var(--card)] mb-8'>
+        <div id="driver-dashboard-project-status" className='group relative rounded-2xl p-6 overflow-hidden border border-[var(--border)] bg-[var(--card)]/80 backdrop-blur-sm mb-8 transition-all duration-300 hover:shadow-xl hover:shadow-[var(--primary)]/5 hover:border-[var(--primary)]/30 before:absolute before:inset-0 before:rounded-2xl before:bg-gradient-to-br before:from-[var(--primary)]/5 before:to-transparent before:opacity-0 hover:before:opacity-100 before:transition-opacity before:pointer-events-none'>
           <h3 className='text-lg font-bold mb-1 text-[var(--foreground)]'>
             Project Status
           </h3>
@@ -430,9 +446,9 @@ function Dashboard() {
         </div>
       )}
 
-      <div className='grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8'>
+      <div id="driver-dashboard-activity" className='grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8'>
         {hasPermission("HR Management") && (
-          <div className='rounded-xl p-6 border border-[var(--border)] bg-[var(--card)]'>
+          <div className='group relative rounded-2xl p-6 overflow-hidden border border-[var(--border)] bg-[var(--card)]/80 backdrop-blur-sm transition-all duration-300 hover:shadow-xl hover:shadow-[var(--primary)]/5 hover:border-[var(--primary)]/30 hover:-translate-y-0.5 before:absolute before:inset-0 before:rounded-2xl before:bg-gradient-to-br before:from-[var(--primary)]/5 before:to-transparent before:opacity-0 hover:before:opacity-100 before:transition-opacity before:pointer-events-none'>
             <h3 className='text-lg font-bold mb-1 text-[var(--foreground)]'>
               Recent Leave Activity
             </h3>
@@ -456,7 +472,7 @@ function Dashboard() {
                   const employeeId = req.employee?._id ?? req.employeeId?._id ?? req.employee ?? req.employeeId;
                   const employeeName = req.employeeId?.name ?? (req.employee ? `${req.employee.firstName ?? ""} ${req.employee.lastName ?? ""}`.trim() : null) ?? "Someone";
                   return (
-                    <div key={req._id} className='flex items-start gap-3'>
+                    <div key={req._id} className='flex items-start gap-3 p-3 rounded-xl hover:bg-[var(--muted)]/30 transition-colors -mx-1'>
                       <div className='w-2 h-2 rounded-full mt-2 flex-shrink-0 bg-[var(--primary)]' />
                       <div className='flex-1 min-w-0'>
                         <p className='text-sm text-[var(--foreground)]'>
@@ -490,7 +506,7 @@ function Dashboard() {
           </div>
         )}
         {hasPermission("My To-Do Hub") && (
-          <div className='rounded-xl p-6 border border-[var(--border)] bg-[var(--card)]'>
+          <div className='group relative rounded-2xl p-6 overflow-hidden border border-[var(--border)] bg-[var(--card)]/80 backdrop-blur-sm transition-all duration-300 hover:shadow-xl hover:shadow-[var(--primary)]/5 hover:border-[var(--primary)]/30 hover:-translate-y-0.5 before:absolute before:inset-0 before:rounded-2xl before:bg-gradient-to-br before:from-[var(--primary)]/5 before:to-transparent before:opacity-0 hover:before:opacity-100 before:transition-opacity before:pointer-events-none'>
             <h3 className='text-lg font-bold mb-1 text-[var(--foreground)]'>
               Upcoming Deadlines
             </h3>
@@ -551,7 +567,7 @@ function Dashboard() {
       </div>
 
       {quickActions.length > 0 && (
-        <div className='rounded-xl p-6 border border-[var(--border)] bg-[var(--card)]'>
+        <div id="driver-dashboard-quick-actions" className='group relative rounded-2xl p-6 overflow-hidden border border-[var(--border)] bg-[var(--card)]/80 backdrop-blur-sm transition-all duration-300 hover:shadow-lg before:absolute before:inset-0 before:rounded-2xl before:bg-gradient-to-br before:from-[var(--primary)]/5 before:to-transparent before:opacity-0 hover:before:opacity-100 before:transition-opacity before:pointer-events-none'>
           <h3 className='text-lg font-bold mb-1 text-[var(--foreground)]'>
             Quick Actions
           </h3>
@@ -579,10 +595,10 @@ function Dashboard() {
                     else if (action.label === "Add Announcement")
                       setOpenAnnouncementDialog(true);
                   }}
-                  className={`group flex flex-col items-center justify-center gap-3 rounded-xl py-5 px-3 border-2 transition-all duration-200 hover:scale-[1.02] hover:shadow-lg ${c.bg} ${c.border}`}
+                  className={`group/btn flex flex-col items-center justify-center gap-3 rounded-xl py-5 px-3 border-2 transition-all duration-200 hover:scale-[1.03] hover:shadow-xl hover:-translate-y-0.5 active:scale-[0.99] ${c.bg} ${c.border}`}
                 >
                   <div
-                    className={`flex items-center justify-center w-12 h-12 rounded-xl ${c.icon} text-white shadow-sm group-hover:scale-110 transition-transform`}
+                    className={`flex items-center justify-center w-12 h-12 rounded-xl ${c.icon} text-white shadow-sm group-hover/btn:scale-110 transition-transform duration-200`}
                   >
                     {action.icon}
                   </div>

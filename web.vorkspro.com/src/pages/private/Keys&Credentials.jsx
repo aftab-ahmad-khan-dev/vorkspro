@@ -118,20 +118,18 @@ function KeysAndCredentials() {
   const dev = credentials.filter(c => c.environment?.toLowerCase() === "development").length;
 
   return (
-    <div className="min-h-screen w-full text-[var(--foreground)] pb-8">
+    <div className="min-h-screen w-full text-[var(--foreground)] pb-8 flex flex-col gap-8">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
-        <div className="text-center sm:text-left">
-          <h1 className="text-2xl sm:text-3xl font-bold">
-            Keys & Credentials
-          </h1>
-          <p className="mt-1 text-sm sm:text-base text-[var(--muted-foreground)]">
-            Project-specific keys and credentials. Select a project to view or manage its entities.
-          </p>
-        </div>
+      <div className="mb-0">
+        <h1 className="text-2xl sm:text-3xl font-bold text-[var(--foreground)]">
+          Keys & Credentials
+        </h1>
+        <p className="mt-1 text-sm text-[var(--muted-foreground)]">
+          Secure storage for API keys, passwords, and credentials. Select a project to view or manage.
+        </p>
       </div>
 
-      <div className="space-y-8">
+      <div className="flex flex-col gap-8">
         {/* Project selector */}
         <div className="flex flex-col sm:flex-row sm:items-center gap-4">
           <label className="text-sm font-medium text-[var(--foreground)] flex items-center gap-2">
@@ -187,7 +185,7 @@ function KeysAndCredentials() {
         </GlobalDialog>
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
           <StatCard title="Total" value={credentials.length} icon={<Key size={18}/>} iconClass="text-purple-500 bg-purple-500/15" />
           <StatCard title="Live" value={live} icon={<Server size={18}/>} iconClass="text-red-500 bg-red-500/15" />
           <StatCard title="Testing/Staging" value={testing} icon={<Zap size={18}/>} iconClass="text-blue-500 bg-blue-500/15" />

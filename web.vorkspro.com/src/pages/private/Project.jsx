@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback, useRef } from "react";
+import React, { useEffect, useState, useCallback, useRef, useMemo } from "react";
 import {
   EllipsisVertical,
   Briefcase,
@@ -49,8 +49,9 @@ import {
 } from "@/components/ui/tooltip";
 import { useTabs } from "@/context/TabsContext";
 import CustomTooltip from "@/components/Tooltip";
-import { apiGet, apiGetByFilter, apiDelete } from "@/interceptor/interceptor";
+import { apiGet, apiGetByFilter, apiDelete, apiPatch } from "@/interceptor/interceptor";
 import EmptyState from "@/components/EmptyState";
+import { ViewToggle, KanbanBoard, CalendarWrapper, ListGridToggle } from "@/components/views";
 
 function Project() {
   const [projects, setProjects] = useState([]);
@@ -95,6 +96,8 @@ function Project() {
   const [selectedProject, setSelectedProject] = useState(null);
   const [showDropdown, setShowDropdown] = useState(null);
   const [dragMoved, setDragMoved] = useState(false);
+  const [viewMode, setViewMode] = useState("list"); // list | calendar | kanban
+  const [listLayout, setListLayout] = useState("grid"); // list (table) | grid (cards)
 
   // FILTER STATES
   const [showFilters, setShowFilters] = useState(false);
@@ -116,6 +119,47 @@ function Project() {
     "On Hold": "on hold",
     Completed: "completed",
     Cancelled: "cancelled",
+  };
+
+  const PROJECT_KANBAN_COLUMNS = [
+    { id: "not started", title: "Not Started" },
+    { id: "in progress", title: "In Progress" },
+    { id: "on hold", title: "On Hold" },
+    { id: "completed", title: "Completed" },
+    { id: "cancelled", title: "Cancelled" },
+  ];
+
+  const projectCalendarEvents = useMemo(() => {
+    return (projects || [])
+      .filter((p) => p.startDate || p.endDate)
+      .map((p) => ({
+        id: p._id,
+        title: p.name,
+        start: p.startDate ? new Date(p.startDate) : new Date(p.endDate || p.createdAt),
+        end: p.endDate ? new Date(p.endDate) : new Date(p.startDate || p.createdAt),
+        resource: p,
+      }));
+  }, [projects]);
+
+  const handleProjectStatusMove = async (projectId, _from, toColumnId) => {
+    const newStatus = toColumnId;
+    const prev = projects;
+    setProjects((p) =>
+      p.map((proj) => (proj._id === projectId ? { ...proj, status: newStatus } : proj))
+    );
+    try {
+      const data = await apiPatch(`project/change-status/${projectId}`, { status: newStatus });
+      if (data?.isSuccess) {
+        fetchStats();
+        toast.success("Project status updated");
+      } else {
+        setProjects(prev);
+        toast.error(data?.message || "Failed to update");
+      }
+    } catch (err) {
+      setProjects(prev);
+      toast.error("Failed to update project status");
+    }
   };
 
   // ── HELPER: Calculate Days Left ───────────────────────
@@ -315,16 +359,16 @@ function Project() {
   };
 
   return (
-    <div className="min-h-screen w-full text-[var(--foreground)] ">
+    <div className="min-h-screen w-full text-[var(--foreground)] pb-8 flex flex-col gap-8">
       {/* Header */}
-      <div className="mb-8">
+      <div className="mb-0">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           {/* Left: Title + Subtitle */}
           <div className="text-center sm:text-left">
-            <h1 className="text-2xl sm:text-3xl font-bold">
-              Project Management
+            <h1 className="text-2xl sm:text-3xl font-bold text-[var(--foreground)]">
+              Projects
             </h1>
-            <p className="mt-1 text-[var(--muted-foreground)]">
+            <p className="mt-1 text-sm text-[var(--muted-foreground)]">
               Manage projects, tasks, and team assignments
             </p>
           </div>
@@ -345,11 +389,12 @@ function Project() {
       </div>
 
       {/* Stats */}
-      <div className={`grid grid-cols-1 md:grid-cols-2 ${actions.cost ? "lg:grid-cols-4" : "lg:grid-cols-3"} gap-6 mb-8`}>
+      <div className={`grid grid-cols-1 md:grid-cols-2 ${actions.cost ? "lg:grid-cols-4" : "lg:grid-cols-3"} gap-6`}>
         <StatCard
           title="Total Projects"
           value={stats.totalProjects}
           subtitle="+5 this month"
+          icon={<Briefcase size={20} className="text-[var(--primary)]" />}
           isLoading={statsLoading}
         />
         <StatCard
@@ -357,6 +402,7 @@ function Project() {
           value={stats.inProgressProjects}
           subtitle="Active development"
           valueClass="text-blue-600"
+          icon={<Clock size={20} className="text-blue-500" />}
           isLoading={statsLoading}
         />
         <StatCard
@@ -364,6 +410,7 @@ function Project() {
           value={stats.completedProjects}
           subtitle="Successfully delivered"
           valueClass="text-green-600"
+          icon={<CheckCircle2 size={20} className="text-green-500" />}
           isLoading={statsLoading}
         />
         {actions.cost &&
@@ -371,6 +418,7 @@ function Project() {
             title="Total Cost"
             value={`${stats?.cancelledProjects}`}
             subtitle="Across all projects"
+            icon={<DollarSign size={20} className="text-[var(--primary)]" />}
             isLoading={statsLoading}
           />}
       </div>
@@ -519,8 +567,127 @@ function Project() {
         )}
       </div>
 
-      {/* Project Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+      {/* View Toggle: List | Calendar | Kanban + List/Grid when in list */}
+      <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
+        <div className="flex flex-wrap items-center gap-3">
+          <ViewToggle
+            value={viewMode}
+            onValueChange={setViewMode}
+            enabledViews={["list", "calendar", "kanban"]}
+            listLabel="List"
+          />
+          {viewMode === "list" && (
+            <div className="flex items-center border-l border-[var(--border)] pl-3 ml-0 sm:ml-0">
+              <ListGridToggle value={listLayout} onValueChange={setListLayout} />
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Calendar View */}
+      {viewMode === "calendar" && (
+        <div className="mb-8 p-1">
+          <CalendarWrapper
+            events={projectCalendarEvents}
+            style={{ height: 540 }}
+            onSelectEvent={(event) => event?.resource?._id && navigate(`/app/projects/project-detail/${event.resource._id}`)}
+          />
+        </div>
+      )}
+
+      {/* Kanban View */}
+      {viewMode === "kanban" && (
+        <div className="mb-8">
+          {loading ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              {[1, 2, 3, 4].map((i) => (
+                <div key={i} className="rounded-xl border border-[var(--border)] h-[320px] animate-pulse bg-[var(--muted)]/30" />
+              ))}
+            </div>
+          ) : (
+            <KanbanBoard
+              columns={PROJECT_KANBAN_COLUMNS}
+              items={projects}
+              getColumnId={(p) => p.status || "not started"}
+              getItemId={(p) => p._id}
+              onMove={handleProjectStatusMove}
+              renderCard={(p) => (
+                <div onClick={() => hasPermission("Projects", "View Records") && navigate(`/app/projects/project-detail/${p._id}`)}>
+                  <h4 className="font-semibold text-sm truncate">{p.name}</h4>
+                  <p className="text-xs text-[var(--muted-foreground)] mt-1 truncate">{p.client?.name || "No client"}</p>
+                  <p className="text-xs text-[var(--muted-foreground)] mt-1">{p.progress?.toFixed(0) ?? 0}% progress</p>
+                </div>
+              )}
+            />
+          )}
+        </div>
+      )}
+
+      {/* List View - Table or Grid */}
+      {viewMode === "list" && (
+      <>
+      {listLayout === "list" ? (
+        <div className="rounded-2xl border border-[var(--border)] overflow-hidden bg-[var(--card)] mb-8" id="driver-main-content">
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead>
+                <tr className="border-b border-[var(--border)] bg-[var(--muted)]/50">
+                  <th className="text-left px-4 py-3 text-sm font-semibold text-[var(--foreground)]">Project</th>
+                  <th className="text-left px-4 py-3 text-sm font-semibold text-[var(--foreground)]">Client</th>
+                  <th className="text-left px-4 py-3 text-sm font-semibold text-[var(--foreground)]">Status</th>
+                  <th className="text-center px-4 py-3 text-sm font-semibold text-[var(--foreground)]">Progress</th>
+                  <th className="text-center px-4 py-3 text-sm font-semibold text-[var(--foreground)]">Days Left</th>
+                  <th className="text-right px-4 py-3 text-sm font-semibold text-[var(--foreground)]">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {loading ? (
+                  Array.from({ length: 5 }).map((_, i) => (
+                    <tr key={i} className="border-b border-[var(--border)] animate-pulse">
+                      <td className="px-4 py-3"><div className="h-4 w-32 bg-[var(--border)] rounded" /></td>
+                      <td className="px-4 py-3"><div className="h-4 w-24 bg-[var(--border)] rounded" /></td>
+                      <td className="px-4 py-3"><div className="h-6 w-20 bg-[var(--border)] rounded-full" /></td>
+                      <td className="px-4 py-3"><div className="h-4 w-12 mx-auto bg-[var(--border)] rounded" /></td>
+                      <td className="px-4 py-3"><div className="h-4 w-12 mx-auto bg-[var(--border)] rounded" /></td>
+                      <td className="px-4 py-3"><div className="h-8 w-24 ml-auto bg-[var(--border)] rounded" /></td>
+                    </tr>
+                  ))
+                ) : projects.length === 0 ? (
+                  <tr><td colSpan={6} className="px-4 py-12 text-center"><EmptyState icon={Briefcase} title="No projects found" subtitle="Try adjusting search or create your first project" /></td></tr>
+                ) : (
+                  projects.map((project) => (
+                    <tr
+                      key={project._id}
+                      onClick={() => hasPermission("Projects", "View Records") && navigate(`/app/projects/project-detail/${project._id}`)}
+                      className="border-b border-[var(--border)] hover:bg-[var(--muted)]/30 transition-colors cursor-pointer"
+                    >
+                      <td className="px-4 py-3">
+                        <div className="font-semibold text-[var(--foreground)]">{project.name}</div>
+                        {project.priority && <span className="text-xs text-[var(--muted-foreground)]">{project.priority} priority</span>}
+                      </td>
+                      <td className="px-4 py-3 text-[var(--foreground)]">{project.client?.name || "—"}</td>
+                      <td className="px-4 py-3"><Chip status={project?.status} /></td>
+                      <td className="px-4 py-3 text-center">
+                        <div className="flex items-center justify-center gap-1">
+                          <div className="w-12 h-1.5 bg-[var(--border)] rounded-full overflow-hidden">
+                            <div className="h-full bg-[var(--primary)] rounded-full" style={{ width: `${project.progress || 0}%` }} />
+                          </div>
+                          <span className="text-sm font-medium">{project.progress?.toFixed(0) ?? 0}%</span>
+                        </div>
+                      </td>
+                      <td className="px-4 py-3 text-center font-medium">{getDaysLeft(project.endDate)}</td>
+                      <td className="px-4 py-3 text-right">
+                        <Button size="sm" variant="ghost" className="h-8" onClick={(e) => { e.stopPropagation(); hasPermission("Projects", "View Records") && navigate(`/app/projects/project-detail/${project._id}`); }}>View</Button>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      ) : (
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8" id="driver-main-content">
         {loading ? (
           Array.from({ length: 4 }).map((_, i) => (
             <div
@@ -1060,24 +1227,25 @@ function Project() {
           })
         )}
       </div>
+      )}
+      </>
+      )}
 
-      {/* Pagination */}
-      {
-        projects.length > 0 && !loading && (
-          <div className="flex justify-between items-center text-sm text-[var(--muted-foreground)] pb-5">
-            <p>
-              Showing {projects.length} of {pagination.totalItems} projects
-            </p>
-            <Pagination
-              total={pagination.totalItems}
-              current={pagination.page}
-              pageSize={pagination.size}
-              lastPage={pagination.lastPage}
-              onPageChange={handlePageChange}
-            />
-          </div>
-        )
-      }
+      {/* Pagination (list view only) */}
+      {viewMode === "list" && projects.length > 0 && !loading && (
+        <div className="flex justify-between items-center text-sm text-[var(--muted-foreground)] pb-5">
+          <p>
+            Showing {projects.length} of {pagination.totalItems} projects
+          </p>
+          <Pagination
+            total={pagination.totalItems}
+            current={pagination.page}
+            pageSize={pagination.size}
+            lastPage={pagination.lastPage}
+            onPageChange={handlePageChange}
+          />
+        </div>
+      )}
 
       {/* Dialogs */}
       <GlobalDialog

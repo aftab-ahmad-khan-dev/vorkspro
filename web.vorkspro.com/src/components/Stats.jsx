@@ -19,7 +19,7 @@ function StatCard({
       {/* ─── Header ─── */}
       <div className="flex items-center justify-between mb-4">
         <h3
-          className={cn("text-sm text-[var(--muted-foreground)]", titleClass)}
+          className={cn("text-sm font-medium text-[var(--muted-foreground)] uppercase tracking-wider", titleClass)}
         >
           {isLoading ? (
             <div className="h-3 w-20 rounded bg-[var(--border)] animate-pulse" />
@@ -30,22 +30,27 @@ function StatCard({
 
         <div
           className={cn(
-            "w-10 h-10 rounded-lg flex items-center justify-center",
-            isLoading && "bg-[var(--border)] animate-pulse",
+            "w-12 h-12 rounded-xl flex items-center justify-center transition-transform duration-200 group-hover:scale-110 shrink-0",
+            "bg-[var(--primary)]/15 ring-1 ring-[var(--primary)]/30 text-[var(--primary)]",
+            isLoading && "bg-[var(--border)] animate-pulse ring-0",
             iconClass
           )}
         >
-          {!isLoading && icon}
+          {!isLoading && icon && (
+            <span className="[&>svg]:min-w-5 [&>svg]:min-h-5 [&>svg]:shrink-0 [&>svg]:text-inherit flex items-center justify-center">
+              {icon}
+            </span>
+          )}
         </div>
       </div>
 
       {/* ─── Value ─── */}
       {isLoading ? (
-        <div className="h-6 w-24 rounded bg-[var(--border)] animate-pulse mb-2" />
+        <div className="h-8 w-28 rounded bg-[var(--border)] animate-pulse mb-2" />
       ) : (
         <p
           className={cn(
-            "text-3xl text-[var(--text)] mb-1 leading-tight",
+            "text-3xl font-bold text-[var(--foreground)] mb-1 leading-tight tracking-tight",
             valueClass
           )}
         >
@@ -64,11 +69,14 @@ function StatCard({
     </>
   );
 
-  const cardClassName = `rounded-xl p-6 transition-all hover:shadow-md text-foreground ${
+  const cardClassName = cn(
+    "group relative rounded-2xl p-6 overflow-hidden",
+    "border border-[var(--border)] bg-[var(--card)]/80 backdrop-blur-sm",
+    "transition-all duration-300 hover:shadow-xl hover:shadow-[var(--primary)]/5 hover:border-[var(--primary)]/30 hover:-translate-y-0.5",
+    "before:absolute before:inset-0 before:rounded-2xl before:bg-gradient-to-br before:from-[var(--primary)]/5 before:to-transparent before:opacity-0 hover:before:opacity-100 before:transition-opacity before:pointer-events-none",
+    to && "cursor-pointer block",
     cardClass
-      ? cardClass
-      : "bg-[var(--background)] border border-[var(--border)]"
-  } ${to ? "cursor-pointer block" : ""}`;
+  );
 
   if (to) {
     return (

@@ -51,22 +51,19 @@ function MilestoneDetail() {
   const [selectedStatus, setSelectedStatus] = useState("");
   const [savingStatus, setSavingStatus] = useState(false);
   const [activeTab, setActiveTab] = useState("");
-  const { actions } = useTabs()
+  const { actions } = useTabs();
   const isSuperAdmin = actions?.isSuperAdmin ?? false;
 
   const hasDetailTabsPermission = (moduleName, requiredTabs) => {
     if (isSuperAdmin) return true;
 
-    return actions?.modulePermissions?.some(
-      (modules) => {
-        const currentModule = modules.module == moduleName
-        if (currentModule == true) {
-          return modules.detailTabs.includes(requiredTabs)
-        }
+    return actions?.modulePermissions?.some((modules) => {
+      const currentModule = modules.module == moduleName;
+      if (currentModule == true) {
+        return modules.detailTabs.includes(requiredTabs);
       }
-    );
+    });
   };
-
 
   const detailTabsCount = [
     hasDetailTabsPermission("Milestones", "Team Members"),
@@ -186,26 +183,26 @@ function MilestoneDetail() {
   // Loading Skeleton
   if (loading) {
     return (
-      <div className="min-h-screen space-y-8 animate-pulse p-6">
-        <div className="flex justify-between items-start">
-          <div className="space-y-3">
-            <div className="h-10 w-32 bg-[var(--border)] rounded"></div>
-            <div className="h-6 w-48 bg-[var(--border)] rounded"></div>
+      <div className='min-h-screen space-y-8 animate-pulse p-6'>
+        <div className='flex justify-between items-start'>
+          <div className='space-y-3'>
+            <div className='h-10 w-32 bg-[var(--border)] rounded'></div>
+            <div className='h-6 w-48 bg-[var(--border)] rounded'></div>
           </div>
         </div>
 
-        <div className="p-8 border border-[var(--border)] rounded-2xl space-y-6">
-          <div className="flex gap-6">
-            <div className="w-16 h-16 rounded-full bg-[var(--border)]"></div>
-            <div className="space-y-4 flex-1">
-              <div className="h-8 w-80 bg-[var(--border)] rounded"></div>
-              <div className="h-5 w-64 bg-[var(--border)] rounded"></div>
+        <div className='p-8 border border-[var(--border)] rounded-2xl space-y-6'>
+          <div className='flex gap-6'>
+            <div className='w-16 h-16 rounded-full bg-[var(--border)]'></div>
+            <div className='space-y-4 flex-1'>
+              <div className='h-8 w-80 bg-[var(--border)] rounded'></div>
+              <div className='h-5 w-64 bg-[var(--border)] rounded'></div>
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className='grid grid-cols-1 md:grid-cols-3 gap-6'>
             {[1, 2, 3].map((i) => (
-              <div key={i} className="h-20 bg-[var(--border)] rounded-lg"></div>
+              <div key={i} className='h-20 bg-[var(--border)] rounded-lg'></div>
             ))}
           </div>
         </div>
@@ -216,8 +213,8 @@ function MilestoneDetail() {
   // Not found
   if (!milestone) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <p className="text-xl text-muted-foreground">Milestone not found.</p>
+      <div className='min-h-screen flex items-center justify-center'>
+        <p className='text-xl text-muted-foreground'>Milestone not found.</p>
       </div>
     );
   }
@@ -225,26 +222,26 @@ function MilestoneDetail() {
   const project = milestone.project || {};
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="p-6 max-w-7xl mx-auto">
+    <div className='min-h-screen bg-background'>
+      <div className='p-6 max-w-[90vw] mx-auto'>
         {/* Header */}
-        <div className="mb-8">
-          <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-6">
-            <div className="flex flex-col sm:flex-row items-start gap-4">
+        <div className='mb-8'>
+          <div className='flex flex-col sm:flex-row sm:items-start sm:justify-between gap-6'>
+            <div className='flex flex-col sm:flex-row items-start gap-4'>
               <Button
-                variant="outline"
-                className="border-button"
+                variant='outline'
+                className='border-button'
                 onClick={() => navigate(-1)}
               >
-                <ArrowLeft className="w-4 h-4 mr-2" />
+                <ArrowLeft className='w-4 h-4 mr-2' />
                 Back
               </Button>
 
               <div>
-                <h1 className="text-2xl sm:text-3xl font-bold text-foreground">
+                <h1 className='text-2xl sm:text-3xl font-bold text-foreground'>
                   Milestone Details
                 </h1>
-                <p className="text-muted-foreground mt-1">
+                <p className='text-muted-foreground mt-1'>
                   Full milestone information and assigned team
                 </p>
               </div>
@@ -254,23 +251,27 @@ function MilestoneDetail() {
             <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
               <DialogTrigger asChild>
                 <Button>
-                  <Target className="w-4 h-4 mr-2" />
+                  <Target className='w-4 h-4 mr-2' />
                   Change Status
                 </Button>
               </DialogTrigger>
-              <DialogContent className="sm:max-w-md">
+              <DialogContent className='sm:max-w-md'>
                 <DialogHeader>
-                  <DialogTitle className='text-foreground'>Change Milestone Status</DialogTitle>
+                  <DialogTitle className='text-foreground'>
+                    Change Milestone Status
+                  </DialogTitle>
                   <DialogDescription>
                     Update the status for <strong>{milestone.name}</strong>
                   </DialogDescription>
                 </DialogHeader>
 
-                <div className="grid gap-4 py-4">
-                  <Label className='text-foreground' htmlFor="status">Status</Label>
-                  <Select value={selectedStatus} onValueChange={setSelectedStatus} >
-                    <SelectTrigger className={'w-full text-foreground'} >
-                      <SelectValue placeholder="Select new status" />
+                <div className='grid gap-4 py-4'>
+                  <Label className='text-foreground' htmlFor='status'>
+                    Status
+                  </Label>
+                  <Select value={selectedStatus} onValueChange={setSelectedStatus}>
+                    <SelectTrigger className={"w-full text-foreground"}>
+                      <SelectValue placeholder='Select new status' />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectGroup>
@@ -292,7 +293,11 @@ function MilestoneDetail() {
                 <DialogFooter>
                   <Button
                     onClick={handleStatusChange}
-                    disabled={!selectedStatus || savingStatus || selectedStatus === milestone.status}
+                    disabled={
+                      !selectedStatus ||
+                      savingStatus ||
+                      selectedStatus === milestone.status
+                    }
                   >
                     {savingStatus ? "Saving..." : "Save Changes"}
                   </Button>
@@ -303,34 +308,34 @@ function MilestoneDetail() {
         </div>
 
         {/* Main Content Card */}
-        <div className="space-y-8">
-          <div className="border border-border rounded-2xl overflow-hidden">
-            <div className="p-8 bg-background">
-              <div className="flex items-start flex-col sm:flex-row gap-6">
-                <div className="w-16 h-16 rounded-full bg-border flex items-center justify-center shrink-0">
-                  <Flag className="w-8 h-8 text-foreground" />
+        <div className='space-y-8'>
+          <div className='border border-border rounded-2xl overflow-hidden'>
+            <div className='p-8 bg-background'>
+              <div className='flex items-start flex-col sm:flex-row gap-6'>
+                <div className='w-16 h-16 rounded-full bg-border flex items-center justify-center shrink-0'>
+                  <Flag className='w-8 h-8 text-foreground' />
                 </div>
 
-                <div className="flex-1">
-                  <h2 className="text-2xl font-bold text-foreground">
+                <div className='flex-1'>
+                  <h2 className='text-2xl font-bold text-foreground'>
                     {milestone.name}
                   </h2>
-                  <p className="text-muted-foreground mt-1">
+                  <p className='text-muted-foreground mt-1'>
                     {project.name || "No Project Assigned"}
                   </p>
 
-                  <div className="flex flex-wrap items-center gap-3 mt-4">
+                  <div className='flex flex-wrap items-center gap-3 mt-4'>
                     <Chip status={milestone.status} />
 
                     {milestone.cost > 0 && actions.cost && (
-                      <span className="px-4 py-2 border border-border rounded-full text-sm flex text-foreground items-center gap-2">
-                        <DollarSign className="w-4 h-4" />
+                      <span className='px-4 py-2 border border-border rounded-full text-sm flex text-foreground items-center gap-2'>
+                        <DollarSign className='w-4 h-4' />
                         {milestone.cost.toLocaleString()}
                       </span>
                     )}
 
-                    <span className="px-4 py-2 border border-border rounded-full text-foreground text-sm flex items-center gap-2">
-                      <Users className="w-4 h-4" />
+                    <span className='px-4 py-2 border border-border rounded-full text-foreground text-sm flex items-center gap-2'>
+                      <Users className='w-4 h-4' />
                       {project.teamMembers?.length || 0} Team Member
                       {project.teamMembers?.length !== 1 ? "s" : ""}
                     </span>
@@ -339,71 +344,76 @@ function MilestoneDetail() {
               </div>
 
               {/* Meta Information */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8 text-sm">
-                <div className="flex items-center gap-3">
-                  <Calendar className="w-5 h-5 text-muted-foreground" />
+              <div className='grid grid-cols-1 md:grid-cols-3 gap-6 mt-8 text-sm'>
+                <div className='flex items-center gap-3'>
+                  <Calendar className='w-5 h-5 text-muted-foreground' />
                   <div>
-                    <p className="text-muted-foreground">Start Date</p>
-                    <p className="font-medium text-foreground">{formatDate(milestone.startDate)}</p>
+                    <p className='text-muted-foreground'>Start Date</p>
+                    <p className='font-medium text-foreground'>
+                      {formatDate(milestone.startDate)}
+                    </p>
                   </div>
                 </div>
 
-                <div className="flex items-center gap-3">
-                  <Calendar className="w-5 h-5 text-muted-foreground" />
+                <div className='flex items-center gap-3'>
+                  <Calendar className='w-5 h-5 text-muted-foreground' />
                   <div>
-                    <p className="text-muted-foreground">Due Date</p>
-                    <p className="font-medium text-foreground">{formatDate(milestone.endDate)}</p>
+                    <p className='text-muted-foreground'>Due Date</p>
+                    <p className='font-medium text-foreground'>
+                      {formatDate(milestone.endDate)}
+                    </p>
                   </div>
                 </div>
 
-                <div className="flex items-center gap-3">
-                  <Building className="w-5 h-5 text-muted-foreground" />
+                <div className='flex items-center gap-3'>
+                  <Building className='w-5 h-5 text-muted-foreground' />
                   <div>
-                    <p className="text-muted-foreground">Client</p>
-                    <p className="font-medium text-foreground">{project.client?.name || "N/A"}</p>
+                    <p className='text-muted-foreground'>Client</p>
+                    <p className='font-medium text-foreground'>
+                      {project.client?.name || "N/A"}
+                    </p>
                   </div>
                 </div>
               </div>
 
               {milestone.description?.trim() && (
-                <div className="mt-8">
-                  <p className="text-muted-foreground text-sm">Description</p>
-                  <p className="mt-2 text-foreground">{milestone.description}</p>
+                <div className='mt-8'>
+                  <p className='text-muted-foreground text-sm'>Description</p>
+                  <p className='mt-2 text-foreground'>{milestone.description}</p>
                 </div>
               )}
             </div>
           </div>
 
           {/* Tabs Section */}
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+          <Tabs value={activeTab} onValueChange={setActiveTab} className='w-full'>
             {/* Tabs for sm and above */}
             {detailTabsCount > 1 && (
-              <TabsList className="hidden sm:grid w-full grid-cols-2 rounded-2xl bg-border mb-4">
+              <TabsList className='hidden sm:grid w-full grid-cols-2 rounded-2xl bg-border mb-4'>
                 {hasDetailTabsPermission("Milestones", "Team Members") && (
-                  <TabsTrigger value="assignees">Team Members</TabsTrigger>
+                  <TabsTrigger value='assignees'>Team Members</TabsTrigger>
                 )}
                 {/* <TabsTrigger value="progress">Progress</TabsTrigger> */}
                 {hasDetailTabsPermission("Milestones", "Notes") && (
-                  <TabsTrigger value="notes">Notes</TabsTrigger>
+                  <TabsTrigger value='notes'>Notes</TabsTrigger>
                 )}
               </TabsList>
             )}
 
-
             {detailTabsCount > 1 && (
-              <div className="sm:hidden mb-3">
+              <div className='sm:hidden mb-3'>
                 <Select value={activeTab} onValueChange={setActiveTab}>
-                  <SelectTrigger className="w-full border text-foreground rounded-lg px-3 py-2 text-sm">
-                    <SelectValue placeholder="Select view" />
+                  <SelectTrigger className='w-full border text-foreground rounded-lg px-3 py-2 text-sm'>
+                    <SelectValue placeholder='Select view' />
                   </SelectTrigger>
 
                   <SelectContent>
                     {hasDetailTabsPermission("Milestones", "Team Members") && (
-                      <SelectItem value="assignees">Team Members</SelectItem>
+                      <SelectItem value='assignees'>Team Members</SelectItem>
                     )}
                     {/* <TabsTrigger value="progress">Progress</TabsTrigger> */}
                     {hasDetailTabsPermission("Milestones", "Notes") && (
-                      <SelectItem value="notes">Notes</SelectItem>
+                      <SelectItem value='notes'>Notes</SelectItem>
                     )}
                     {/* <SelectItem value="progress">Progress</SelectItem> */}
                   </SelectContent>
@@ -411,41 +421,52 @@ function MilestoneDetail() {
               </div>
             )}
 
-
-
-            <TabsContent value="assignees" className="mt-6">
-              <div className="border border-border rounded-2xl p-6">
-                <h3 className="text-lg text-foreground font-semibold mb-6">
+            <TabsContent value='assignees' className='mt-6'>
+              <div className='border border-border rounded-2xl p-6'>
+                <h3 className='text-lg text-foreground font-semibold mb-6'>
                   Project Team ({project.teamMembers?.length || 0})
                 </h3>
 
                 {!project.teamMembers || project.teamMembers.length === 0 ? (
-                  <div className="text-center py-12">
+                  <div className='text-center py-12'>
                     {/* <Users className="mx-auto w-16 h-16 text-muted-foreground mb-4" />
                     <p className="text-muted-foreground">No team members assigned</p> */}
-                    <EmptyState icon={Users} title="No team members" subtitle="Invite your first team member to get started" ></EmptyState>
+                    <EmptyState
+                      icon={Users}
+                      title='No team members'
+                      subtitle='Invite your first team member to get started'
+                    ></EmptyState>
                   </div>
                 ) : (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                  <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4'>
                     {project.teamMembers.map((member) => {
-                      const initials = `${member.firstName?.[0] || ""}${member.lastName?.[0] || ""}`.toUpperCase();
+                      const initials =
+                        `${member.firstName?.[0] || ""}${member.lastName?.[0] || ""}`.toUpperCase();
                       const isManager = member._id === project.projectManager?._id;
 
                       return (
                         <div
                           key={member._id}
-                          onClick={() => navigate(`/app/employees/employee-detail/${member._id}`)}
-                          className="flex items-center gap-4 p-4 border border-border rounded-lg hover:bg-muted/50 transition cursor-pointer"
+                          onClick={() =>
+                            navigate(`/app/employees/employee-detail/${member._id}`)
+                          }
+                          className='flex items-center gap-4 p-4 border border-border rounded-lg hover:bg-muted/50 transition cursor-pointer'
                         >
-                          <div className="w-12 bg-border h-12 rounded-full flex items-center justify-center text-sm font-medium">
+                          <div className='w-12 bg-border h-12 rounded-full flex items-center justify-center text-sm font-medium'>
                             {initials || "NA"}
                           </div>
-                          <div className="flex-1 min-w-0">
-                            <p className="font-medium text-foreground truncate">
+                          <div className='flex-1 min-w-0'>
+                            <p className='font-medium text-foreground truncate'>
                               {member.firstName} {member.lastName}
-                              {isManager && <span className="ml-2 text-xs text-blue-600">(Manager)</span>}
+                              {isManager && (
+                                <span className='ml-2 text-xs text-blue-600'>
+                                  (Manager)
+                                </span>
+                              )}
                             </p>
-                            <p className="text-sm text-muted-foreground truncate">{member.email}</p>
+                            <p className='text-sm text-muted-foreground truncate'>
+                              {member.email}
+                            </p>
                           </div>
                         </div>
                       );
@@ -506,17 +527,25 @@ function MilestoneDetail() {
               </div>
             </TabsContent> */}
 
-            <TabsContent value="notes" className="mt-6">
-              <div className="border border-border rounded-2xl p-6">
-                <h3 className="text-lg font-semibold text-foreground mb-6">Internal Notes</h3>
+            <TabsContent value='notes' className='mt-6'>
+              <div className='border border-border rounded-2xl p-6'>
+                <h3 className='text-lg font-semibold text-foreground mb-6'>
+                  Internal Notes
+                </h3>
                 {milestone.notes ? (
-                  <div className="bg-background hover:bg-border border border-border rounded-lg p-5">
-                    <p className="text-foreground whitespace-pre-wrap">{milestone.notes}</p>
+                  <div className='bg-background hover:bg-border border border-border rounded-lg p-5'>
+                    <p className='text-foreground whitespace-pre-wrap'>
+                      {milestone.notes}
+                    </p>
                   </div>
                 ) : (
-                  <div className="text-center py-12 text-muted-foreground">
+                  <div className='text-center py-12 text-muted-foreground'>
                     {/* No internal notes added yet. */}
-                    <EmptyState icon={NotebookTabs} title="No internal notes added yet." subtitle="This milestone has no internal notes." ></EmptyState>
+                    <EmptyState
+                      icon={NotebookTabs}
+                      title='No internal notes added yet.'
+                      subtitle='This milestone has no internal notes.'
+                    ></EmptyState>
                   </div>
                 )}
               </div>

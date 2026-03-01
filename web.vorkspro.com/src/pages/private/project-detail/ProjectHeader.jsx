@@ -23,7 +23,7 @@ import {
 import ProjectStatsGrid from "./ProjectStatsGrid";
 import { toast } from "sonner";
 
-export default function ProjectHeader({ project, onBack, clients, employees, onEditProject, refresh }) {
+export default function ProjectHeader({ project, onBack, clients, employees, onEditProject, refresh, onNavigateToTab }) {
   const [open, setOpen] = useState(false);
   const [selectedStatus, setSelectedStatus] = useState("");
   const [loading, setLoading] = useState(false);
@@ -200,7 +200,7 @@ export default function ProjectHeader({ project, onBack, clients, employees, onE
             </span>
           </div>
         </div>
-        <ProjectStatsGrid project={project} />
+        <ProjectStatsGrid project={project} onNavigateToTab={onNavigateToTab} />
       </div>
     </div>
   );

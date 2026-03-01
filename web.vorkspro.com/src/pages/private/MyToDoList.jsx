@@ -35,6 +35,11 @@ import CustomTooltip from "@/components/Tooltip";
 import { useTabs } from "@/context/TabsContext";
 import { apiDelete, apiGet, apiPatch, apiPost } from "@/interceptor/interceptor";
 import EmptyState from "@/components/EmptyState";
+import { ViewToggle, KanbanBoard, CalendarWrapper } from "@/components/views";
+const TODO_KANBAN_COLUMNS = [
+  { id: "todo", title: "To Do" },
+  { id: "done", title: "Done" },
+];
 
 export default function ToDoList() {
   const [allTodos, setAllTodos] = useState([]);
@@ -42,6 +47,7 @@ export default function ToDoList() {
   const [loading, setLoading] = useState(true);
   const [previousLoading, setPreviousLoading] = useState(false);
   const [activeTab, setActiveTab] = useState("All");
+  const [viewMode, setViewMode] = useState("list");
   const [searchTerm, setSearchTerm] = useState("");
   const [quickInput, setQuickInput] = useState("");
 
@@ -142,6 +148,43 @@ export default function ToDoList() {
       toast.error("Update failed");
     }
   };
+
+  const handleTodoMove = async (todoId, _from, toColumnId) => {
+    const completed = toColumnId === "done";
+    const prev = allTodos;
+    setAllTodos((todos) =>
+      todos.map((t) => (t._id === todoId ? { ...t, isCompleted: completed } : t))
+    );
+    try {
+      const data = await apiPatch(`todo/update/${todoId}`, { isCompleted: completed });
+      if (data?.isSuccess) {
+        if (activeTab === "Previous") fetchPreviousTodos();
+        toast.success(completed ? "Task completed" : "Task moved to To Do");
+      } else {
+        setAllTodos(prev);
+        toast.error("Update failed");
+      }
+    } catch (err) {
+      setAllTodos(prev);
+      toast.error("Update failed");
+    }
+  };
+
+  const todoCalendarEvents = useMemo(() => {
+    const list = activeTab === "Previous" ? previousTodos : allTodos;
+    return list
+      .filter((t) => t.dueDate)
+      .map((t) => {
+        const d = new Date(t.dueDate);
+        return {
+          id: t._id,
+          title: t.title,
+          start: d,
+          end: new Date(d.getTime() + 60 * 60 * 1000),
+          resource: t,
+        };
+      });
+  }, [allTodos, previousTodos, activeTab]);
 
   // const toggleImportant = async (todo) => {
   //   try {
@@ -528,71 +571,112 @@ export default function ToDoList() {
         />
       </div>
 
-      {/* Tabs + Search */}
-      <div className="mb-8">
-        <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-5">
-          <Tabs value={activeTab} onValueChange={setActiveTab}>
-            <TabsList className="sm:grid hidden grid-cols-6 w-full max-w-lg rounded-2xl bg-border/50 p-1">
-              <TabsTrigger
-                value="Previous"
-                className="rounded-xl flex items-center gap-1"
-              >
-                <History size={16} />
-                Previous
-              </TabsTrigger>
-              {["All", "Today", "Upcoming", "Important", "Completed"].map(
-                (tab) => (
-                  <TabsTrigger key={tab} value={tab} className="rounded-xl">
+      {/* Row 1: Filters (left) | View toggle (right). Row 2: Search | Export */}
+      <div className="mb-8 space-y-4">
+        {/* Row 1: Filters (left) | View toggle (right) */}
+        <div className="flex flex-row flex-wrap items-center justify-between gap-4">
+          {/* Desktop: Tabs. Mobile: Select + ViewToggle in one row */}
+          <div className="hidden sm:block flex-1 min-w-0">
+            <Tabs value={activeTab} onValueChange={setActiveTab}>
+              <TabsList className="flex flex-wrap rounded-2xl bg-[var(--foreground)]/10 p-1 gap-0.5 sm:gap-1 w-fit max-w-full">
+                <TabsTrigger value="Previous" className="rounded-xl flex items-center gap-1.5 shrink-0">
+                  <History size={16} />
+                  Previous
+                </TabsTrigger>
+                {["All", "Today", "Upcoming", "Important", "Completed"].map((tab) => (
+                  <TabsTrigger key={tab} value={tab} className="rounded-xl shrink-0">
                     {tab === "Important" ? "Starred" : tab}
                   </TabsTrigger>
-                )
-              )}
-            </TabsList>
-
-            <div className="sm:hidden flex text-[var(--foreground)] w-46 mb-3">
-              <Select
-                className="w-full"
-                value={activeTab}
-                onValueChange={setActiveTab}
-              >
-                <SelectTrigger className="w-full border rounded-lg px-3 py-2 text-sm">
-                  <SelectValue placeholder="Select status" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="All">All</SelectItem>
-                  <SelectItem value="Today">Today</SelectItem>
-                  <SelectItem value="Upcoming">Upcoming</SelectItem>
-                  <SelectItem value="Important">Important</SelectItem>
-                  <SelectItem value="Completed">Completed</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </Tabs>
-
-          <div className="flex gap-3 w-full lg:w-auto">
-            <div className="relative flex-1 lg:flex-initial">
-              <Search
-                size={18}
-                className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--muted-foreground)]"
-              />
-              <Input
-                placeholder="Search tasks..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10 w-full text-foreground lg:w-64"
-              />
-            </div>
-            {hasPermission("My To-Do Hub", "Export Data") && (
-              <Button className="border-button">
-                <Download size={17} className="mr-2" /> Export
-              </Button>
-            )}
+                ))}
+              </TabsList>
+            </Tabs>
           </div>
+          <div className="hidden sm:block shrink-0">
+            <ViewToggle
+              value={viewMode}
+              onValueChange={setViewMode}
+              enabledViews={["list", "calendar", "kanban"]}
+              listLabel="List"
+            />
+          </div>
+        </div>
+
+        {/* Mobile: Filter Select + View toggle in one row */}
+        <div className="sm:hidden flex flex-row items-center gap-3">
+          <Select value={activeTab} onValueChange={setActiveTab} className="flex-1 min-w-0">
+            <SelectTrigger className="w-full border rounded-lg px-3 py-2 text-sm">
+              <SelectValue placeholder="Select status" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="Previous">Previous</SelectItem>
+              <SelectItem value="All">All</SelectItem>
+              <SelectItem value="Today">Today</SelectItem>
+              <SelectItem value="Upcoming">Upcoming</SelectItem>
+              <SelectItem value="Important">Important</SelectItem>
+              <SelectItem value="Completed">Completed</SelectItem>
+            </SelectContent>
+          </Select>
+          <ViewToggle
+            value={viewMode}
+            onValueChange={setViewMode}
+            enabledViews={["list", "calendar", "kanban"]}
+            listLabel="List"
+          />
+        </div>
+
+        {/* Row 2: Search | Export */}
+        <div className="flex flex-row items-center gap-3 w-full">
+          <div className="relative flex-1 min-w-0">
+            <Search
+              size={18}
+              className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--muted-foreground)] pointer-events-none"
+            />
+            <Input
+              placeholder="Search tasks..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-10 w-full text-foreground"
+            />
+          </div>
+          {hasPermission("My To-Do Hub", "Export Data") && (
+            <Button className="border-button shrink-0">
+              <Download size={17} className="mr-2" /> Export
+            </Button>
+          )}
         </div>
       </div>
 
-      {/* Task List */}
-      <div className="space-y-4">
+      {viewMode === "calendar" && (
+        <div className="mb-8 p-1">
+          <CalendarWrapper events={todoCalendarEvents} style={{ height: 540 }} />
+        </div>
+      )}
+
+      {viewMode === "kanban" && (
+        <div className="mb-8">
+          <KanbanBoard
+            columns={TODO_KANBAN_COLUMNS}
+            items={filteredAndSortedTodos}
+            getColumnId={(t) => t.isCompleted ? "done" : "todo"}
+            getItemId={(t) => t._id}
+            onMove={handleTodoMove}
+            renderCard={(t) => (
+              <div>
+                <h4 className={`font-semibold text-sm truncate ${t.isCompleted ? "line-through opacity-70" : ""}`}>{t.title}</h4>
+                <p className="text-xs text-[var(--muted-foreground)] mt-1 truncate">{t.description || "No description"}</p>
+                {t.dueDate && (
+                  <p className="text-xs text-[var(--muted-foreground)] mt-1">{formatDate(t.dueDate)}</p>
+                )}
+              </div>
+            )}
+          />
+        </div>
+      )}
+
+      {viewMode === "list" && (
+        <>
+        {/* Task List */}
+        <div className="space-y-4">
         {isLoading ? (
           Array.from({ length: 6 }).map((_, i) => (
             <div
@@ -628,6 +712,8 @@ export default function ToDoList() {
           ))
         )}
       </div>
+        </>
+      )}
 
       {/* Dialogs */}
       <GlobalDialog

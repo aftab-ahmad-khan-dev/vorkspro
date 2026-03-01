@@ -36,6 +36,14 @@ import {
 import { useTabs } from "@/context/TabsContext";
 import { apiGet, apiGetByFilter, apiPatch } from "@/interceptor/interceptor";
 import EmptyState from "@/components/EmptyState";
+import { ViewToggle, KanbanBoard, CalendarWrapper } from "@/components/views";
+
+const FOLLOWUP_KANBAN_COLUMNS = [
+  { id: "overdue", title: "Overdue" },
+  { id: "due today", title: "Due Today" },
+  { id: "upcoming", title: "Upcoming" },
+  { id: "completed", title: "Completed" },
+];
 
 function FollowHub() {
   const baseUrl = import.meta.env.VITE_APP_BASE_URL + "followup";
@@ -44,6 +52,7 @@ function FollowHub() {
 
   /* ────────────────────── STATE ────────────────────── */
   const [activeTab, setActiveTab] = useState("Schedule Follow-up");
+  const [viewMode, setViewMode] = useState("list");
   const [searchTerm, setSearchTerm] = useState("");
   const [assignedToFilter, setAssignedToFilter] = useState("all"); 
   const [loading, setLoading] = useState(false);
@@ -285,6 +294,58 @@ function FollowHub() {
     }
     return pagination.totalItems;
   }, [allData, activeTab, currentUser._id, pagination.totalItems]);
+
+  const followupCalendarEvents = useMemo(() => {
+    return (currentData || [])
+      .filter((f) => f.date)
+      .map((f) => {
+        const d = new Date(f.date);
+        if (f.time) {
+          const [h, m] = f.time.split(":").map(Number);
+          d.setHours(h, m, 0, 0);
+        }
+        return {
+          id: f._id,
+          title: f.topic || f.notes || f.client?.name || "Follow-up",
+          start: d,
+          end: new Date(d.getTime() + 30 * 60 * 1000),
+          resource: f,
+        };
+      });
+  }, [currentData]);
+
+  const getFollowupColumnId = (item) => {
+    const s = (item.status || "Upcoming").toLowerCase();
+    if (s === "overdue") return "overdue";
+    if (s === "due today") return "due today";
+    if (s === "completed") return "completed";
+    return "upcoming";
+  };
+
+  const handleFollowupMove = async (itemId, _from, toColumnId) => {
+    if (toColumnId !== "completed") return;
+    const prev = allData;
+    setAllData((prevData) => ({
+      ...prevData,
+      followups: (prevData?.followups || []).map((f) =>
+        f._id === itemId ? { ...f, status: "Completed" } : f
+      ),
+    }));
+    try {
+      const data = await apiPatch(`followup/mark-complete/${itemId}`);
+      if (data?.isSuccess) {
+        toast.success("Follow-up marked as complete");
+        fetchStats();
+        fetchFollowupsAndLogs(pagination.page, searchTerm, activeTab);
+      } else {
+        setAllData(prev);
+        toast.error("Failed to update");
+      }
+    } catch (err) {
+      setAllData(prev);
+      toast.error("Failed to update status");
+    }
+  };
 
   /* ────────────────────── HELPER COMPONENTS ────────────────────── */
   const SkeletonRow = () => (
@@ -558,7 +619,13 @@ function FollowHub() {
               className="pl-10 w-full"
             />
           </div>
-          
+          <div className="flex flex-wrap items-center gap-3">
+            <ViewToggle
+              value={viewMode}
+              onValueChange={setViewMode}
+              enabledViews={["list", "calendar", "kanban"]}
+              listLabel="List"
+            />
           {/* Filter for Schedule Follow-up only */}
           {activeTab === "Schedule Follow-up" && (
             <div className="w-full sm:w-auto">
@@ -573,9 +640,38 @@ function FollowHub() {
               </Select>
             </div>
           )}
+          </div>
         </div>
       </div>
 
+      {viewMode === "calendar" && (
+        <div className="mb-6 p-1">
+          <CalendarWrapper events={followupCalendarEvents} style={{ height: 540 }} />
+        </div>
+      )}
+
+      {viewMode === "kanban" && (
+        <div className="mb-6">
+          <KanbanBoard
+            columns={FOLLOWUP_KANBAN_COLUMNS}
+            items={currentData}
+            getColumnId={getFollowupColumnId}
+            getItemId={(item) => item._id}
+            onMove={handleFollowupMove}
+            renderCard={(item) => (
+              <div>
+                <h4 className="font-semibold text-sm truncate">{item.client?.name || item.topic}</h4>
+                <p className="text-xs text-[var(--muted-foreground)] mt-1 truncate">{item.topic || item.notes}</p>
+                <p className="text-xs text-[var(--muted-foreground)] mt-1">
+                  {formatDate(item.date)}{item.time ? ` ${formatTime12h(item.time)}` : ""}
+                </p>
+              </div>
+            )}
+          />
+        </div>
+      )}
+
+      {viewMode === "list" && (
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         {allowedTabs.length >= 2 && (
           <div className="hidden sm:flex bg-[var(--background)]/80 backdrop-blur supports-[backdrop-filter]:bg-[var(--background)]/60">
@@ -724,6 +820,7 @@ function FollowHub() {
           </div>
         )}
       </Tabs>
+      )}
 
       {/* Dialogs */}
       <GlobalDialog

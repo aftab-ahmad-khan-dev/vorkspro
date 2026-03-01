@@ -29,8 +29,12 @@ export default function ProjectTabs({
   onAddCredential,
   timeline,
   onMilestonesUpdate,
+  activeTab: controlledActiveTab,
+  onTabChange,
 }) {
-  const [activeTab, setActiveTab] = useState("");
+  const [internalActiveTab, setInternalActiveTab] = useState("");
+  const activeTab = controlledActiveTab ?? internalActiveTab;
+  const setActiveTab = onTabChange ?? setInternalActiveTab;
   const { tabs: modules, actions } = useTabs()
   const isSuperAdmin = modules?.length == 0 || modules == undefined
 
@@ -66,13 +70,13 @@ export default function ProjectTabs({
           availableTabs.push("Budget Breakdown");
         }
 
-        // Set first available tab as default if not already set
-        if (availableTabs.length > 0 && !activeTab) {
-          setActiveTab(availableTabs[0]);
+        // Set first available tab as default if not already set (only when uncontrolled)
+        if (controlledActiveTab == null && availableTabs.length > 0 && !internalActiveTab) {
+          setInternalActiveTab(availableTabs[0]);
         }
       }
     });
-  }, [actions?.modulePermissions, activeTab]);
+  }, [actions?.modulePermissions, controlledActiveTab, internalActiveTab]);
 
   const hasDetailTabsPermission = (moduleName, requiredTabs) => {
     if (isSuperAdmin) return true;

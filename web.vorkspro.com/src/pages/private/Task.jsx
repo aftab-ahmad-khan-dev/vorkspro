@@ -22,6 +22,7 @@ import {
   CheckCircle,
   Clock,
   Eye,
+  Flag,
   MessageSquare,
   Paperclip,
   Plus,
@@ -48,30 +49,18 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-// Calendar
-import { Calendar, dateFnsLocalizer, Views } from "react-big-calendar";
 import { startOfMonth, endOfMonth, format } from "date-fns";
-import parse from "date-fns/parse";
-import startOfWeek from "date-fns/startOfWeek";
-import getDay from "date-fns/getDay";
-import enUS from "date-fns/locale/en-US";
-import "react-big-calendar/lib/css/react-big-calendar.css";
 import MilestoneEvents from "@/components/MilestoneEvents";
 import { useTabs } from "@/context/TabsContext";
 import CustomTooltip from "@/components/Tooltip";
 import EmptyState from "@/components/EmptyState";
+import Chip from "@/components/Chip";
+import { KanbanBoard, CalendarWrapper, ListGridToggle } from "@/components/views";
 import { apiGet, apiGetByFilter, apiPatch, apiPost } from "@/interceptor/interceptor";
-
-const localizer = dateFnsLocalizer({
-  format,
-  parse,
-  startOfWeek,
-  getDay,
-  locales: { "en-US": enUS },
-});
 
 function Task() {
   const [activeTab, setActiveTab] = useState("milestones");
+  const [listLayout, setListLayout] = useState("grid");
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [showMilestoneDialog, setShowMilestoneDialog] = useState(false);
@@ -134,6 +123,7 @@ function Task() {
 
     if (tabsPermission("Milestones", ["Milestones"])) {
       tabs.push("milestones");
+      tabs.push("kanban");
     }
 
     if (tabsPermission("Milestones", ["Calender View"])) {
@@ -480,6 +470,10 @@ function Task() {
   );
 
   const changeMilestoneStatus = async (id, status) => {
+    const prev = filteredMilestones;
+    setFilteredMilestones((list) =>
+      list.map((m) => (m._id === id ? { ...m, status } : m))
+    );
     try {
       const data = await apiPatch(`milestone/change-status/${id}`, { status });
       if (data?.isSuccess) {
@@ -487,8 +481,12 @@ function Task() {
         fetchMilestonesWithPagination();
         fetchMilestoneStats();
         if (activeTab === "calendar") fetchCalendarMilestones(calendarDate);
+      } else {
+        setFilteredMilestones(prev);
+        toast.error("Failed");
       }
     } catch (err) {
+      setFilteredMilestones(prev);
       toast.error("Failed");
     }
   };
@@ -537,9 +535,9 @@ function Task() {
     fetchInprogressProjects();
   }, []);
 
-  // Fetch milestones when filters or pagination changes
+  // Fetch milestones when filters or pagination changes (list and kanban both use filtered milestones)
   useEffect(() => {
-    if (activeTab === "milestones") {
+    if (activeTab === "milestones" || activeTab === "kanban") {
       fetchMilestonesWithPagination();
     }
   }, [activeTab, paginationData.page, paginationData.size, selectedProjectId, statusFilter, searchTerm]);
@@ -624,41 +622,43 @@ function Task() {
   );
 
   return (
-    <div className="min-h-screen w-full text-[var(--foreground)]">
+    <div className="min-h-screen w-full text-[var(--foreground)] pb-8 flex flex-col gap-8">
       {/* Header */}
-      <div className="flex justify-between items-center mb-8">
-        <div>
-          <h1 className="text-3xl font-bold">Milestone Management</h1>
-          <p className="mt-1">Manage project and track milestones</p>
-        </div>
+      <div className="mb-0">
+        <h1 className="text-2xl sm:text-3xl font-bold text-[var(--foreground)]">Milestones</h1>
+        <p className="mt-1 text-sm text-[var(--muted-foreground)]">Track project milestones and tasks. Switch between List, Calendar, or Kanban.</p>
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {activeTab === "milestones" || activeTab === "calendar" ? (
           <>
             <StatCard
               title="Not Started"
               isLoading={statsLoading}
               value={milestoneStats.notStarted}
+              icon={<Clock size={20} className="text-[var(--primary)]" />}
             />
             <StatCard
               title="In Progress"
               isLoading={statsLoading}
               value={milestoneStats.inProgress}
               valueClass="text-orange-600"
+              icon={<Clock size={20} className="text-orange-500" />}
             />
             <StatCard
               title="Completed"
               isLoading={statsLoading}
               value={milestoneStats.completed}
               valueClass="text-green-600"
+              icon={<CheckCircle size={20} className="text-green-500" />}
             />
             <StatCard
               title="Total Milestones"
               isLoading={statsLoading}
               value={milestoneStats.totalMilestones}
               valueClass="text-blue-600"
+              icon={<Flag size={20} className="text-blue-500" />}
             />
           </>
         ) : (
@@ -687,44 +687,40 @@ function Task() {
         )}
       </div>
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+        {/* Row: Milestones | Calendar | Kanban - inline above content */}
         {allowedTabs.length >= 2 && (
-          <TabsList className="sm:flex hidden mb-6 rounded-2xl bg-[var(--foreground)]/10">
-            {allowedTabs.includes("milestones") && (
-
-              <TabsTrigger
-                value="milestones"
-                className="rounded-2xl py-2 text-sm font-medium"
-              >
-                Milestones
-              </TabsTrigger>
-            )
-            }
-
-            {allowedTabs.includes("calendar") && (
-              <TabsTrigger
-                value="calendar"
-                className="rounded-2xl py-2 text-sm font-medium"
-              >
-                Calendar View
-              </TabsTrigger>)}
-          </TabsList>
+          <div className="mb-6">
+            <TabsList className="hidden sm:inline-flex h-auto p-1 rounded-2xl bg-[var(--foreground)]/10 gap-0.5 w-fit">
+              {allowedTabs.includes("milestones") && (
+                <TabsTrigger value="milestones" className="rounded-xl px-4 py-2 text-sm font-medium shrink-0">
+                  Milestones
+                </TabsTrigger>
+              )}
+              {allowedTabs.includes("calendar") && (
+                <TabsTrigger value="calendar" className="rounded-xl px-4 py-2 text-sm font-medium shrink-0">
+                  Calendar
+                </TabsTrigger>
+              )}
+              {allowedTabs.includes("kanban") && (
+                <TabsTrigger value="kanban" className="rounded-xl px-4 py-2 text-sm font-medium shrink-0">
+                  Kanban
+                </TabsTrigger>
+              )}
+            </TabsList>
+            <div className="sm:hidden mt-3 text-[var(--foreground)]">
+              <Select value={activeTab} onValueChange={setActiveTab}>
+                <SelectTrigger className="w-full border rounded-lg px-3 py-2 text-sm">
+                  <SelectValue placeholder="Select view" />
+                </SelectTrigger>
+                <SelectContent>
+                  {allowedTabs.includes("milestones") && <SelectItem value="milestones">Milestones</SelectItem>}
+                  {allowedTabs.includes("calendar") && <SelectItem value="calendar">Calendar</SelectItem>}
+                  {allowedTabs.includes("kanban") && <SelectItem value="kanban">Kanban</SelectItem>}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
         )}
-        {allowedTabs.length >= 2 && (
-          <div className="sm:hidden text-[var(--foreground)] mb-3">
-            <Select value={activeTab} onValueChange={setActiveTab}>
-              <SelectTrigger className="w-full border rounded-lg px-3 py-2 text-sm">
-                <SelectValue placeholder="Select view" />
-              </SelectTrigger>
-              <SelectContent>
-                {allowedTabs.includes("milestones") && (
-                  <SelectItem value="milestones">Milestones</SelectItem>
-                )}
-                {allowedTabs.includes("calendar") && (
-                  <SelectItem value="calendar">Calendar View</SelectItem>
-                )}
-              </SelectContent>
-            </Select>
-          </div>)}
 
         {/* Milestones Tab - Unchanged */}
         <TabsContent value="milestones">
@@ -760,54 +756,94 @@ function Task() {
             </div>
 
             <div className="lg:col-span-5 xl:col-span-6">
-              <div className="border border-[var(--border)] rounded-2xl p-6">
-                <div className="flex flex-col md:flex-row justify-between gap-4 mb-6">
-                  <h2 className="text-xl font-bold">
-                    {selectedProjectId
-                      ? inprogressProjects.find(
-                        (p) => p._id === selectedProjectId
-                      )?.name || "Milestones"
-                      : "All Milestones"}
-                  </h2>
-                  <div className="flex flex-col sm:flex-row gap-3">
-                    <Select
-                      value={statusFilter}
-                      onValueChange={setStatusFilter}
-                    >
-                      <SelectTrigger className="w-full sm:w-48">
-                        <SelectValue placeholder="Filter by status" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="all">All Statuses</SelectItem>
-                        <SelectItem value="not started">Not Started</SelectItem>
-                        <SelectItem value="in progress">In Progress</SelectItem>
-                        <SelectItem value="completed">Completed</SelectItem>
-                        <SelectItem value="delayed">Delayed</SelectItem>
-                      </SelectContent>
-                    </Select>
+              <div className="border border-[var(--border)] rounded-2xl p-6 bg-[var(--card)]/80">
+                {/* Title */}
+                <h2 className="text-xl font-bold text-[var(--foreground)] mb-4">
+                  {selectedProjectId
+                    ? inprogressProjects.find((p) => p._id === selectedProjectId)?.name || "Milestones"
+                    : "All Milestones"}
+                </h2>
 
-                    {hasPermission("Milestones", "Create Records") && (
-                      <Button onClick={handleCreate}>
-                        <Plus size={18} className="mr-2" /> Add Milestone
-                      </Button>
-                    )}
+                {/* Row: Status | Add Milestone | Search | List/Grid toggle */}
+                <div className="flex flex-row flex-wrap items-center gap-3 mb-6">
+                  <Select value={statusFilter} onValueChange={setStatusFilter}>
+                    <SelectTrigger className="w-full sm:w-44 shrink-0">
+                      <SelectValue placeholder="Filter by status" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Statuses</SelectItem>
+                      <SelectItem value="not started">Not Started</SelectItem>
+                      <SelectItem value="in progress">In Progress</SelectItem>
+                      <SelectItem value="completed">Completed</SelectItem>
+                      <SelectItem value="delayed">Delayed</SelectItem>
+                    </SelectContent>
+                  </Select>
 
-                    <div className="relative">
-                      <Search
-                        size={18}
-                        className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--muted-foreground)]"
-                      />
-                      <Input
-                        placeholder="Search milestones..."
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                        className="pl-10 w-full sm:w-64"
-                      />
-                    </div>
+                  {hasPermission("Milestones", "Create Records") && (
+                    <Button onClick={handleCreate} className="shrink-0">
+                      <Plus size={18} className="mr-2" /> Add Milestone
+                    </Button>
+                  )}
+
+                  <div className="relative flex-1 min-w-[180px]">
+                    <Search
+                      size={18}
+                      className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--muted-foreground)] pointer-events-none"
+                    />
+                    <Input
+                      placeholder="Search milestones..."
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      className="pl-10 w-full text-foreground"
+                    />
+                  </div>
+
+                  <div className="shrink-0">
+                    <ListGridToggle value={listLayout} onValueChange={setListLayout} />
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                {listLayout === "list" ? (
+                <div className="overflow-x-auto rounded-xl border border-[var(--border)]" id="driver-main-content">
+                  <table className="w-full">
+                    <thead>
+                      <tr className="border-b border-[var(--border)] bg-[var(--muted)]/50">
+                        <th className="text-left px-4 py-3 text-sm font-semibold text-[var(--foreground)]">Milestone</th>
+                        <th className="text-left px-4 py-3 text-sm font-semibold text-[var(--foreground)]">Project</th>
+                        <th className="text-left px-4 py-3 text-sm font-semibold text-[var(--foreground)]">Status</th>
+                        <th className="text-left px-4 py-3 text-sm font-semibold text-[var(--foreground)]">Due Date</th>
+                        <th className="text-right px-4 py-3 text-sm font-semibold text-[var(--foreground)]">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {loading ? (
+                        Array.from({ length: 5 }).map((_, i) => (
+                          <tr key={i} className="border-b border-[var(--border)] animate-pulse">
+                            <td className="px-4 py-3"><div className="h-4 w-40 bg-[var(--border)] rounded" /></td>
+                            <td className="px-4 py-3"><div className="h-4 w-28 bg-[var(--border)] rounded" /></td>
+                            <td className="px-4 py-3"><div className="h-6 w-20 bg-[var(--border)] rounded-full" /></td>
+                            <td className="px-4 py-3"><div className="h-4 w-24 bg-[var(--border)] rounded" /></td>
+                            <td className="px-4 py-3"><div className="h-8 w-24 ml-auto bg-[var(--border)] rounded" /></td>
+                          </tr>
+                        ))
+                      ) : filteredMilestones.length === 0 ? (
+                        <tr><td colSpan={5} className="px-4 py-12 text-center"><EmptyState icon={CheckCircle} title="No milestones found" subtitle="Try adjusting filters or create your first milestone" /></td></tr>
+                      ) : (
+                        filteredMilestones.map((m) => (
+                          <tr key={m._id} onClick={() => navigate(`/app/milestones/milestone-detail/${m._id}`)} className="border-b border-[var(--border)] hover:bg-[var(--muted)]/30 cursor-pointer">
+                            <td className="px-4 py-3 font-medium text-[var(--foreground)]">{m.name}</td>
+                            <td className="px-4 py-3 text-[var(--foreground)]">{m.project?.name || "—"}</td>
+                            <td className="px-4 py-3"><Chip status={m.status} /></td>
+                            <td className="px-4 py-3 text-[var(--muted-foreground)]">{m.endDate ? new Date(m.endDate).toLocaleDateString() : "—"}</td>
+                            <td className="px-4 py-3 text-right"><Button size="sm" variant="ghost" onClick={(e) => { e.stopPropagation(); navigate(`/app/milestones/milestone-detail/${m._id}`); }}>View</Button></td>
+                          </tr>
+                        ))
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+                ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6" id="driver-main-content">
                   {loading ? (
                     Array.from({ length: 6 }).map((_, i) => (
                       <MilestoneSkeleton key={i} />
@@ -1015,6 +1051,7 @@ function Task() {
                     ))
                   )}
                 </div>
+                )}
 
                 {!loading && (
                   <div className="mt-8 flex justify-between items-center">
@@ -1046,21 +1083,20 @@ function Task() {
                 <p className="text-lg">Loading milestones...</p>
               </div>
             )}
-            <Calendar
-              localizer={localizer}
+            <CalendarWrapper
               events={calendarEvents}
               startAccessor="start"
               endAccessor="end"
               components={{ event: MilestoneEvents }}
               style={{ height: "100%", padding: 20, fontSize: 14 }}
               views={["month"]}
-              defaultView={Views.MONTH}
+              defaultView="month"
               date={calendarDate}
-              onNavigate={(newDate) => setCalendarDate(newDate)} // Triggers fetch on next/prev
+              onNavigate={(newDate) => setCalendarDate(newDate)}
               popup
               selectable
               onSelectEvent={(event) =>
-                navigate(`/app/milestones/milestone-detail/${event.id}`)
+                event?.id && navigate(`/app/milestones/milestone-detail/${event.id}`)
               }
               dayPropGetter={(date) => {
                 const today = new Date();
@@ -1130,6 +1166,45 @@ function Task() {
             />
           </div>
         </TabsContent>
+
+        {/* Kanban Tab - Real milestones, drag to change status */}
+        {allowedTabs.includes("kanban") && (
+          <TabsContent value="kanban">
+            <div className="rounded-2xl border border-[var(--border)] bg-[var(--background)] p-4">
+              {loading ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                  {[1, 2, 3, 4].map((i) => (
+                    <div key={i} className="rounded-xl border border-[var(--border)] h-[320px] animate-pulse bg-[var(--muted)]/30" />
+                  ))}
+                </div>
+              ) : (
+                <KanbanBoard
+                  columns={[
+                    { id: "not started", title: "Not Started" },
+                    { id: "in progress", title: "In Progress" },
+                    { id: "completed", title: "Completed" },
+                    { id: "delayed", title: "Delayed" },
+                  ]}
+                  items={filteredMilestones}
+                  getColumnId={(m) => (m.status || "not started").toLowerCase()}
+                  getItemId={(m) => m._id}
+                  onMove={(id, _from, toCol) => changeMilestoneStatus(id, toCol)}
+                  renderCard={(m) => (
+                    <div onClick={() => navigate(`/app/milestones/milestone-detail/${m._id}`)}>
+                      <h4 className="font-semibold text-sm truncate">{m.name}</h4>
+                      <p className="text-xs text-[var(--muted-foreground)] mt-1 truncate">{m.project?.name || "No project"}</p>
+                      {m.endDate && (
+                        <p className="text-xs text-[var(--muted-foreground)] mt-1">
+                          Due: {new Date(m.endDate).toLocaleDateString()}
+                        </p>
+                      )}
+                    </div>
+                  )}
+                />
+              )}
+            </div>
+          </TabsContent>
+        )}
       </Tabs>
       {/* Dialogs */}
       <GlobalDialog
