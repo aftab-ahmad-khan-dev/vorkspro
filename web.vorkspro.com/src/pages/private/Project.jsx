@@ -625,610 +625,517 @@ function Project() {
 
       {/* List View - Table or Grid */}
       {viewMode === "list" && (
-      <>
-      {listLayout === "list" ? (
-        <div className="rounded-2xl border border-[var(--border)] overflow-hidden bg-[var(--card)] mb-8" id="driver-main-content">
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead>
-                <tr className="border-b border-[var(--border)] bg-[var(--muted)]/50">
-                  <th className="text-left px-4 py-3 text-sm font-semibold text-[var(--foreground)]">Project</th>
-                  <th className="text-left px-4 py-3 text-sm font-semibold text-[var(--foreground)]">Client</th>
-                  <th className="text-left px-4 py-3 text-sm font-semibold text-[var(--foreground)]">Status</th>
-                  <th className="text-center px-4 py-3 text-sm font-semibold text-[var(--foreground)]">Progress</th>
-                  <th className="text-center px-4 py-3 text-sm font-semibold text-[var(--foreground)]">Days Left</th>
-                  <th className="text-right px-4 py-3 text-sm font-semibold text-[var(--foreground)]">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {loading ? (
-                  Array.from({ length: 5 }).map((_, i) => (
-                    <tr key={i} className="border-b border-[var(--border)] animate-pulse">
-                      <td className="px-4 py-3"><div className="h-4 w-32 bg-[var(--border)] rounded" /></td>
-                      <td className="px-4 py-3"><div className="h-4 w-24 bg-[var(--border)] rounded" /></td>
-                      <td className="px-4 py-3"><div className="h-6 w-20 bg-[var(--border)] rounded-full" /></td>
-                      <td className="px-4 py-3"><div className="h-4 w-12 mx-auto bg-[var(--border)] rounded" /></td>
-                      <td className="px-4 py-3"><div className="h-4 w-12 mx-auto bg-[var(--border)] rounded" /></td>
-                      <td className="px-4 py-3"><div className="h-8 w-24 ml-auto bg-[var(--border)] rounded" /></td>
-                    </tr>
-                  ))
-                ) : projects.length === 0 ? (
-                  <tr><td colSpan={6} className="px-4 py-12 text-center"><EmptyState icon={Briefcase} title="No projects found" subtitle="Try adjusting search or create your first project" /></td></tr>
-                ) : (
-                  projects.map((project) => (
-                    <tr
-                      key={project._id}
-                      onClick={() => hasPermission("Projects", "View Records") && navigate(`/app/projects/project-detail/${project._id}`)}
-                      className="border-b border-[var(--border)] hover:bg-[var(--muted)]/30 transition-colors cursor-pointer"
-                    >
-                      <td className="px-4 py-3">
-                        <div className="font-semibold text-[var(--foreground)]">{project.name}</div>
-                        {project.priority && <span className="text-xs text-[var(--muted-foreground)]">{project.priority} priority</span>}
+        listLayout === "list" ? (
+          <div
+            className="rounded-2xl border border-[var(--border)] overflow-hidden bg-[var(--card)] mb-8"
+            id="driver-main-content"
+          >
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b border-[var(--border)] bg-[var(--muted)]/50">
+                    <th className="text-left px-4 py-3 text-sm font-semibold text-[var(--foreground)]">
+                      Project
+                    </th>
+                    <th className="text-left px-4 py-3 text-sm font-semibold text-[var(--foreground)]">
+                      Client
+                    </th>
+                    <th className="text-left px-4 py-3 text-sm font-semibold text-[var(--foreground)]">
+                      Status
+                    </th>
+                    <th className="text-center px-4 py-3 text-sm font-semibold text-[var(--foreground)]">
+                      Progress
+                    </th>
+                    <th className="text-center px-4 py-3 text-sm font-semibold text-[var(--foreground)]">
+                      Days Left
+                    </th>
+                    <th className="text-right px-4 py-3 text-sm font-semibold text-[var(--foreground)]">
+                      Actions
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {loading ? (
+                    Array.from({ length: 5 }).map((_, i) => (
+                      <tr
+                        key={i}
+                        className="border-b border-[var(--border)] animate-pulse"
+                      >
+                        <td className="px-4 py-3">
+                          <div className="h-4 w-32 bg-[var(--border)] rounded" />
+                        </td>
+                        <td className="px-4 py-3">
+                          <div className="h-4 w-24 bg-[var(--border)] rounded" />
+                        </td>
+                        <td className="px-4 py-3">
+                          <div className="h-6 w-20 bg-[var(--border)] rounded-full" />
+                        </td>
+                        <td className="px-4 py-3">
+                          <div className="h-4 w-12 mx-auto bg-[var(--border)] rounded" />
+                        </td>
+                        <td className="px-4 py-3">
+                          <div className="h-4 w-12 mx-auto bg-[var(--border)] rounded" />
+                        </td>
+                        <td className="px-4 py-3">
+                          <div className="h-8 w-24 ml-auto bg-[var(--border)] rounded" />
+                        </td>
+                      </tr>
+                    ))
+                  ) : projects.length === 0 ? (
+                    <tr>
+                      <td
+                        colSpan={6}
+                        className="px-4 py-12 text-center"
+                      >
+                        <EmptyState
+                          icon={Briefcase}
+                          title="No projects found"
+                          subtitle="Try adjusting search or create your first project"
+                        />
                       </td>
-                      <td className="px-4 py-3 text-[var(--foreground)]">{project.client?.name || "—"}</td>
-                      <td className="px-4 py-3"><Chip status={project?.status} /></td>
-                      <td className="px-4 py-3 text-center">
-                        <div className="flex items-center justify-center gap-1">
-                          <div className="w-12 h-1.5 bg-[var(--border)] rounded-full overflow-hidden">
-                            <div className="h-full bg-[var(--primary)] rounded-full" style={{ width: `${project.progress || 0}%` }} />
+                    </tr>
+                  ) : (
+                    projects.map((project) => (
+                      <tr
+                        key={project._id}
+                        onClick={() =>
+                          hasPermission("Projects", "View Records") &&
+                          navigate(`/app/projects/project-detail/${project._id}`)
+                        }
+                        className="border-b border-[var(--border)] hover:bg-[var(--muted)]/30 transition-colors cursor-pointer"
+                      >
+                        <td className="px-4 py-3">
+                          <div className="font-semibold text-[var(--foreground)]">
+                            {project.name}
                           </div>
-                          <span className="text-sm font-medium">{project.progress?.toFixed(0) ?? 0}%</span>
-                        </div>
-                      </td>
-                      <td className="px-4 py-3 text-center font-medium">{getDaysLeft(project.endDate)}</td>
-                      <td className="px-4 py-3 text-right">
-                        <Button size="sm" variant="ghost" className="h-8" onClick={(e) => { e.stopPropagation(); hasPermission("Projects", "View Records") && navigate(`/app/projects/project-detail/${project._id}`); }}>View</Button>
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      ) : (
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8" id="driver-main-content">
-        {loading ? (
-          Array.from({ length: 4 }).map((_, i) => (
-            <div
-              key={i}
-              className="relative rounded-xl border border-[var(--border)] max-w-full overflow-hidden animate-pulse"
-            >
-              {/* Header */}
-              <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-2 mb-3 sm:mb-4">
-                <div className="flex justify-between min-w-0 bg-[var(--border)]/20 rounded-md flex-1 p-3 sm:p-4 rounded-b-none">
-                  <div className="min-w-0 flex-1 pr-3">
-                    <div className="h-4 sm:h-5 w-40 sm:w-56 bg-[var(--border)]/60 rounded mb-2" />
-                    <div className="h-3 sm:h-4 w-28 sm:w-40 bg-[var(--border)]/50 rounded" />
-                  </div>
-
-                  <div className="flex items-center gap-3 flex-shrink-0">
-                    <div className="h-6 w-16 bg-[var(--border)]/60 rounded-full" />
-                    <div className="h-6 w-16 bg-[var(--border)]/60 rounded-full" />
-                  </div>
-                </div>
-
-                {/* Status + Priority */}
-              </div>
-
-              {/* Stats Grid */}
-              <div className="mx-3 grid grid-cols-3 bg-[var(--border)]/50 rounded-lg text-[10px] sm:text-xs p-2 sm:p-4 my-3 sm:my-4">
-                <div className="border-r border-[var(--muted-foreground)]/20 px-1">
-                  <div className="flex items-center justify-center gap-1 mb-1">
-                    <div className="h-3 w-3 rounded bg-[var(--border)]/70" />
-                    <div className="h-3 w-14 bg-[var(--border)]/60 rounded" />
-                  </div>
-                  <div className="h-5 sm:h-6 w-16 sm:w-20 mx-auto bg-[var(--border)]/70 rounded" />
-                </div>
-
-                <div className="border-r border-[var(--muted-foreground)]/20 px-1">
-                  <div className="flex items-center justify-center gap-1 mb-1">
-                    <div className="h-3 w-3 rounded bg-[var(--border)]/70" />
-                    <div className="h-3 w-12 bg-[var(--border)]/60 rounded" />
-                  </div>
-                  <div className="h-5 sm:h-6 w-16 sm:w-20 mx-auto bg-[var(--border)]/70 rounded" />
-                </div>
-
-                <div className="px-1">
-                  <div className="flex items-center justify-center gap-1 mb-1">
-                    <div className="h-3 w-3 rounded bg-[var(--border)]/70" />
-                    <div className="h-3 w-14 bg-[var(--border)]/60 rounded" />
-                  </div>
-                  <div className="h-5 sm:h-6 w-16 sm:w-20 mx-auto bg-[var(--border)]/70 rounded" />
-                </div>
-              </div>
-
-              {/* Info grid */}
-              <div className="mx-3 grid grid-cols-1 md:grid-cols-2 gap-2 sm:gap-3 text-xs sm:text-sm mb-3 relative">
-                <div className="hidden md:block absolute inset-y-0 left-1/2 w-px bg-[var(--border)] -translate-x-1/2" />
-
-                <div className="grid grid-cols-2 gap-1 pr-2 sm:pr-3">
-                  <div className="flex items-center gap-2">
-                    <div className="h-3 w-3 rounded bg-[var(--border)]/70" />
-                    <div className="h-3 w-12 bg-[var(--border)]/60 rounded" />
-                  </div>
-                  <div className="h-4 w-24 justify-self-end bg-[var(--border)]/70 rounded" />
-                </div>
-
-                <div className="grid grid-cols-2 gap-1 pl-2 sm:pl-3">
-                  <div className="flex items-center gap-2">
-                    <div className="h-3 w-3 rounded bg-[var(--border)]/70" />
-                    <div className="h-3 w-14 bg-[var(--border)]/60 rounded" />
-                  </div>
-                  <div className="h-4 w-28 justify-self-end bg-[var(--border)]/70 rounded" />
-                </div>
-
-                <div className="grid grid-cols-2 items-center pr-2 sm:pr-3">
-                  <div className="flex items-center gap-2">
-                    <div className="h-3 w-3 rounded bg-[var(--border)]/70" />
-                    <div className="h-3 w-24 bg-[var(--border)]/60 rounded" />
-                  </div>
-                  <div className="h-4 w-10 justify-self-end bg-[var(--border)]/70 rounded" />
-                </div>
-
-                <div className="grid grid-cols-2 pl-2 sm:pl-3 items-center">
-                  <div className="flex items-center gap-2">
-                    <div className="h-3 w-3 rounded bg-[var(--border)]/70" />
-                    <div className="h-3 w-16 bg-[var(--border)]/60 rounded" />
-                  </div>
-                  <div className="h-4 w-28 justify-self-end bg-[var(--border)]/70 rounded" />
-                </div>
-              </div>
-
-              {/* Footer */}
-              <div className="bg-[var(--border)]/20 rounded-lg p-3 sm:p-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between select-none">
-                <div className="flex items-center gap-2 overflow-x-auto sm:overflow-visible flex-shrink-0">
-                  {Array.from({ length: 5 }).map((_, i) => (
-                    <div
-                      key={i}
-                      className={`h-8 w-8 rounded-full bg-[var(--border)]/70 border-2 border-[var(--background)] ${i !== 0 ? "-ml-3" : ""
-                        }`}
-                    />
-                  ))}
-                  <div className="h-4 w-16 bg-[var(--border)]/60 rounded ml-2" />
-                </div>
-
-                <div className="flex flex-wrap items-center gap-1 sm:gap-2 justify-stretch sm:justify-end w-full sm:w-auto">
-                  <div className="sm:flex-1 flex sm:justify-center">
-                    <div className="h-6 w-28 bg-[var(--border)]/60 rounded-full" />
-                  </div>
-
-                  <div className="h-9 w-full sm:w-28 bg-[var(--border)]/70 rounded-md" />
-                  <div className="h-9 w-10 bg-[var(--border)]/70 rounded-md" />
-                  <div className="h-9 w-10 bg-[var(--border)]/70 rounded-md" />
-                </div>
-              </div>
+                          {project.priority && (
+                            <span className="text-xs text-[var(--muted-foreground)]">
+                              {project.priority} priority
+                            </span>
+                          )}
+                        </td>
+                        <td className="px-4 py-3 text-[var(--foreground)]">
+                          {project.client?.name || "—"}
+                        </td>
+                        <td className="px-4 py-3">
+                          <Chip status={project?.status} />
+                        </td>
+                        <td className="px-4 py-3 text-center">
+                          <div className="flex items-center justify-center gap-1">
+                            <div className="w-12 h-1.5 bg-[var(--border)] rounded-full overflow-hidden">
+                              <div
+                                className="h-full bg-[var(--primary)] rounded-full"
+                                style={{ width: `${project.progress || 0}%` }}
+                              />
+                            </div>
+                            <span className="text-sm font-medium">
+                              {project.progress?.toFixed(0) ?? 0}%
+                            </span>
+                          </div>
+                        </td>
+                        <td className="px-4 py-3 text-center font-medium">
+                          {getDaysLeft(project.endDate)}
+                        </td>
+                        <td className="px-4 py-3 text-right">
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            className="h-8"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              hasPermission("Projects", "View Records") &&
+                                navigate(
+                                  `/app/projects/project-detail/${project._id}`
+                                );
+                            }}
+                          >
+                            View
+                          </Button>
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
             </div>
-          ))
-        ) : projects.length === 0 ? (
-          <div className="col-span-2">
-            <EmptyState
-              icon={Briefcase}
-              title="No projects found"
-              subtitle="Try adjusting your search or filters, or create your first project"
-            />
           </div>
         ) : (
-          projects.map((project) => {
-            const daysLeft = getDaysLeft(project.endDate);
-            const taskStats = getTaskStats(project.tasks);
-            const budgetUsed =
-              project.cost > 0 ? (project.spent || 0) / project.cost : 0;
-            const budgetPercent = Math.round(budgetUsed * 100);
+          <div
+            className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8"
+            id="driver-main-content"
+          >
+            {loading ? (
+              Array.from({ length: 4 }).map((_, i) => (
+                <div
+                  key={i}
+                  className="relative rounded-xl border border-[var(--border)] max-w-full overflow-hidden animate-pulse"
+                >
+                  {/* Header */}
+                  <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-2 mb-3 sm:mb-4">
+                    <div className="flex justify-between min-w-0 bg-[var(--border)]/20 rounded-md flex-1 p-3 sm:p-4 rounded-b-none">
+                      <div className="min-w-0 flex-1 pr-3">
+                        <div className="h-4 sm:h-5 w-40 sm:w-56 bg-[var(--border)]/60 rounded mb-2" />
+                        <div className="h-3 sm:h-4 w-28 sm:w-40 bg-[var(--border)]/50 rounded" />
+                      </div>
 
-            return (
-              <div
-                key={project._id}
-                role="button"
-                tabIndex={0}
-                onClick={() => hasPermission("Projects", "View Records") && navigate(`/app/projects/project-detail/${project._id}`)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" || e.key === " ") {
-                    e.preventDefault();
-                    hasPermission("Projects", "View Records") && navigate(`/app/projects/project-detail/${project._id}`);
-                  }
-                }}
-                className="relative rounded-xl border border-[var(--border)] hover:shadow-lg transition-all duration-300 max-w-full overflow-hidden cursor-pointer"
-              >
-                {/* Header */}
-                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-2 mb-3 sm:mb-4">
-                  {/* Name + Client */}
-                  <div className="flex justify-between min-w-0 bg-[var(--border)]/20 rounded-md flex-1 p-3 sm:p-4 rounded-b-none">
-                    <div>
-                      <h3 className="text-sm sm:text-lg font-semibold text-[var(--foreground)] truncate">
-                        {project.name}
-                      </h3>
-                      <p className="text-xs sm:text-sm text-[var(--muted-foreground)] truncate">
-                        {project.client?.name || "No Client"}
-                      </p>
+                      <div className="flex items-center gap-3 flex-shrink-0">
+                        <div className="h-6 w-16 bg-[var(--border)]/60 rounded-full" />
+                        <div className="h-6 w-16 bg-[var(--border)]/60 rounded-full" />
+                      </div>
                     </div>
 
-                    <div className="flex items-center gap-3">
-                      <Chip status={project?.status}></Chip>
-                      {project.priority && (
-                        <Chip status={project?.priority}></Chip>
-                      )}
-                    </div>
+                    {/* Status + Priority */}
                   </div>
 
-                  {/* Status + Priority */}
-                </div>
-                {/* <div className="flex flex-wrap gap-1 mb-3 sm:mb-4">
-                  <span
-                    className={`px-2 py-0.5 sm:py-1 rounded-full text-[10px] sm:text-xs font-medium capitalize ${
-                      project.status === "in progress"
-                        ? "bg-blue-500/20 text-blue-500"
-                        : project.status === "on hold"
-                        ? "bg-orange-500/20 text-orange-500"
-                        : project.status === "completed"
-                        ? "bg-green-500/20 text-green-500"
-                        : project.status === "cancelled"
-                        ? "bg-red-500/20 text-red-500"
-                        : "bg-gray-500/20 text-gray-700"
-                    }`}
-                  >
-                    {project.status === "in progress"
-                      ? "In Progress"
-                      : project.status}
-                  </span>
-
-                  {project.priority && (
-                    <span
-                      className={`px-2 py-0.5 sm:py-1 rounded-full text-[10px] sm:text-xs font-medium capitalize ${
-                        project.priority === "high"
-                          ? "bg-red-500/20 text-red-500"
-                          : project.priority === "medium"
-                          ? "bg-yellow-500/20 text-yellow-700 dark:text-yellow-500"
-                          : "bg-green-500/20 text-green-500"
-                      }`}
-                    >
-                      {project.priority}
-                    </span>
-                  )}
-                </div> */}
-                {/* Stats Grid */}
-                <div className={`mx-3 grid ${actions.cost ? "grid-cols-3" : "grid-cols-2"} bg-[var(--border)]/50 rounded-lg text-[10px] sm:text-xs p-2 sm:p-4 my-3 sm:my-4`}>
-                  <div className="border-r border-[var(--muted-foreground)]/20 px-1">
-                    <div className="flex items-center justify-center gap-1 text-[var(--muted-foreground)] mb-1">
-                      <CheckCircle2 size={12} className="text-green-600" />
-                      <span>Progress</span>
-                    </div>
-                    <p className="text-sm sm:text-lg text-center text-[var(--foreground)]">
-                      {project.progress.toFixed(2) || 0}%
-                    </p>
-                  </div>
-                  {actions.cost &&
+                  {/* Stats Grid */}
+                  <div className="mx-3 grid grid-cols-3 bg-[var(--border)]/50 rounded-lg text-[10px] sm:text-xs p-2 sm:p-4 my-3 sm:my-4">
                     <div className="border-r border-[var(--muted-foreground)]/20 px-1">
-                      <div className="flex items-center justify-center gap-1 text-[var(--muted-foreground)] mb-1">
-                        <DollarSign size={12} className="text-blue-600" />
-                        <span>Budget</span>
+                      <div className="flex items-center justify-center gap-1 mb-1">
+                        <div className="h-3 w-3 rounded bg-[var(--border)]/70" />
+                        <div className="h-3 w-14 bg-[var(--border)]/60 rounded" />
                       </div>
-                      <p className="text-sm sm:text-lg text-center text-[var(--foreground)]">
-                        {project.budget?.toLocaleString() || 0}
-                      </p>
-                    </div>}
-                  <div className="px-1">
-                    <div className="flex items-center justify-center gap-1 text-[var(--muted-foreground)] mb-1">
-                      <Clock size={12} className="text-orange-600" />
-                      <span>Days Left</span>
+                      <div className="h-5 sm:h-6 w-16 sm:w-20 mx-auto bg-[var(--border)]/70 rounded" />
                     </div>
-                    <p className="text-sm sm:text-lg text-center text-[var(--foreground)]">
-                      {daysLeft}
-                    </p>
-                  </div>
-                </div>
-                {/* Progress Bar */}
-                {/* <div className="mb-4 mx-3">
-                  <div className="flex justify-between text-sm text-[var(--muted-foreground)] mb-1">
-                    <span className="mb-1">Overall Progress</span>
-                    <span>{project.progress || 0}%</span>
-                  </div>
-                  <div className="w-full bg-[var(--border)] rounded-full h-2.5">
-                    <div
-                      className={`h-2.5 rounded-full transition-all bg-[var(--button)] `}
-                      style={{ width: `${project.progress || 0}%` }}
-                    />
-                  </div>
-                </div> */}
-                {/* Tasks */}
-                {/* {(() => {
-                  const total = project?.tasks?.length ?? 0;
-                  const done =
-                    project?.tasks?.filter((t) => t.completed).length ?? 0;
-                  const active =
-                    project?.tasks?.filter(
-                      (t) => !t.completed && t.status !== "pending"
-                    ).length ?? 0;
-                  const pending =
-                    project?.tasks?.filter((t) => t.status === "pending")
-                      .length ?? 0;
 
-                  const pct = (v, d) => {
-                    const n = d ? (v / d) * 100 : 0;
-                    return Math.max(
-                      0,
-                      Math.min(100, Number.isFinite(n) ? n : 0)
-                    );
-                  };
-
-                  const donePercent = pct(done, total);
-                  const activePercent = pct(active, total);
-                  const pendingPercent = pct(pending, total);
-
-                  const StatRow = ({
-                    label,
-                    count,
-                    percent,
-                    barClass,
-                    countClass,
-                  }) => (
-                    <div
-                      className="mx-3 flex flex-col gap-1 min-w-0"
-                      role="group"
-                      aria-label={`${label} progress`}
-                    >
-                      <div className="flex items-center justify-between text-[10px] xs:text-xs sm:text-xs mb-1 font-medium">
-                        <span className="truncate text-[var(--foreground)]">
-                          {label}
-                        </span>
-                        <span className={countClass}>{count}</span>
+                    <div className="border-r border-[var(--muted-foreground)]/20 px-1">
+                      <div className="flex items-center justify-center gap-1 mb-1">
+                        <div className="h-3 w-3 rounded bg-[var(--border)]/70" />
+                        <div className="h-3 w-12 bg-[var(--border)]/60 rounded" />
                       </div>
-                      <div
-                        className="w-full h-2 rounded-full bg-[var(--border)] overflow-hidden"
-                        aria-hidden="true"
-                      >
-                        <div
-                          className={`h-full transition-all rounded-full duration-500 ${barClass}`}
-                          style={{ width: `${percent}%` }}
-                        />
-                      </div>
+                      <div className="h-5 sm:h-6 w-16 sm:w-20 mx-auto bg-[var(--border)]/70 rounded" />
                     </div>
-                  );
 
-                  return (
-                    <div className="mb-6">
-                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
-                        <StatRow
-                          label="Done"
-                          count={done}
-                          percent={donePercent}
-                          barClass="bg-green-500 dark:bg-green-500"
-                          countClass="text-green-600 dark:text-green-400"
-                        />
-                        <StatRow
-                          label="Active"
-                          count={active}
-                          percent={activePercent}
-                          barClass="bg-blue-500 dark:bg-blue-500"
-                          countClass="text-blue-600 dark:text-blue-400"
-                        />
-                        <StatRow
-                          label="Pending"
-                          count={pending}
-                          percent={pendingPercent}
-                          barClass="bg-gray-800 dark:bg-gray-400"
-                          countClass="text-gray-600 dark:text-gray-300"
-                        />
+                    <div className="px-1">
+                      <div className="flex items-center justify-center gap-1 mb-1">
+                        <div className="h-3 w-3 rounded bg-[var(--border)]/70" />
+                        <div className="h-3 w-14 bg-[var(--border)]/60 rounded" />
                       </div>
+                      <div className="h-5 sm:h-6 w-16 sm:w-20 mx-auto bg-[var(--border)]/70 rounded" />
                     </div>
-                  );
-                })()} */}
-                <div className="mx-3 grid grid-cols-1 md:grid-cols-2 gap-2 sm:gap-3 text-xs sm:text-sm mb-3 relative">
-                  {/* Middle vertical divider */}
-                  <div className="hidden md:block absolute inset-y-0 left-1/2 w-px bg-[var(--border)] -translate-x-1/2"></div>
+                  </div>
 
-                  {/* Budget */}
-                  {actions.cost &&
+                  {/* Info grid */}
+                  <div className="mx-3 grid grid-cols-1 md:grid-cols-2 gap-2 sm:gap-3 text-xs sm:text-sm mb-3 relative">
+                    <div className="hidden md:block absolute inset-y-0 left-1/2 w-px bg-[var(--border)] -translate-x-1/2" />
+
                     <div className="grid grid-cols-2 gap-1 pr-2 sm:pr-3">
-                      <span className="flex items-center gap-1 text-[var(--muted-foreground)]">
-                        <DollarSign
-                          size={12}
-                          className="text-[var(--muted-foreground)]"
-                        />
-                        Cost:
-                      </span>
-                      <span className="font-medium text-right">
-                        ${project.cost?.toLocaleString() || 0}
-                      </span>
-                    </div>}
-
-                  {/* Deadline */}
-                  <div className="grid grid-cols-2 gap-1 pl-2 sm:pl-3">
-                    <span className="flex items-center gap-1 text-[var(--muted-foreground)]">
-                      <Calendar
-                        size={12}
-                        className="text-[var(--muted-foreground)]"
-                      />
-                      Deadline:
-                    </span>
-                    <span className="font-medium text-right truncate">
-                      {project.endDate
-                        ? new Date(project.endDate).toLocaleDateString(
-                          "en-US",
-                          {
-                            year: "numeric",
-                            month: "short",
-                            day: "numeric",
-                          }
-                        )
-                        : "N/A"}
-                    </span>
-                  </div>
-
-                  {/* Team Members */}
-                  <div className="grid grid-cols-2 items-center pr-2 sm:pr-3">
-                    <div className="flex items-center gap-1 sm:gap-2">
-                      <Users
-                        size={12}
-                        className="text-[var(--muted-foreground)]"
-                      />
-                      <span className="text-[var(--muted-foreground)] truncate">
-                        Team Members:
-                      </span>
-                    </div>
-                    <div className="flex justify-end items-center">
-                      <span> {project.teamMembers?.length} </span>
-                    </div>
-                  </div>
-
-                  {/* Project Manager */}
-                  <div className="grid grid-cols-2 pl-2 sm:pl-3 items-center">
-                    <div className="flex items-center gap-1 sm:gap-2">
-                      <User
-                        size={12}
-                        className="text-[var(--muted-foreground)]"
-                      />
-                      <span className="text-[var(--muted-foreground)] truncate">
-                        Manager:
-                      </span>
-                    </div>
-                    <span className="text-right font-medium truncate">
-                      {project?.projectManager?.firstName}
-                    </span>
-                  </div>
-                </div>
-
-                <div className="bg-[var(--border)]/20 rounded-b-lg p-3 sm:p-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between select-none">
-                  {/* LEFT - Team Avatars */}
-                  <div className="flex items-center gap-2 overflow-x-auto sm:overflow-visible flex-shrink-0">
-                    {project?.teamMembers?.slice(0, 5).map((member, index) => (
-                      <Tooltip key={member._id}>
-                        <TooltipTrigger asChild>
-                          <div>
-                            <ProfilePicture
-                              name={member.firstName}
-                              size={32}
-                              className={`${index !== 0 ? "-ml-3" : ""
-                                } z-10 border-2 border-[var(--background)]`}
-                            />
-                          </div>
-                        </TooltipTrigger>
-
-                        <TooltipContent className="text-sm font-medium">
-                          {member.firstName} {member.lastName}
-                        </TooltipContent>
-                      </Tooltip>
-                    ))}
-
-                    {/* +N avatar */}
-                    {project?.teamMembers?.length > 5 && (
-                      <div className="text-xs sm:text-sm text-[var(--muted-foreground)] ml-2 whitespace-nowrap">
-                        ({project.teamMembers.length - 5}) more
+                      <div className="flex items-center gap-2">
+                        <div className="h-3 w-3 rounded bg-[var(--border)]/70" />
+                        <div className="h-3 w-12 bg-[var(--border)]/60 rounded" />
                       </div>
-                    )}
-                  </div>
-
-                  {/* MIDDLE - Missing credentials */}
-
-                  {/* RIGHT - Buttons */}
-                  <div className="flex flex-wrap items-center gap-1 sm:gap-2 justify-stretch sm:justify-end w-full sm:w-auto">
-                    <div className="sm:flex-1 flex sm:justify-center">
-                      {project?.credentials?.filter(
-                        (credit) => !credit?.keyValue || credit?.keyValue === ""
-                      )?.length > 0 && (
-                          <Chip
-                            className="bg-red-500/10 text-red-500 text-xs sm:text-sm"
-                            status={
-                              project?.credentials?.filter(
-                                (credit) =>
-                                  !credit?.keyValue || credit?.keyValue === ""
-                              )?.length + " Missing key"
-                            }
-                          />
-                        )}
+                      <div className="h-4 w-24 justify-self-end bg-[var(--border)]/70 rounded" />
                     </div>
 
-                    {hasPermission("Projects", 'View Records') && (
-                      <Button
-                        className="flex-1 border-button sm:flex-none "
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          navigate(`/app/projects/project-detail/${project._id}`);
-                        }}
-                      >
-                        View detail
-                      </Button>
-                    )}
+                    <div className="grid grid-cols-2 gap-1 pl-2 sm:pl-3">
+                      <div className="flex items-center gap-2">
+                        <div className="h-3 w-3 rounded bg-[var(--border)]/70" />
+                        <div className="h-3 w-14 bg-[var(--border)]/60 rounded" />
+                      </div>
+                      <div className="h-4 w-28 justify-self-end bg-[var(--border)]/70 rounded" />
+                    </div>
 
-                    {hasPermission("Projects", 'Edit Records') && (
-                      <CustomTooltip tooltipContent="Update Project">
-                        <Button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setShowCreateDialog(true);
-                            setSelectedProject(project);
-                          }}
-                          className="border-button w-10"
-                        >
-                          <Edit2 className="w-4 h-4" />
-                        </Button>
-                      </CustomTooltip>
-                    )}
+                    <div className="grid grid-cols-2 items-center pr-2 sm:pr-3">
+                      <div className="flex items-center gap-2">
+                        <div className="h-3 w-3 rounded bg-[var(--border)]/70" />
+                        <div className="h-3 w-24 bg-[var(--border)]/60 rounded" />
+                      </div>
+                      <div className="h-4 w-10 justify-self-end bg-[var(--border)]/70 rounded" />
+                    </div>
 
-                    {hasPermission("Projects", 'Delete Records') && (
-                      <CustomTooltip tooltipContent="Delete Project">
-                        <Button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setOpenConfirmation(true);
-                            setSelectedProject(project?._id);
-                          }}
-                          className="logout-button w-10"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
-                      </CustomTooltip>
-                    )}
+                    <div className="grid grid-cols-2 pl-2 sm:pl-3 items-center">
+                      <div className="flex items-center gap-2">
+                        <div className="h-3 w-3 rounded bg-[var(--border)]/70" />
+                        <div className="h-3 w-16 bg-[var(--border)]/60 rounded" />
+                      </div>
+                      <div className="h-4 w-28 justify-self-end bg-[var(--border)]/70 rounded" />
+                    </div>
+                  </div>
+
+                  {/* Footer */}
+                  <div className="bg-[var(--border)]/20 rounded-lg p-3 sm:p-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between select-none">
+                    <div className="flex items-center gap-2 overflow-x-auto sm:overflow-visible flex-shrink-0">
+                      {Array.from({ length: 5 }).map((_, i) => (
+                        <div
+                          key={i}
+                          className={`h-8 w-8 rounded-full bg-[var(--border)]/70 border-2 border-[var(--background)] ${i !== 0 ? "-ml-3" : ""
+                            }`}
+                        />
+                      ))}
+                      <div className="h-4 w-16 bg-[var(--border)]/60 rounded ml-2" />
+                    </div>
+
+                    <div className="flex flex-wrap items-center gap-1 sm:gap-2 justify-stretch sm:justify-end w-full sm:w-auto">
+                      <div className="sm:flex-1 flex sm:justify-center">
+                        <div className="h-6 w-28 bg-[var(--border)]/60 rounded-full" />
+                      </div>
+
+                      <div className="h-9 w-full sm:w-28 bg-[var(--border)]/70 rounded-md" />
+                      <div className="h-9 w-10 bg-[var(--border)]/70 rounded-md" />
+                      <div className="h-9 w-10 bg-[var(--border)]/70 rounded-md" />
+                    </div>
                   </div>
                 </div>
-
-                {/* <div className="absolute top-3 right-3 sm:top-6 sm:right-6">
-                  <button
-                    size="sm"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setShowDropdown(
-                        showDropdown === project._id ? null : project._id
-                      );
-                      setSelectedProject(project);
-                    }}
-                    className="cursor-pointer h-8 w-8 sm:h-9 sm:w-9 rounded-md text-[var(--foreground)] hover:text-[var(--button)] hover:bg-[var(--button)]/20 flex items-center justify-center"
-                  >
-                    <EllipsisVertical size={16} />
-                  </button>
-                  {showDropdown === project._id && (
-                    <div className="absolute right-0 mt-1 w-36 sm:w-40 rounded-lg bg-[var(--background)] shadow-lg border border-[var(--border)] z-10">
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setShowCreateDialog(true);
-                          setShowDropdown(null);
-                        }}
-                        className="cursor-pointer rounded-t-lg w-full text-left px-3 py-2 text-xs sm:text-sm text-[var(--button)] hover:bg-[var(--button)]/20 flex items-center gap-2"
-                      >
-                        <Pencil size={14} /> Edit
-                      </button>
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setOpenConfirmation(true);
-                          setSelectedProject(project._id);
-                          setShowDropdown(null);
-                        }}
-                        className="cursor-pointer rounded-b-lg w-full text-left px-3 py-2 text-xs sm:text-sm text-red-500 hover:bg-red-600/10 flex items-center gap-2"
-                      >
-                        <Trash2 size={14} /> Delete
-                      </button>
-                    </div>
-                  )}
-                </div> */}
+              ))
+            ) : projects.length === 0 ? (
+              <div className="col-span-2">
+                <EmptyState
+                  icon={Briefcase}
+                  title="No projects found"
+                  subtitle="Try adjusting your search or filters, or create your first project"
+                />
               </div>
-            );
-          })
-        )}
-      </div>
-      )}
-      </>
+            ) : (
+              projects.map((project) => {
+                const daysLeft = getDaysLeft(project.endDate);
+                const taskStats = getTaskStats(project.tasks);
+                const budgetUsed =
+                  project.cost > 0 ? (project.spent || 0) / project.cost : 0;
+                const budgetPercent = Math.round(budgetUsed * 100);
+
+                return (
+                  <div
+                    key={project._id}
+                    role="button"
+                    tabIndex={0}
+                    onClick={() =>
+                      hasPermission("Projects", "View Records") &&
+                      navigate(`/app/projects/project-detail/${project._id}`)
+                    }
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" || e.key === " ") {
+                        e.preventDefault();
+                        hasPermission("Projects", "View Records") &&
+                          navigate(`/app/projects/project-detail/${project._id}`);
+                      }
+                    }}
+                    className="relative rounded-2xl border border-[var(--border)] bg-[var(--card)]/90 hover:shadow-xl transition-all duration-300 max-w-full overflow-hidden cursor-pointer"
+                  >
+                    {/* Subtle background glow */}
+                    <div className="pointer-events-none absolute inset-0 opacity-[0.06] bg-gradient-to-br from-[var(--button)]/60 via-transparent to-[var(--button)]/20" />
+
+                    <div className="relative">
+                      {/* Header */}
+                      <div className="px-4 pt-4 sm:px-5 sm:pt-5 pb-3">
+                        <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+                          {/* Name + Client */}
+                          <div className="min-w-0">
+                            <h3 className="text-base sm:text-lg font-semibold text-[var(--foreground)] truncate">
+                              {project.name}
+                            </h3>
+                            <p className="text-xs sm:text-sm text-[var(--muted-foreground)] truncate">
+                              {project.client?.name || "No client"}
+                            </p>
+                          </div>
+
+                          {/* Status + Priority */}
+                          <div className="flex flex-wrap gap-1.5 justify-start sm:justify-end">
+                            <Chip status={project?.status} />
+                            {project.priority && <Chip status={project?.priority} />}
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Central stats panel */}
+                      <div className="mx-4 sm:mx-5 my-3 sm:my-4 rounded-xl bg-[var(--border)]/40 px-3 sm:px-5 py-3 sm:py-4 grid grid-cols-2 gap-4 text-[11px] sm:text-xs">
+                        {/* Progress */}
+                        <div className="flex flex-col items-start">
+                          <div className="flex items-center gap-1.5 mb-1 text-[var(--muted-foreground)]">
+                            <span className="inline-flex h-1.5 w-1.5 rounded-full bg-emerald-500" />
+                            <span>Progress</span>
+                          </div>
+                          <p className="text-lg sm:text-2xl font-semibold text-[var(--foreground)]">
+                            {project.progress.toFixed(2) || 0}%
+                          </p>
+                        </div>
+
+                        {/* Days left */}
+                        <div className="flex flex-col items-start sm:items-end">
+                          <div className="flex items-center gap-1.5 mb-1 text-[var(--muted-foreground)]">
+                            <Clock size={12} className="text-orange-500" />
+                            <span>Days left</span>
+                          </div>
+                          <p className="text-lg sm:text-2xl font-semibold text-[var(--foreground)]">
+                            {daysLeft}
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* Info + budget + manager */}
+                      <div className="mx-4 sm:mx-5 grid grid-cols-1 md:grid-cols-2 gap-2 sm:gap-3 text-xs sm:text-sm mb-3 relative">
+                        {/* Middle vertical divider */}
+                        <div className="hidden md:block absolute inset-y-0 left-1/2 w-px bg-[var(--border)] -translate-x-1/2" />
+
+                        {/* Deadline */}
+                        <div className="grid grid-cols-2 gap-1 pr-2 sm:pr-3">
+                          <span className="flex items-center gap-1 text-[var(--muted-foreground)]">
+                            <Calendar
+                              size={12}
+                              className="text-[var(--muted-foreground)]"
+                            />
+                            Deadline:
+                          </span>
+                          <span className="font-medium text-right truncate">
+                            {project.endDate
+                              ? new Date(project.endDate).toLocaleDateString(
+                                "en-US",
+                                {
+                                  year: "numeric",
+                                  month: "short",
+                                  day: "numeric",
+                                }
+                              )
+                              : "N/A"}
+                          </span>
+                        </div>
+
+                        {/* Team Members */}
+                        <div className="grid grid-cols-2 items-center pl-2 sm:pl-3">
+                          <div className="flex items-center gap-1 sm:gap-2">
+                            <Users
+                              size={12}
+                              className="text-[var(--muted-foreground)]"
+                            />
+                            <span className="text-[var(--muted-foreground)] truncate">
+                              Team Members:
+                            </span>
+                          </div>
+                          <div className="flex justify-end items-center">
+                            <span>{project.teamMembers?.length}</span>
+                          </div>
+                        </div>
+
+                        {/* Budget (optional, when cost is enabled) */}
+                        {actions.cost && (
+                          <div className="grid grid-cols-2 gap-1 pr-2 sm:pr-3">
+                            <span className="flex items-center gap-1 text-[var(--muted-foreground)]">
+                              <DollarSign
+                                size={12}
+                                className="text-[var(--muted-foreground)]"
+                              />
+                              Cost:
+                            </span>
+                            <span className="font-medium text-right">
+                              ${project.cost?.toLocaleString() || 0}
+                            </span>
+                          </div>
+                        )}
+
+                        {/* Project Manager */}
+                        <div className="grid grid-cols-2 pl-2 sm:pl-3 items-center">
+                          <div className="flex items-center gap-1 sm:gap-2">
+                            <User
+                              size={12}
+                              className="text-[var(--muted-foreground)]"
+                            />
+                            <span className="text-[var(--muted-foreground)] truncate">
+                              Manager:
+                            </span>
+                          </div>
+                          <span className="text-right font-medium truncate">
+                            {project?.projectManager?.firstName}
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Footer with avatars + actions */}
+                      <div className="bg-[var(--border)]/20 rounded-b-lg p-3 sm:p-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between select-none">
+                        {/* LEFT - Team Avatars */}
+                        <div className="flex items-center gap-2 overflow-x-auto sm:overflow-visible flex-shrink-0">
+                          {project?.teamMembers?.slice(0, 5).map((member, index) => (
+                            <Tooltip key={member._id}>
+                              <TooltipTrigger asChild>
+                                <div>
+                                  <ProfilePicture
+                                    name={member.firstName}
+                                    size={32}
+                                    className={`${index !== 0 ? "-ml-3" : ""
+                                      } z-10 border-2 border-[var(--background)]`}
+                                  />
+                                </div>
+                              </TooltipTrigger>
+
+                              <TooltipContent className="text-sm font-medium">
+                                {member.firstName} {member.lastName}
+                              </TooltipContent>
+                            </Tooltip>
+                          ))}
+
+                          {/* +N avatar */}
+                          {project?.teamMembers?.length > 5 && (
+                            <div className="text-xs sm:text-sm text-[var(--muted-foreground)] ml-2 whitespace-nowrap">
+                              ({project.teamMembers.length - 5}) more
+                            </div>
+                          )}
+                        </div>
+
+                        {/* RIGHT - Buttons */}
+                        <div className="flex flex-wrap items-center gap-1 sm:gap-2 justify-stretch sm:justify-end w-full sm:w-auto">
+                          <div className="sm:flex-1 flex sm:justify-center">
+                            {project?.credentials?.filter(
+                              (credit) => !credit?.keyValue || credit?.keyValue === ""
+                            )?.length > 0 && (
+                                <Chip
+                                  className="bg-red-500/10 text-red-500 text-xs sm:text-sm"
+                                  status={
+                                    project?.credentials?.filter(
+                                      (credit) =>
+                                        !credit?.keyValue || credit?.keyValue === ""
+                                    )?.length + " Missing key"
+                                  }
+                                />
+                              )}
+                          </div>
+
+                          {hasPermission("Projects", 'View Records') && (
+                            <Button
+                              className="flex-1 border-button sm:flex-none "
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                navigate(`/app/projects/project-detail/${project._id}`);
+                              }}
+                            >
+                              View detail
+                            </Button>
+                          )}
+
+                          {hasPermission("Projects", 'Edit Records') && (
+                            <CustomTooltip tooltipContent="Update Project">
+                              <Button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setShowCreateDialog(true);
+                                  setSelectedProject(project);
+                                }}
+                                className="border-button w-10"
+                              >
+                                <Edit2 className="w-4 h-4" />
+                              </Button>
+                            </CustomTooltip>
+                          )}
+
+                          {hasPermission("Projects", 'Delete Records') && (
+                            <CustomTooltip tooltipContent="Delete Project">
+                              <Button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setOpenConfirmation(true);
+                                  setSelectedProject(project?._id);
+                                }}
+                                className="logout-button w-10"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </Button>
+                            </CustomTooltip>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })
+            )}
+          </div>
+        )
       )}
 
       {/* Pagination (list view only) */}

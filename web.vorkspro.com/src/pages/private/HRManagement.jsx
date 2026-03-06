@@ -995,6 +995,8 @@ function HRManagement() {
       >
         <CreateDialog
           employees={employees}
+          leaveTypes={leaveTypes}
+          upcomingCelebrations={mergedCelebrations}
           onclose={() => {
             setShowRequestDialog(false);
             fetchLeaveRequests(1, "", activeTab);

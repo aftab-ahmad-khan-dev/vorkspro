@@ -23,17 +23,29 @@ export const userController = {
     loginUser: asyncHandler(async (req, res) => {
         const { identifier, password } = req.body;
 
-        // Single query: find by username OR email (one round trip instead of two)
-        const user = await User.findOne({
+        // First: try to find by username OR email on User
+        let user = await User.findOne({
             $or: [{ username: identifier }, { email: identifier }],
-        }).populate('role');
+        }).populate("role");
+
+        // Fallback for employees: allow login by companyEmail or employeeId
+        if (!user) {
+            const employee = await Employee.findOne({
+                $or: [{ companyEmail: identifier }, { employeeId: identifier }],
+            }).lean();
+
+            if (employee?.user) {
+                // Load full User document (with comparePassword method) and populate role
+                user = await User.findById(employee.user).populate("role");
+            }
+        }
 
         if (!user) {
             return generateApiResponse(
                 res,
                 StatusCodes.UNAUTHORIZED,
                 false,
-                "Invalid username or email"
+                "Invalid username or password"
             );
         }
 
@@ -50,18 +62,36 @@ export const userController = {
 
         const employee = await Employee.findOne({ user: user._id }).lean();
 
+        // Build a safe role payload (handles users without an assigned role)
+        let rolePayload;
+        if (user.role) {
+            const r = user.role;
+            rolePayload = {
+                _id: r._id,
+                name: r.name,
+                description: r.description,
+                isActive: r.isActive,
+                createdAt: r.createdAt,
+                updatedAt: r.updatedAt,
+                modulePermissions: r.modulePermissions,
+            };
+        } else {
+            rolePayload = {
+                isSuperAdmin: !!user.isSuperAdmin,
+                modulePermissions: [],
+            };
+        }
+
         // Generate token
-        const token = tokenCreator({
-            _id: user._id, role: {
-                _id: user.role._id,
-                name: user.role.name,
-                description: user.role.description,
-                isActive: user.role.isActive,
-                createdAt: user.role.createdAt,
-                updatedAt: user.role.updatedAt
+        const token = tokenCreator(
+            {
+                _id: user._id,
+                role: rolePayload,
+                isSuperAdmin: user.isSuperAdmin,
+                employee: employee,
             },
-            isSuperAdmin: user.isSuperAdmin, employee: employee
-        }, '7d'); // 30 minutes
+            "7d"
+        ); // 7 days
         const refreshToken = tokenCreator({ _id: user._id }, '7d');
 
         // Respond
@@ -246,18 +276,28 @@ export const userController = {
         );
     }),
 
-    /** Get current user's employee (for Profile when token has no employee). Any authenticated user. */
+    /** Get current user's employee + basic user info (for Profile when token has no employee). Any authenticated user. */
     getMe: asyncHandler(async (req, res) => {
-        const employee = await Employee.findOne({ user: req.user._id })
-            .populate("department", "name")
-            .populate("subDepartment", "name")
-            .lean();
+        const [employee, user] = await Promise.all([
+            Employee.findOne({ user: req.user._id })
+                .populate("department", "name")
+                .populate("subDepartment", "name")
+                .lean(),
+            User.findById(req.user._id)
+                .select("firstName lastName email phone isSuperAdmin role")
+                .populate("role", "name")
+                .lean(),
+        ]);
+
         return generateApiResponse(
             res,
             StatusCodes.OK,
             true,
             "Current user profile",
-            { employee: employee || null }
+            {
+                employee: employee || null,
+                user: user || null,
+            }
         );
     }),
 

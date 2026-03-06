@@ -131,6 +131,26 @@ function CreateDialog({ todo, onSuccess }) {
 
       toast.success(isEdit ? "Task updated!" : "Task created!");
       onSuccess?.(data.todo || data.data);
+
+      // Basic browser reminder (while tab is open)
+      try {
+        if (formData.isRemainderSet && showTime && buildDueDate() && "Notification" in window) {
+          const permission = await Notification.requestPermission();
+          if (permission === "granted") {
+            const due = new Date(buildDueDate());
+            const delay = due.getTime() - Date.now();
+            if (delay > 0) {
+              setTimeout(() => {
+                new Notification("Task reminder", {
+                  body: formData.title || "You have a task due.",
+                });
+              }, delay);
+            }
+          }
+        }
+      } catch {
+        // ignore notification errors
+      }
     } catch (err) {
       toast.error(err.message || "Something went wrong");
     } finally {

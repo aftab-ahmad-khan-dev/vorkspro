@@ -71,6 +71,8 @@ function FollowHub() {
 
   const [openLogDialog, setOpenLogDialog] = useState(false);
   const [openScheduleDialog, setOpenScheduleDialog] = useState(false);
+  const [openDetailDialog, setOpenDetailDialog] = useState(false);
+  const [selectedFollowup, setSelectedFollowup] = useState(null);
   const { actions } = useTabs();
   const isSuperAdmin = actions?.isSuperAdmin || false;
 
@@ -646,7 +648,15 @@ function FollowHub() {
 
       {viewMode === "calendar" && (
         <div className="mb-6 p-1">
-          <CalendarWrapper events={followupCalendarEvents} style={{ height: 540 }} />
+          <CalendarWrapper
+            events={followupCalendarEvents}
+            style={{ height: 540 }}
+            onSelectEvent={(event) => {
+              if (!event?.resource) return;
+              setSelectedFollowup(event.resource);
+              setOpenDetailDialog(true);
+            }}
+          />
         </div>
       )}
 
@@ -852,6 +862,99 @@ function FollowHub() {
             fetchStats();
           }}
         />
+      </GlobalDialog>
+
+      {/* Follow-up detail from calendar */}
+      <GlobalDialog
+        open={openDetailDialog}
+        onClose={() => {
+          setOpenDetailDialog(false);
+          setSelectedFollowup(null);
+        }}
+        label="Follow-up details"
+      >
+        {selectedFollowup && (
+          <div className="space-y-4 text-sm">
+            <div>
+              <p className="text-xs font-semibold text-[var(--muted-foreground)] uppercase tracking-wide">
+                Topic
+              </p>
+              <p className="mt-1 text-[var(--foreground)] font-medium">
+                {selectedFollowup.topic || selectedFollowup.notes || "Follow-up"}
+              </p>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <p className="text-xs font-semibold text-[var(--muted-foreground)] uppercase tracking-wide">
+                  Client
+                </p>
+                <p className="mt-1 text-[var(--foreground)]">
+                  {selectedFollowup.client?.name || "N/A"}
+                </p>
+              </div>
+              <div>
+                <p className="text-xs font-semibold text-[var(--muted-foreground)] uppercase tracking-wide">
+                  Owner
+                </p>
+                <p className="mt-1 text-[var(--foreground)]">
+                  {selectedFollowup.assignedTo?.name || selectedFollowup.assignedToName || "N/A"}
+                </p>
+              </div>
+              <div>
+                <p className="text-xs font-semibold text-[var(--muted-foreground)] uppercase tracking-wide">
+                  Date
+                </p>
+                <p className="mt-1 text-[var(--foreground)]">
+                  {formatDate(selectedFollowup.date)}
+                  {selectedFollowup.time ? ` • ${formatTime12h(selectedFollowup.time)}` : ""}
+                </p>
+              </div>
+              <div>
+                <p className="text-xs font-semibold text-[var(--muted-foreground)] uppercase tracking-wide">
+                  Status
+                </p>
+                <p className="mt-1 text-[var(--foreground)]">
+                  {selectedFollowup.status || "Upcoming"}
+                </p>
+              </div>
+            </div>
+            {selectedFollowup.notes && (
+              <div>
+                <p className="text-xs font-semibold text-[var(--muted-foreground)] uppercase tracking-wide">
+                  Notes
+                </p>
+                <p className="mt-1 text-[var(--foreground)] whitespace-pre-wrap">
+                  {selectedFollowup.notes}
+                </p>
+              </div>
+            )}
+            <div className="flex justify-end gap-2 pt-2">
+              {hasPermission("Follow-up-Hub", "Create Records") && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    setOpenDetailDialog(false);
+                    setOpenScheduleDialog(true);
+                  }}
+                >
+                  Reschedule
+                </Button>
+              )}
+              <Button
+                size="sm"
+                onClick={() => {
+                  setOpenDetailDialog(false);
+                  if (selectedFollowup._id) {
+                    changeStatus(selectedFollowup._id);
+                  }
+                }}
+              >
+                Mark complete
+              </Button>
+            </div>
+          </div>
+        )}
       </GlobalDialog>
     </div>
   );

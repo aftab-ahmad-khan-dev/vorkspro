@@ -222,15 +222,16 @@ function MilestoneDetail() {
   const project = milestone.project || {};
 
   return (
-    <div className='min-h-screen bg-background'>
-      <div className='p-6 max-w-[90vw] mx-auto'>
+    <div className='min-h-screen w-full pb-8 bg-[var(--background)] text-[var(--foreground)]'>
+      <div className='max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8'>
         {/* Header */}
-        <div className='mb-8'>
-          <div className='flex flex-col sm:flex-row sm:items-start sm:justify-between gap-6'>
-            <div className='flex flex-col sm:flex-row items-start gap-4'>
+        <div className='relative overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--card)]/95 backdrop-blur-sm px-4 py-4 sm:px-6 sm:py-5 shadow-md shadow-[var(--primary)]/5'>
+          <div className='pointer-events-none absolute inset-y-0 right-0 w-1/3 bg-gradient-to-l from-[var(--primary)]/12 to-transparent' />
+          <div className='relative flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between'>
+            <div className='flex items-start gap-3 sm:gap-4'>
               <Button
                 variant='outline'
-                className='border-button'
+                className='border-button shrink-0'
                 onClick={() => navigate(-1)}
               >
                 <ArrowLeft className='w-4 h-4 mr-2' />
@@ -238,30 +239,40 @@ function MilestoneDetail() {
               </Button>
 
               <div>
-                <h1 className='text-2xl sm:text-3xl font-bold text-foreground'>
-                  Milestone Details
+                <h1 className='text-2xl sm:text-3xl font-bold tracking-tight'>
+                  Milestone details
                 </h1>
-                <p className='text-muted-foreground mt-1'>
-                  Full milestone information and assigned team
+                <p className='text-sm text-[var(--muted-foreground)] mt-1'>
+                  Overview, status, and team for this milestone.
                 </p>
+                <div className='mt-3 flex flex-wrap items-center gap-2 text-[11px] sm:text-xs text-[var(--muted-foreground)]'>
+                  <span className='inline-flex items-center gap-1.5 rounded-full bg-[var(--muted)]/40 px-3 py-1'>
+                    <Calendar className='w-3.5 h-3.5' />
+                    {formatDate(milestone.startDate)} – {formatDate(milestone.endDate)}
+                  </span>
+                  <span className='inline-flex items-center gap-1.5 rounded-full bg-[var(--muted)]/40 px-3 py-1'>
+                    <Flag className='w-3.5 h-3.5' />
+                    {project.name || "Unassigned project"}
+                  </span>
+                </div>
               </div>
             </div>
 
             {/* Change Status Dialog */}
             <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
               <DialogTrigger asChild>
-                <Button>
+                <Button className='shrink-0'>
                   <Target className='w-4 h-4 mr-2' />
-                  Change Status
+                  Change status
                 </Button>
               </DialogTrigger>
               <DialogContent className='sm:max-w-md'>
                 <DialogHeader>
                   <DialogTitle className='text-foreground'>
-                    Change Milestone Status
+                    Change milestone status
                   </DialogTitle>
                   <DialogDescription>
-                    Update the status for <strong>{milestone.name}</strong>
+                    Update the status for <strong>{milestone.name}</strong>.
                   </DialogDescription>
                 </DialogHeader>
 
@@ -270,7 +281,7 @@ function MilestoneDetail() {
                     Status
                   </Label>
                   <Select value={selectedStatus} onValueChange={setSelectedStatus}>
-                    <SelectTrigger className={"w-full text-foreground"}>
+                    <SelectTrigger className='w-full text-foreground'>
                       <SelectValue placeholder='Select new status' />
                     </SelectTrigger>
                     <SelectContent>
@@ -299,7 +310,7 @@ function MilestoneDetail() {
                       selectedStatus === milestone.status
                     }
                   >
-                    {savingStatus ? "Saving..." : "Save Changes"}
+                    {savingStatus ? "Saving..." : "Save changes"}
                   </Button>
                 </DialogFooter>
               </DialogContent>

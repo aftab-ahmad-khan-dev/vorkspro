@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils";
 import Confirmation from "@/models/Confirmation";
 import Attendee from "@/pages/private/Attendee";
 import { useTabs } from "@/context/TabsContext";
+import NotificationsDropdown from "./NotificationsDropdown";
 
 export default function Topbar({ toggleSidebar, isSidebarOpen }) {
   const navigate = useNavigate();
@@ -248,6 +249,7 @@ export default function Topbar({ toggleSidebar, isSidebarOpen }) {
             </div>
           </div>
           <div className='flex items-center gap-2'>
+            <NotificationsDropdown />
             <button
               type="button"
               onClick={() => triggerTour(location.pathname)}

@@ -81,10 +81,6 @@ function ScheduleDialog({
   async function handleSubmit() {
     if (!validateForm()) return;
 
-    const selectedDateTime = new Date(formData.date);
-    const [hours, minutes] = formData.time.split(":");
-    selectedDateTime.setHours(Number(hours), Number(minutes), 0, 0);
-
     const payload = {
       ...formData,
     };
@@ -105,6 +101,27 @@ function ScheduleDialog({
             : "Follow-up scheduled successfully!"
         );
         onSuccess?.();
+        // Basic browser notification (while tab is open)
+        try {
+          if (formData.isReminderSet && "Notification" in window) {
+            const permission = await Notification.requestPermission();
+            if (permission === "granted") {
+              const remindAt = new Date(formData.date);
+              const [h, m] = formData.time.split(":").map(Number);
+              remindAt.setHours(h, m, 0, 0);
+              const delay = remindAt.getTime() - Date.now();
+              if (delay > 0) {
+                setTimeout(() => {
+                  new Notification("Follow-up reminder", {
+                    body: formData.topic || "Scheduled follow-up is due.",
+                  });
+                }, delay);
+              }
+            }
+          }
+        } catch {
+          // best-effort; ignore notification errors
+        }
       } else {
         toast.error(data.message || "Operation failed");
       }

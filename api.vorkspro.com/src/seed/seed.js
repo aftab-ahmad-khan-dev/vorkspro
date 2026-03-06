@@ -97,6 +97,7 @@ import dotenv from "dotenv";
 import fs from "fs/promises";
 import path from "path";
 import { fileURLToPath } from "url";
+import bcrypt from "bcryptjs";
 import { DEV_DB_NAME, DB_NAME } from "../constants.js";
 import {
   BugType,
@@ -229,6 +230,9 @@ async function seedEmployeesAndUsers(empData) {
     "default": "Employee"
   };
 
+  const DEFAULT_PASSWORD = process.env.SEED_USER_PASSWORD || "12345678";
+  const hashedPassword = await bcrypt.hash(DEFAULT_PASSWORD, 10);
+
   let success = 0;
 
   for (const input of empData) {
@@ -240,7 +244,8 @@ async function seedEmployeesAndUsers(empData) {
         username: input.username,
         email: input.email,
         phone: input.phone,
-        password: "default123", // ← MUST HASH in real app!
+        // Use a single strong default password for all seeded users (hashed)
+        password: hashedPassword,
         isActive: true,
         isSuperAdmin: input.jobTitle?.toLowerCase().includes("admin") || false
       };

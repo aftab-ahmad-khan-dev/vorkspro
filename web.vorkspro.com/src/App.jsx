@@ -37,6 +37,7 @@ import { ProjectDetailProvider } from "./context/ProjectDetailContext";
 import KeysAndCredentials from "./pages/private/Keys&Credentials";
 import { AuthGuard } from "./guards/AuthGuard";
 import Blockages from "./pages/private/Blockages";
+import Chat from "./pages/private/Chat";
 
 function App() {
   const token = localStorage.getItem("token");
@@ -129,6 +130,9 @@ function App() {
 
         {/* My To-Do Hub */}
         <Route path="my-todo-list" element={<ToDoList />} />
+
+        {/* Chat */}
+        <Route path="chat" element={<Chat />} />
 
         {/* Admin & Assets */}
         <Route path="admin-&-assets" element={<AdminAssets />} />

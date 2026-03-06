@@ -722,17 +722,31 @@ function Task() {
           </div>
         )}
 
-        {/* Milestones Tab - Unchanged */}
+        {/* Milestones Tab - Projects selector inline with card */}
         <TabsContent value="milestones">
-          <div className="grid grid-cols-1 lg:grid-cols-7 gap-6">
-            <div className="lg:col-span-2 xl:col-span-1">
-              <div className="rounded-2xl border border-[var(--border)] p-5 bg-[var(--background)] sticky top-6 overflow-y-auto max-h-[calc(100vh-200px)]">
-                <h3 className="font-semibold text-lg mb-4">Projects</h3>
+          <div className="border border-[var(--border)] rounded-2xl p-6 bg-[var(--card)]/80">
+            {/* Header: title + project selector inline on the right */}
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-5">
+              <div>
+                <h2 className="text-xl font-bold text-[var(--foreground)]">
+                  {selectedProjectId
+                    ? inprogressProjects.find((p) => p._id === selectedProjectId)?.name ||
+                      "Milestones"
+                    : "All Milestones"}
+                </h2>
+                <p className="mt-1 text-xs sm:text-sm text-[var(--muted-foreground)]">
+                  Filter milestones by project, then switch between list, grid, calendar, or Kanban.
+                </p>
+              </div>
+
+              <div className="flex flex-wrap gap-2 justify-start sm:justify-end">
                 <Button
-                  className={`w-full justify-start mb-2 border-button ${selectedProjectId == null
-                    ? "border border-[var(--button)] bg-[var(--button)]/10 text-[var(--button)]"
-                    : ""
-                    }`}
+                  size="sm"
+                  className={`px-3 py-1.5 rounded-full text-xs sm:text-sm ${
+                    selectedProjectId == null
+                      ? "bg-[var(--button)] text-[var(--primary-foreground)]"
+                      : "bg-[var(--muted)]/60 text-[var(--foreground)]"
+                  }`}
                   onClick={() => setSelectedProjectId(null)}
                 >
                   All Projects
@@ -740,32 +754,22 @@ function Task() {
                 {inprogressProjects.map((project) => (
                   <Button
                     key={project._id}
-                    className={`w-full bg-transparent justify-start mb-2 border-button text-left ${project?._id === selectedProjectId
-                      ? "border border-[var(--button)] bg-[var(--button)]/10 text-[var(--button)]"
-                      : ""
-                      }`}
+                    size="sm"
+                    className={`px-3 py-1.5 rounded-full text-xs sm:text-sm ${
+                      project?._id === selectedProjectId
+                        ? "bg-[var(--button)] text-[var(--primary-foreground)]"
+                        : "bg-[var(--muted)]/40 text-[var(--foreground)]"
+                    }`}
                     onClick={() => setSelectedProjectId(project._id)}
                   >
-                    <span className="flex items-center">
-                      <div className="w-3 h-3 rounded-full bg-[var(--button)] mr-3"></div>
-                      {project.name}
-                    </span>
+                    {project.name}
                   </Button>
                 ))}
               </div>
             </div>
 
-            <div className="lg:col-span-5 xl:col-span-6">
-              <div className="border border-[var(--border)] rounded-2xl p-6 bg-[var(--card)]/80">
-                {/* Title */}
-                <h2 className="text-xl font-bold text-[var(--foreground)] mb-4">
-                  {selectedProjectId
-                    ? inprogressProjects.find((p) => p._id === selectedProjectId)?.name || "Milestones"
-                    : "All Milestones"}
-                </h2>
-
-                {/* Row: Status | Add Milestone | Search | List/Grid toggle */}
-                <div className="flex flex-row flex-wrap items-center gap-3 mb-6">
+            {/* Row: Status | Add Milestone | Search | List/Grid toggle */}
+            <div className="flex flex-row flex-wrap items-center gap-3 mb-6">
                   <Select value={statusFilter} onValueChange={setStatusFilter}>
                     <SelectTrigger className="w-full sm:w-44 shrink-0">
                       <SelectValue placeholder="Filter by status" />
@@ -860,191 +864,115 @@ function Task() {
                     filteredMilestones.map((m) => (
                       <div
                         key={m._id}
-                        className="
-    group
-    p-4 sm:p-6
-    rounded-2xl
-    border border-[var(--border)]
-    bg-[var(--background)]
-    shadow-sm
-    hover:shadow-lg hover:border-[var(--button)]/30
-    transition-all duration-300
-  "
+                        className="group relative overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--card)]/90 shadow-sm hover:shadow-xl hover:border-[var(--button)]/50 transition-all duration-300"
                       >
-                        {/* Header Section */}
-                        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3 sm:gap-4 mb-4">
-                          <div className="flex-1 min-w-0">
-                            <h3 className="font-semibold text-base sm:text-lg line-clamp-1 mb-1 text-[var(--button)] transition-colors">
-                              {m.name}
-                            </h3>
+                        {/* Soft background accent */}
+                        <div className="pointer-events-none absolute inset-0 opacity-[0.12] bg-gradient-to-br from-[var(--button)]/40 via-transparent to-[var(--button)]/10" />
 
-                            <div className="flex items-center gap-2 text-xs sm:text-sm text-[var(--muted-foreground)] min-w-0">
-                              <svg
-                                className="w-4 h-4 shrink-0"
-                                fill="none"
-                                stroke="currentColor"
-                                viewBox="0 0 24 24"
-                              >
-                                <path
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                  strokeWidth={2}
-                                  d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"
-                                />
-                              </svg>
-                              <span className="truncate">
-                                {m.project?.name}
-                              </span>
-                            </div>
-                          </div>
-                        </div>
-
-                        {/* Status Badges */}
-                        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-4">
-                          <span className="text-[11px] sm:text-xs font-medium text-[var(--muted-foreground)] uppercase tracking-wide">
-                            Status:
-                          </span>
-
-                          <div className="flex flex-wrap items-center gap-2 justify-start sm:justify-end">
-                            {m.endDate &&
-                              m.status !== "completed" &&
-                              new Date(m.endDate) <
-                              new Date(new Date().setHours(0, 0, 0, 0)) && (
-                                <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-red-500/10 text-red-600 dark:text-red-400 text-xs font-semibold border border-red-500/20">
-                                  <svg
-                                    className="w-3 h-3"
-                                    fill="currentColor"
-                                    viewBox="0 0 20 20"
-                                  >
-                                    <path
-                                      fillRule="evenodd"
-                                      d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
-                                      clipRule="evenodd"
-                                    />
-                                  </svg>
-                                  Overdue
+                        <div className="relative p-4 sm:p-5 flex flex-col gap-4">
+                          {/* Header: title + project + status */}
+                          <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                            <div className="min-w-0 flex-1">
+                              <h3 className="font-semibold text-base sm:text-lg text-[var(--foreground)] truncate">
+                                {m.name}
+                              </h3>
+                              <div className="mt-1 inline-flex items-center gap-2 rounded-full bg-[var(--border)]/40 px-3 py-1 text-[11px] sm:text-xs text-[var(--muted-foreground)]">
+                                <span className="inline-flex h-1.5 w-1.5 rounded-full bg-[var(--button)]" />
+                                <span className="truncate max-w-[160px] sm:max-w-xs">
+                                  {m.project?.name || "No project linked"}
                                 </span>
-                              )}
-
-                            <span
-                              className={`inline-flex items-center px-3 py-1.5 rounded-full text-xs font-semibold ${getMilestoneStatusClass(
-                                m.status
-                              )}`}
-                            >
-                              <span className="w-1.5 h-1.5 rounded-full mr-2 bg-current" />
-                              {m.status.replace(/\b\w/g, (l) =>
-                                l.toUpperCase()
-                              )}
-                            </span>
-                          </div>
-                        </div>
-
-                        {/* Divider */}
-                        <div className="h-px bg-gradient-to-r from-transparent via-[var(--border)] to-transparent mb-4" />
-
-                        {/* Info Grid */}
-                        <div className={`grid grid-cols-1 ${actions.cost ? "sm:grid-cols-2" : "sm:grid-cols-1"} gap-3 sm:gap-4 mb-5`}>
-                          {actions.cost &&
-                            <div className="flex flex-col gap-1 p-3 rounded-lg bg-[var(--border)]/30 hover:bg-[var(--border)]/50 transition-colors">
-                              <div className="flex items-center gap-2 text-[var(--muted-foreground)] text-[11px] sm:text-xs font-medium uppercase tracking-wide">
-                                <svg
-                                  className="w-4 h-4 shrink-0"
-                                  fill="none"
-                                  stroke="currentColor"
-                                  viewBox="0 0 24 24"
-                                >
-                                  <path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    strokeWidth={2}
-                                    d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                                  />
-                                </svg>
-                                Cost
                               </div>
-                              <p className="font-bold text-base sm:text-lg text-[var(--foreground)]">
-                                ${m.cost?.toLocaleString() || 0}
-                              </p>
-                            </div>}
-
-                          <div className="flex flex-col gap-1 p-3 rounded-lg bg-[var(--border)]/30 hover:bg-[var(--border)]/50 transition-colors">
-                            <div className="flex items-center gap-2 text-[var(--muted-foreground)] text-[11px] sm:text-xs font-medium uppercase tracking-wide">
-                              <svg
-                                className="w-4 h-4 shrink-0"
-                                fill="none"
-                                stroke="currentColor"
-                                viewBox="0 0 24 24"
-                              >
-                                <path
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                  strokeWidth={2}
-                                  d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-                                />
-                              </svg>
-                              Due Date
                             </div>
-                            <p className="font-bold text-base sm:text-lg text-[var(--foreground)]">
-                              {m.endDate
-                                ? new Date(m.endDate).toLocaleDateString(
-                                  "en-US",
-                                  {
-                                    month: "short",
-                                    day: "numeric",
-                                    year: "numeric",
-                                  }
-                                )
-                                : "—"}
-                            </p>
-                          </div>
-                        </div>
 
-                        {/* Actions */}
-                        <div className="w-full flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-end sm:gap-3">
-                          {/* View Details (Primary Action) */}
-                          {hasPermission("Milestones", "View Details") && (
-                            <Button
-                              className="border-button"
-                              onClick={() =>
-                                navigate(`/app/milestones/milestone-detail/${m._id}`)
-                              }
-                            >
-                              <span className="whitespace-nowrap">
-                                View Details
+                            <div className="flex flex-col items-start sm:items-end gap-2">
+                              {m.endDate &&
+                                m.status !== "completed" &&
+                                new Date(m.endDate) <
+                                  new Date(new Date().setHours(0, 0, 0, 0)) && (
+                                  <span className="inline-flex items-center gap-1.5 rounded-full bg-red-500/10 text-red-500 text-[10px] font-semibold px-3 py-1 border border-red-500/40">
+                                    <span className="w-1.5 h-1.5 rounded-full bg-red-500" />
+                                    Overdue
+                                  </span>
+                                )}
+
+                              <span
+                                className={`inline-flex items-center px-3 py-1.5 rounded-full text-[11px] sm:text-xs font-semibold ${getMilestoneStatusClass(
+                                  m.status
+                                )}`}
+                              >
+                                <span className="w-1.5 h-1.5 rounded-full mr-2 bg-current" />
+                                {m.status.replace(/\b\w/g, (l) => l.toUpperCase())}
                               </span>
-                            </Button>
-                          )}
+                            </div>
+                          </div>
 
-                          {/* Secondary Actions */}
-                          <div className="flex w-full justify-between gap-2 sm:w-auto flex-row sm:items-center sm:shrink-0">
-                            {hasPermission("Milestones", "Edit Records") && (
-                              <CustomTooltip tooltipContent="Update Milestone">
-                                <Button
-                                  className="border-button"
-                                  onClick={() => handleEdit(m)}
-                                >
-                                  <Edit2 size={16} className="" />
-                                  {/* <span className="whitespace-nowrap">
-                                    Edit
-                                  </span> */}
-                                </Button>
-                              </CustomTooltip>
+                          {/* Middle row: quick facts */}
+                          <div className={`grid grid-cols-1 ${actions.cost ? "sm:grid-cols-2" : "sm:grid-cols-1"} gap-3`}>
+                            {actions.cost && (
+                              <div className="flex items-center justify-between rounded-xl bg-[var(--border)]/25 px-3 py-2">
+                                <span className="text-[11px] sm:text-xs uppercase tracking-wide text-[var(--muted-foreground)]">
+                                  Budget
+                                </span>
+                                <span className="text-sm sm:text-base font-semibold text-emerald-500">
+                                  ${m.cost?.toLocaleString() || 0}
+                                </span>
+                              </div>
                             )}
 
-                            {hasPermission("Milestones", "Delete Records") && (
-                              <CustomTooltip tooltipContent="Delete Milestone">
-                                <Button
-                                  variant="outline"
-                                  className="logout-button"
-                                  onClick={() => handleDelete(m)}
-                                >
-                                  <Trash2 size={16} className="shrink-0" />
-                                  {/* <span className="whitespace-nowrap">
-                                    Delete
-                                  </span> */}
-                                </Button>
-                              </CustomTooltip>
+                            <div className="flex items-center justify-between rounded-xl bg-[var(--border)]/25 px-3 py-2">
+                              <span className="text-[11px] sm:text-xs uppercase tracking-wide text-[var(--muted-foreground)]">
+                                Due date
+                              </span>
+                              <span className="text-sm sm:text-base font-semibold text-[var(--foreground)]">
+                                {m.endDate
+                                  ? new Date(m.endDate).toLocaleDateString("en-US", {
+                                      month: "short",
+                                      day: "numeric",
+                                      year: "numeric",
+                                    })
+                                  : "—"}
+                              </span>
+                            </div>
+                          </div>
+
+                          {/* Footer: primary + icon actions */}
+                          <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                            {hasPermission("Milestones", "View Details") && (
+                              <Button
+                                className="w-full sm:w-auto bg-[var(--button)] text-[var(--primary-foreground)] hover:bg-[var(--button)]/90"
+                                onClick={() =>
+                                  navigate(`/app/milestones/milestone-detail/${m._id}`)
+                                }
+                              >
+                                View details
+                              </Button>
                             )}
+
+                            <div className="flex flex-row gap-2 justify-between sm:justify-end">
+                              {hasPermission("Milestones", "Edit Records") && (
+                                <CustomTooltip tooltipContent="Edit milestone">
+                                  <Button
+                                    variant="outline"
+                                    className="border-button"
+                                    onClick={() => handleEdit(m)}
+                                  >
+                                    <Edit2 size={16} />
+                                  </Button>
+                                </CustomTooltip>
+                              )}
+
+                              {hasPermission("Milestones", "Delete Records") && (
+                                <CustomTooltip tooltipContent="Delete milestone">
+                                  <Button
+                                    variant="outline"
+                                    className="logout-button"
+                                    onClick={() => handleDelete(m)}
+                                  >
+                                    <Trash2 size={16} />
+                                  </Button>
+                                </CustomTooltip>
+                              )}
+                            </div>
                           </div>
                         </div>
                       </div>
@@ -1053,25 +981,24 @@ function Task() {
                 </div>
                 )}
 
-                {!loading && (
-                  <div className="mt-8 flex justify-between items-center">
-                    <p className="text-sm text-[var(--muted-foreground)]">
-                      Showing {filteredMilestones.length} of{" "}
-                      {paginationData.totalItems} milestones (Page {paginationData.page} of {paginationData.totalPages})
-                    </p>
-                    {paginationData.totalPages > 1 && (
-                      <Pagination
-                        total={paginationData.totalItems}
-                        current={paginationData.page}
-                        pageSize={paginationData.size}
-                        lastPage={paginationData.lastPage}
-                        onPageChange={pageChange}
-                      />
-                    )}
-                  </div>
+            {!loading && (
+              <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <p className="text-sm text-[var(--muted-foreground)]">
+                  Showing {filteredMilestones.length} of {paginationData.totalItems} milestones
+                  {" · "}
+                  Page {paginationData.page} of {paginationData.totalPages}
+                </p>
+                {paginationData.totalPages > 1 && (
+                  <Pagination
+                    total={paginationData.totalItems}
+                    current={paginationData.page}
+                    pageSize={paginationData.size}
+                    lastPage={paginationData.lastPage}
+                    onPageChange={pageChange}
+                  />
                 )}
               </div>
-            </div>
+            )}
           </div>
         </TabsContent>
 

@@ -112,14 +112,33 @@ function Profile() {
       const decoded = jwtDecode(token);
       let emp = decoded.employee;
 
+      // Fallback: always hit /user/me so we can inspect both user & employee
+      const response = await apiGet("user/me");
+      const payload = response?.data || {};
+
+      if (!emp && payload.employee) {
+        emp = payload.employee;
+      }
+
+      // If still no employee but we have a user, build a minimal profile
+      if (!emp && payload.user) {
+        const u = payload.user;
+        emp = {
+          firstName: u.firstName || "",
+          lastName: u.lastName || "",
+          email: u.email || "",
+          phone: u.phone || "",
+        };
+        toast.info(
+          "Showing basic user profile. This account is not yet linked to an employee record."
+        );
+      }
+
       if (!emp) {
-        const data = await apiGet("user/me");
-        if (data?.isSuccess && data?.employee) {
-          emp = data.employee;
-        } else {
-          toast.error("Employee information not found in session. Please ensure your account is linked to an employee record, or contact your admin.");
-          return;
-        }
+        toast.error(
+          "Employee information not found. Please ensure your account is linked to an employee record, or contact your admin."
+        );
+        return;
       }
 
       applyEmployeeToState(emp);

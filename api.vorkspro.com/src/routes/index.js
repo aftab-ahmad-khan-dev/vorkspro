@@ -16,6 +16,7 @@ import TransactionTypeRoute from "../routes/transactionType.route.js";
 import TransactionRoute from "../routes/transaction.route.js";
 import userRoute from "./user.route.js";
 import IndustryTypeRoute from "../routes/industry.route.js";
+import ChatRoute from "../routes/chat.route.js";
 import MilestoneRoute from "../routes/milestone.route.js";
 import AttendanceRoute from "../routes/attendance.route.js";
 import LeaveRequestRoutes from "../routes/leaverequest.route.js";
@@ -48,5 +49,6 @@ route.use("/attendance", AttendanceRoute);
 route.use("/leave-request", LeaveRequestRoutes);
 route.use("/credential", ProjectKeyRoutes);
 route.use("/todo", TodoRoutes);
+route.use("/chat", ChatRoute);
 
 export default route;

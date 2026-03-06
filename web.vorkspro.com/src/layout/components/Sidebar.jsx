@@ -271,6 +271,15 @@ function Sidebar({ isSidebarOpen, toggleSidebar, isMobile }) {
             {hasPermission("Follow-up-Hub") && (
               <NavItem id="driver-sidebar-follow-up" icon={<MessageSquare size={16} />} label="Follow-up Hub" link="/app/follow-up-hub" active={location.pathname.startsWith("/app/follow-up-hub")} isSidebarOpen={isSidebarOpen} />
             )}
+            {/* Chat is available to all authenticated users */}
+            <NavItem
+              id="driver-sidebar-chat"
+              icon={<MessageSquare size={16} />}
+              label="Chat"
+              link="/app/chat"
+              active={location.pathname.startsWith("/app/chat")}
+              isSidebarOpen={isSidebarOpen}
+            />
             {hasPermission("Finance") && (
               <NavItem id="driver-sidebar-finance" icon={<DollarSign size={16} />} label="Finance" link="/app/finance" active={location.pathname.startsWith("/app/finance")} isSidebarOpen={isSidebarOpen} />
             )}

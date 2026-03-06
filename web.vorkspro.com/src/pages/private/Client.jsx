@@ -39,6 +39,7 @@ import CustomTooltip from "@/components/Tooltip";
 import { useTabs } from "@/context/TabsContext";
 import { apiGet, apiGetByFilter, apiPatch } from "@/interceptor/interceptor";
 import EmptyState from "@/components/EmptyState";
+import { ListGridToggle } from "@/components/views";
 
 function Client() {
   const [clients, setClients] = useState([]);
@@ -52,6 +53,7 @@ function Client() {
   const [activeTab, setActiveTab] = useState("All Clients");
   const [searchTerm, setSearchTerm] = useState("");
   const [exportStatus, setExportStatus] = useState("");
+  const [listLayout, setListLayout] = useState("list");
 
   const [pagination, setPagination] = useState({
     page: 1,
@@ -501,9 +503,9 @@ function Client() {
         </div>
       </div> */}
 
-      {/* Tabs + Search */}
-      <div className="p-6 border border-[var(--border)] rounded-lg mb-6">
-        <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
+      {/* Filters + Search + View toggle */}
+      <div className="p-6 border border-[var(--border)] rounded-2xl mb-6 bg-[var(--card)]/80 backdrop-blur-sm">
+        <div className="grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_auto] gap-4 items-center">
           <div className="hidden sm:block">
             <Tabs
               value={activeTab}
@@ -562,203 +564,326 @@ function Client() {
                 Export
               </Button>
             )}
-
+            <div className="sm:ml-2">
+              <ListGridToggle
+                value={listLayout}
+                onValueChange={setListLayout}
+                listLabel="Table"
+                gridLabel="Cards"
+              />
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Table */}
-      <div className="border border-[var(--border)] rounded-lg overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead>
-              <tr className="border-b border-[var(--border)] bg-[var(--background)]">
-                <th className="px-6 py-3 text-left text-sm font-medium">
-                  Client
-                </th>
-                <th className="px-6 py-3 text-left text-sm font-medium">
-                  Contact Person
-                </th>
-                <th className="px-6 py-3 text-left text-sm font-medium">
-                  Contact Info
-                </th>
-                <th className="px-6 py-3 text-left text-sm font-medium">
-                  Industry
-                </th>
-                <th className="px-6 py-3 text-left text-sm font-medium">
-                  Projects
-                </th>
-                <th className="px-6 py-3 text-left text-sm font-medium">
-                  Revenue
-                </th>
-                <th className="px-6 py-3 text-left text-sm font-medium">
-                  Status
-                </th>
-                <th className="px-6 py-3 text-center text-sm font-medium">
-                  Actions
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {loading ? (
-                Array.from({ length: pagination.size }).map((_, i) => (
-                  <SkeletonRow key={i} />
-                ))
-              ) : clients.length === 0 ? (
-                <tr>
-                  <td colSpan={8} className="p-0">
-                    <EmptyState
-                      icon={Building2}
-                      title="No clients found"
-                      subtitle="Try adjusting your search or filters, or add your first client"
-                    />
-                  </td>
+      {/* List / Grid */}
+      {listLayout === "list" ? (
+        <div className="rounded-2xl border border-[var(--border)] overflow-hidden bg-[var(--card)]">
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead>
+                <tr className="border-b border-[var(--border)] bg-[var(--background)]">
+                  <th className="px-6 py-3 text-left text-sm font-medium">Client</th>
+                  <th className="px-6 py-3 text-left text-sm font-medium">Contact Person</th>
+                  <th className="px-6 py-3 text-left text-sm font-medium">Contact Info</th>
+                  <th className="px-6 py-3 text-left text-sm font-medium">Industry</th>
+                  <th className="px-6 py-3 text-left text-sm font-medium">Projects</th>
+                  <th className="px-6 py-3 text-left text-sm font-medium">Revenue</th>
+                  <th className="px-6 py-3 text-left text-sm font-medium">Status</th>
+                  <th className="px-6 py-3 text-center text-sm font-medium">Actions</th>
                 </tr>
-              ) : (
-                clients.map((client) => {
-                  const style = getStatusStyle(client.status);
+              </thead>
+              <tbody>
+                {loading ? (
+                  Array.from({ length: pagination.size }).map((_, i) => (
+                    <SkeletonRow key={i} />
+                  ))
+                ) : clients.length === 0 ? (
+                  <tr>
+                    <td colSpan={8} className="p-0">
+                      <EmptyState
+                        icon={Building2}
+                        title="No clients found"
+                        subtitle="Try adjusting your search or filters, or add your first client"
+                      />
+                    </td>
+                  </tr>
+                ) : (
+                  clients.map((client) => {
+                    const style = getStatusStyle(client.status);
 
-                  return (
-                    <tr
-                      key={client._id}
-                      role="button"
-                      tabIndex={0}
-                      onClick={() => hasPermission("Client Management", "View Details") && navigate(`/app/clients/client-detail/${client._id}`)}
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter" || e.key === " ") {
-                          e.preventDefault();
-                          hasPermission("Client Management", "View Details") && navigate(`/app/clients/client-detail/${client._id}`);
+                    return (
+                      <tr
+                        key={client._id}
+                        role="button"
+                        tabIndex={0}
+                        onClick={() =>
+                          hasPermission("Client Management", "View Details") &&
+                          navigate(`/app/clients/client-detail/${client._id}`)
                         }
-                      }}
-                      className="border-b border-[var(--border)] hover:bg-[var(--border)]/30 cursor-pointer"
-                    >
-                      <td className="px-6 py-4">
-                        <div className="flex items-center gap-3">
-                          <div className="space-y-1">
-                            <p className="font-semibold text-sm">
-                              {client.name}
-                            </p>
-                            <p className="text-xs text-[var(--muted-foreground)] flex gap-1 items-center">
-                              {client.address && <MapPin size={13} />}
-                              {client.address?.city
-                                ? `${client?.address?.city}, ${client?.address?.country}`
-                                : client?.address?.country}
-                            </p>
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter" || e.key === " ") {
+                            e.preventDefault();
+                            hasPermission("Client Management", "View Details") &&
+                              navigate(`/app/clients/client-detail/${client._id}`);
+                          }
+                        }}
+                        className="border-b border-[var(--border)] hover:bg-[var(--border)]/30 cursor-pointer"
+                      >
+                        <td className="px-6 py-4">
+                          <div className="flex items-center gap-3">
+                            <div className="space-y-1">
+                              <p className="font-semibold text-sm">{client.name}</p>
+                              <p className="text-xs text-[var(--muted-foreground)] flex gap-1 items-center">
+                                {client.address && <MapPin size={13} />}
+                                {client.address?.city
+                                  ? `${client?.address?.city}, ${client?.address?.country}`
+                                  : client?.address?.country}
+                              </p>
+                            </div>
                           </div>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 text-sm text-[var(--muted-foreground)]">
-                        {client.contactName || "-"}
-                      </td>
-                      <td className="px-6 py-4 text-sm text-[var(--muted-foreground)] flex flex-col items-start gap-3">
-                        {/* Phone */}
-                        {client.phone ? (
-                          <span className="flex items-center gap-1">
-                            <Phone
-                              size={14}
-                              className="text-[var(--text-muted)]"
-                            />
-                            <span>{client.phone}</span>
+                        </td>
+                        <td className="px-6 py-4 text-sm text-[var(--muted-foreground)]">
+                          {client.contactName || "-"}
+                        </td>
+                        <td className="px-6 py-4 text-sm text-[var(--muted-foreground)] flex flex-col items-start gap-3">
+                          {client.phone ? (
+                            <span className="flex items-center gap-1">
+                              <Phone size={14} className="text-[var(--text-muted)]" />
+                              <span>{client.phone}</span>
+                            </span>
+                          ) : (
+                            "-"
+                          )}
+
+                          {client.email && (
+                            <span className="flex items-center gap-1">
+                              <Mail size={14} className="text-[var(--text-muted)]" />
+                              <span>{client.email}</span>
+                            </span>
+                          )}
+                        </td>
+
+                        <td className="px-6 py-4 text-sm text-[var(--muted-foreground)]">
+                          {client.industry?.name || "-"}
+                        </td>
+                        <td className="px-6 py-4 text-sm text-[var(--muted-foreground)]">
+                          {client.projects?.length ?? 0}
+                        </td>
+                        <td className="px-6 py-4 text-sm text-[var(--muted-foreground)]">
+                          ${client.revenue?.toLocaleString() ?? 0}
+                        </td>
+
+                        <td className="px-6 py-4">
+                          <span
+                            className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${style.bg} ${style.text}`}
+                          >
+                            {client.status?.charAt(0).toUpperCase() +
+                              client.status?.slice(1)}
                           </span>
-                        ) : (
-                          "-"
-                        )}
+                        </td>
 
-                        {/* Email */}
-                        {client.email && (
-                          <span className="flex items-center gap-1">
-                            <Mail
-                              size={14}
-                              className="text-[var(--text-muted)]"
-                            />
-                            <span>{client.email}</span>
-                          </span>
-                        )}
-                      </td>
-
-                      <td className="px-6 py-4 text-sm text-[var(--muted-foreground)]">
-                        {client.industry?.name || "-"}
-                      </td>
-                      <td className="px-6 py-4 text-sm text-[var(--muted-foreground)]">
-                        {client.projects?.length ?? 0}
-                      </td>
-                      <td className="px-6 py-4 text-sm text-[var(--muted-foreground)]">
-                        ${client.revenue?.toLocaleString() ?? 0}
-                      </td>
-
-                      {/* STATUS BADGE */}
-                      <td className="px-6 py-4">
-                        <span
-                          className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${style.bg} ${style.text}`}
-                        >
-                          {client.status?.charAt(0).toUpperCase() +
-                            client.status?.slice(1)}
-                        </span>
-                      </td>
-
-                      {/* ACTIONS */}
-                      <td className="px-6 py-4">
-                        <div className="flex justify-center gap-1">
-                          <CustomTooltip tooltipContent="Communication History">
-                            <Button
-                              className="bg-transparent hover:text-[var(--button)] text-[var(--button)] hover:bg-[var(--button)]/20"
-                              size="sm"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                setSelectedChatClient(client);
-                                setIsChatDialogOpen(true);
-                              }}
-                            >
-                              <MessageCircle size={16}></MessageCircle>
-                            </Button></CustomTooltip>
-                          {hasPermission("Client Management", "View Details") && (
-                            <CustomTooltip tooltipContent="View Details">
+                        <td className="px-6 py-4">
+                          <div className="flex justify-center gap-1">
+                            <CustomTooltip tooltipContent="Communication History">
                               <Button
                                 className="bg-transparent hover:text-[var(--button)] text-[var(--button)] hover:bg-[var(--button)]/20"
                                 size="sm"
                                 onClick={(e) => {
                                   e.stopPropagation();
-                                  navigate(`/app/clients/client-detail/${client._id}`);
+                                  setSelectedChatClient(client);
+                                  setIsChatDialogOpen(true);
                                 }}
                               >
-                                <Eye size={16} />
+                                <MessageCircle size={16} />
                               </Button>
                             </CustomTooltip>
-                          )}
-                          {hasPermission("Client Management", "Edit Records") && (
-                            <CustomTooltip tooltipContent="Update Client">
-                              <Button
-                                onClick={(e) => { e.stopPropagation(); handleEdit(client); }}
-                                className="bg-transparent text-green-500 hover:bg-green-500/20 hover:text-green-500"
-                                size="sm"
-                                variant="ghost"
-                              >
-                                <Pencil size={16} />
-                              </Button>
-                            </CustomTooltip>
-                          )}
-                          {hasPermission("Client Management", "Edit Records") && (
-                            <CustomTooltip tooltipContent="Update Status">
-                              <Button
-                                onClick={(e) => { e.stopPropagation(); openStatusDialog(client); }}
-                                className="bg-transparent text-orange-500 hover:bg-orange-500/20 hover:text-orange-500"
-                                size="sm"
-                                variant="ghost"
-                              >
-                                <Repeat size={16} />
-                              </Button>
-                            </CustomTooltip>
-                          )}
-                        </div>
-                      </td>
-                    </tr>
-                  );
-                })
-              )}
-            </tbody>
-          </table>
+                            {hasPermission("Client Management", "View Details") && (
+                              <CustomTooltip tooltipContent="View Details">
+                                <Button
+                                  className="bg-transparent hover:text-[var(--button)] text-[var(--button)] hover:bg-[var(--button)]/20"
+                                  size="sm"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    navigate(`/app/clients/client-detail/${client._id}`);
+                                  }}
+                                >
+                                  <Eye size={16} />
+                                </Button>
+                              </CustomTooltip>
+                            )}
+                            {hasPermission("Client Management", "Edit Records") && (
+                              <CustomTooltip tooltipContent="Update Client">
+                                <Button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleEdit(client);
+                                  }}
+                                  className="bg-transparent text-green-500 hover:bg-green-500/20 hover:text-green-500"
+                                  size="sm"
+                                  variant="ghost"
+                                >
+                                  <Pencil size={16} />
+                                </Button>
+                              </CustomTooltip>
+                            )}
+                            {hasPermission("Client Management", "Edit Records") && (
+                              <CustomTooltip tooltipContent="Update Status">
+                                <Button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    openStatusDialog(client);
+                                  }}
+                                  className="bg-transparent text-orange-500 hover:bg-orange-500/20 hover:text-orange-500"
+                                  size="sm"
+                                  variant="ghost"
+                                >
+                                  <Repeat size={16} />
+                                </Button>
+                              </CustomTooltip>
+                            )}
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })
+                )}
+              </tbody>
+            </table>
+          </div>
         </div>
-      </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+          {loading ? (
+            Array.from({ length: 6 }).map((_, i) => (
+              <div
+                key={i}
+                className="h-40 rounded-2xl border border-[var(--border)] bg-[var(--muted)]/30 animate-pulse"
+              />
+            ))
+          ) : clients.length === 0 ? (
+            <div className="col-span-full">
+              <EmptyState
+                icon={Building2}
+                title="No clients found"
+                subtitle="Try adjusting your search or filters, or add your first client"
+              />
+            </div>
+          ) : (
+            clients.map((client) => {
+              const style = getStatusStyle(client.status);
+              return (
+                <div
+                  key={client._id}
+                  className="group rounded-2xl border border-[var.--border] bg-[var(--card)]/90 backdrop-blur-sm p-5 flex flex-col justify-between hover:border-[var(--primary)]/40 hover:shadow-lg hover:shadow-[var(--primary)]/10 transition-all cursor-pointer"
+                  onClick={() =>
+                    hasPermission("Client Management", "View Details") &&
+                    navigate(`/app/clients/client-detail/${client._id}`)
+                  }
+                >
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="space-y-1 min-w-0">
+                      <p className="font-semibold text-sm truncate">{client.name}</p>
+                      <p className="text-xs text-[var(--muted-foreground)] flex gap-1 items-center truncate">
+                        {client.address && <MapPin size={13} />}
+                        {client.address?.city
+                          ? `${client?.address?.city}, ${client?.address?.country}`
+                          : client?.address?.country || "No location"}
+                      </p>
+                    </div>
+                    <span
+                      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${style.bg} ${style.text}`}
+                    >
+                      {client.status?.charAt(0).toUpperCase() +
+                        client.status?.slice(1)}
+                    </span>
+                  </div>
+
+                  <div className="mt-4 grid grid-cols-2 gap-3 text-xs text-[var(--muted-foreground)]">
+                    <div>
+                      <p className="font-medium text-[var(--foreground)] text-xs">
+                        Contact
+                      </p>
+                      <p className="mt-1 truncate">
+                        {client.contactName || "No contact"}
+                      </p>
+                      {client.phone && (
+                        <p className="mt-1 flex items-center gap-1 truncate">
+                          <Phone size={12} />
+                          {client.phone}
+                        </p>
+                      )}
+                    </div>
+                    <div>
+                      <p className="font-medium text-[var(--foreground)] text-xs">
+                        Stats
+                      </p>
+                      <p className="mt-1">
+                        <span className="font-semibold">
+                          {client.projects?.length ?? 0}
+                        </span>{" "}
+                        projects
+                      </p>
+                      <p className="mt-1">
+                        <span className="font-semibold">
+                          ${client.revenue?.toLocaleString() ?? 0}
+                        </span>{" "}
+                        revenue
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="mt-4 flex items-center justify-between gap-3">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="border-[var(--border)] text-xs"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        hasPermission("Client Management", "View Details") &&
+                          navigate(`/app/clients/client-detail/${client._id}`);
+                      }}
+                    >
+                      View details
+                    </Button>
+                    <div className="flex gap-1">
+                      <CustomTooltip tooltipContent="Chat">
+                        <Button
+                          size="icon"
+                          variant="ghost"
+                          className="h-8 w-8 text-[var(--button)] hover:bg-[var(--button)]/15"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setSelectedChatClient(client);
+                            setIsChatDialogOpen(true);
+                          }}
+                        >
+                          <MessageCircle size={16} />
+                        </Button>
+                      </CustomTooltip>
+                      {hasPermission("Client Management", "Edit Records") && (
+                        <CustomTooltip tooltipContent="Edit">
+                          <Button
+                            size="icon"
+                            variant="ghost"
+                            className="h-8 w-8 text-green-500 hover:bg-green-500/15"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleEdit(client);
+                            }}
+                          >
+                            <Pencil size={16} />
+                          </Button>
+                        </CustomTooltip>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              );
+            })
+          )}
+        </div>
+      )}
 
       {/* Pagination */}
       {clients.length > 0 && !loading && (
