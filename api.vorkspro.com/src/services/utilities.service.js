@@ -73,15 +73,20 @@ export function randomStringGenerator(length, charset, isCapital = true) {
  * @param {*} data 
  * @returns 
  */
-export async function generateApiResponse(res, statusCode, isSuccess, message, data) {
+/**
+ * @param {object} options - Optional { cacheMaxAge } (seconds) to set Cache-Control for GET/list responses.
+ */
+export async function generateApiResponse(res, statusCode, isSuccess, message, data, options = {}) {
+    if (options.cacheMaxAge != null && typeof options.cacheMaxAge === "number" && options.cacheMaxAge > 0) {
+        res.setHeader("Cache-Control", `private, max-age=${options.cacheMaxAge}`);
+    }
     return res.status(statusCode).json({
         statusCode: statusCode,
-        // isSuccess: (statusCode >= 200 && statusCode <= 299) ? true : false,
         isSuccess: isSuccess,
         message: message,
         ...data,
     });
-};
+}
 
 /**
  * Generate API response with formatted API path

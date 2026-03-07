@@ -4,6 +4,7 @@ import { generateApiResponse } from "../services/utilities.service.js";
 import { Department, ResetCode, User } from "../startup/models.js";
 import { paginationFiltrationData } from "../services/pagination.service.js";
 import { client } from "../app.js";
+import { CACHE_KEYS, invalidateCache } from "../services/cache.service.js";
 
 export const departmentController = {
   createDepartment: asyncHandler(async (req, res) => {
@@ -23,7 +24,7 @@ export const departmentController = {
         "Failed to create department"
       );
     }
-    await client.del("departments:active");
+    await invalidateCache(CACHE_KEYS.DEPARTMENTS_ACTIVE);
 
     return generateApiResponse(
       res,
@@ -56,7 +57,7 @@ export const departmentController = {
         "Department not found"
       );
     }
-await client.del("departments:active");
+    await invalidateCache(CACHE_KEYS.DEPARTMENTS_ACTIVE);
     return generateApiResponse(
       res,
       StatusCodes.OK,
@@ -100,7 +101,7 @@ await client.del("departments:active");
         "Department not found"
       );
     }
-await client.del("departments:active");
+    await invalidateCache(CACHE_KEYS.DEPARTMENTS_ACTIVE);
     return generateApiResponse(
       res,
       StatusCodes.OK,
@@ -126,7 +127,7 @@ await client.del("departments:active");
 
     department.isActive = isActive;
     department.save();
-await client.del("departments:active");
+    await invalidateCache(CACHE_KEYS.DEPARTMENTS_ACTIVE);
     return generateApiResponse(
       res,
       StatusCodes.OK,
@@ -162,7 +163,7 @@ await client.del("departments:active");
   }),
 
   getActiveList: asyncHandler(async (req, res) => {
-    const cacheKey = "departments:active";
+    const cacheKey = CACHE_KEYS.DEPARTMENTS_ACTIVE;
 
     // 1️⃣ Check Redis first
     const cachedData = await client.get(cacheKey);

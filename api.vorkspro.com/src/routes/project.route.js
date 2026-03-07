@@ -2,7 +2,7 @@ import { Router } from "express";
 import { projectController } from "../controllers/project.controller.js";
 import { userController } from "../controllers/user.controller.js";
 import { checkPermission } from "../middlewares/permission.middleware.js";
-import { multerMultipleUploadRoute } from "../services/file.service2.js";
+import { multerMultipleUploadRoute, multerSingleUploadRoute } from "../services/file.service2.js";
 
 const route = Router();
 
@@ -99,6 +99,16 @@ route.patch(
     actions: ["Edit Records"],
   }),
   projectController.updateProjectCanvas
+);
+
+route.post(
+  "/upload-canvas-attachment/:id",
+  checkPermission({
+    modules: ["Projects"],
+    actions: ["Edit Records"],
+  }),
+  multerSingleUploadRoute,
+  projectController.uploadCanvasAttachment
 );
 
 route.patch(

@@ -5,8 +5,10 @@
   "type": "module",
   "scripts": {
     "start": "nodemon -r dotenv/config --experimental-json-modules src/index.js",
+    "start:cluster": "node -r dotenv/config src/cluster.js",
     "seed": "node src/seed/seed.js",
-    "seed:profiles": "node src/seed/ensure-profiles.js"
+    "seed:profiles": "node src/seed/ensure-profiles.js",
+    "reset:db": "node -r dotenv/config src/seed/reset-db-admin.js"
   },
   "keywords": [],
   "author": "",

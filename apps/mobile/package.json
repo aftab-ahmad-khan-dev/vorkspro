@@ -1,0 +1,9 @@
+{
+  "name": "vorkspro-mobile",
+  "version": "0.0.1",
+  "private": true,
+  "description": "VorksPro mobile client (placeholder — use Expo or Flutter)",
+  "scripts": {
+    "start": "echo 'Add Expo/React Native or Flutter and run their start command'"
+  }
+}

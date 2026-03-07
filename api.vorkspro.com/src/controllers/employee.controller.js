@@ -15,6 +15,9 @@ import {
   SubDepartment,
   User,
 } from "../startup/models.js";
+
+/** Protected super admin — never delete or deactivate. */
+const SUPER_ADMIN_EMAIL = "admin@vorkspro.com";
 import { tokenCreator } from "../services/token.service.js";
 import { uploadASingleFile } from "../services/file.service2.js";
 
@@ -520,7 +523,7 @@ export const employeeController = {
   deleteEmployee: asyncHandler(async (req, res) => {
     const { id } = req.params;
 
-    const employee = await Employee.findById(id);
+    const employee = await Employee.findById(id).populate("user", "email isSuperAdmin");
 
     if (!employee) {
       return generateApiResponse(
@@ -528,6 +531,16 @@ export const employeeController = {
         StatusCodes.NOT_FOUND,
         false,
         "Employee not found"
+      );
+    }
+
+    const user = employee.user;
+    if (user && (user.email === SUPER_ADMIN_EMAIL || user.isSuperAdmin === true)) {
+      return generateApiResponse(
+        res,
+        StatusCodes.FORBIDDEN,
+        false,
+        "Cannot delete the super admin user"
       );
     }
 
@@ -549,7 +562,7 @@ export const employeeController = {
   terminateEmployee: asyncHandler(async (req, res) => {
     const { id, date, status } = req.query;
 
-    const employee = await Employee.findById(id);
+    const employee = await Employee.findById(id).populate("user", "email isSuperAdmin");
 
     if (!employee) {
       return generateApiResponse(
@@ -557,6 +570,16 @@ export const employeeController = {
         StatusCodes.CONFLICT,
         false,
         "Employee not found"
+      );
+    }
+
+    const user = employee.user;
+    if (user && (user.email === SUPER_ADMIN_EMAIL || user.isSuperAdmin === true)) {
+      return generateApiResponse(
+        res,
+        StatusCodes.FORBIDDEN,
+        false,
+        "Cannot deactivate the super admin user"
       );
     }
 

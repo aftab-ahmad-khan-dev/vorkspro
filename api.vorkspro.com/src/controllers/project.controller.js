@@ -357,7 +357,11 @@ export const projectController = {
 
   updateProjectCanvas: asyncHandler(async (req, res) => {
     const { id } = req.params;
-    const { canvas } = req.body;
+    const { canvas, mentionedUserIds } = req.body;
+    const project = await Project.findById(id);
+    if (!project) {
+      return generateApiResponse(res, StatusCodes.NOT_FOUND, false, "Project not found", null);
+    }
     const updated = await Project.findByIdAndUpdate(
       id,
       { canvas: typeof canvas === "string" ? canvas : "" },
@@ -366,6 +370,23 @@ export const projectController = {
     if (!updated) {
       return generateApiResponse(res, StatusCodes.NOT_FOUND, false, "Project not found", null);
     }
+    // Notify mentioned users (canvas @mention)
+    const ids = Array.isArray(mentionedUserIds) ? mentionedUserIds : [];
+    if (ids.length > 0) {
+      const { sendNotification } = await import("../services/notify.service.js");
+      const projectName = project.name || "Project";
+      const message = `${req.user?.firstName || "Someone"} mentioned you in the canvas for "${projectName}".`;
+      for (const userId of ids) {
+        if (userId && userId !== req.user._id?.toString()) {
+          sendNotification("canvas-mention", message, {
+            userId,
+            projectId: id,
+            projectName,
+            url: `/app/project/${id}?tab=canvas`,
+          }).catch(() => {});
+        }
+      }
+    }
     return generateApiResponse(
       res,
       StatusCodes.OK,
@@ -373,6 +394,23 @@ export const projectController = {
       "Canvas updated",
       { project: { _id: updated._id, canvas: updated.canvas } }
     );
+  }),
+
+  uploadCanvasAttachment: asyncHandler(async (req, res) => {
+    const { id } = req.params;
+    const file = req.file;
+    if (!file) {
+      return generateApiResponse(res, StatusCodes.BAD_REQUEST, false, "No file uploaded", null);
+    }
+    const project = await Project.findById(id);
+    if (!project) {
+      return generateApiResponse(res, StatusCodes.NOT_FOUND, false, "Project not found", null);
+    }
+    const urls = await uploadMultipleFiles([file]);
+    const url = urls?.[0] || "";
+    const baseUrl = process.env.BASE_URL || req.protocol + "://" + req.get("host");
+    const fullUrl = url.startsWith("http") ? url : `${baseUrl}/${url}`;
+    return generateApiResponse(res, StatusCodes.OK, true, "File uploaded", { url: fullUrl });
   }),
 
   deleteProject: asyncHandler(async (req, res) => {

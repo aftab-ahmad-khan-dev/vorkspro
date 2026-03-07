@@ -1,0 +1,64 @@
+# Nginx load balancer — separate upstreams per platform for better load distribution.
+# Scale web, mobile, and desktop backends independently. No paid package.
+
+# Web (and legacy /api)
+upstream vorkspro_web {
+    least_conn;
+    server 127.0.0.1:4000;
+    server 127.0.0.1:4001;
+}
+
+# Mobile
+upstream vorkspro_mobile {
+    least_conn;
+    server 127.0.0.1:4002;
+    server 127.0.0.1:4003;
+}
+
+# Desktop
+upstream vorkspro_desktop {
+    least_conn;
+    server 127.0.0.1:4004;
+}
+
+server {
+    listen 80;
+    server_name api.vorkspro.com;
+
+    location /api/mobile/ {
+        proxy_pass http://vorkspro_mobile;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header X-Client-Platform mobile;
+    }
+
+    location /api/desktop/ {
+        proxy_pass http://vorkspro_desktop;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header X-Client-Platform desktop;
+    }
+
+    location /api/ {
+        proxy_pass http://vorkspro_web;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header X-Client-Platform $http_x_client_platform;
+    }
+
+    location /socket.io/ {
+        proxy_pass http://vorkspro_web;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+    }
+}

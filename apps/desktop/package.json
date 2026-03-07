@@ -1,0 +1,9 @@
+{
+  "name": "vorkspro-desktop",
+  "version": "0.0.1",
+  "private": true,
+  "description": "VorksPro desktop client (placeholder — use Electron or Tauri)",
+  "scripts": {
+    "start": "echo 'Add Electron/Tauri and run their start command'"
+  }
+}

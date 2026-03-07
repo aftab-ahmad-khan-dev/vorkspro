@@ -1,0 +1,13 @@
+{
+  "name": "vorkspro-load-balancer",
+  "version": "1.0.0",
+  "description": "Round-robin load balancer for VorksPro API (no external deps)",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "engines": {
+    "node": ">=16"
+  }
+}

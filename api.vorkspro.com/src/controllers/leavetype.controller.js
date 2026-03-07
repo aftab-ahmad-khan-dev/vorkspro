@@ -10,6 +10,7 @@ import {
 } from "../startup/models.js";
 import { paginationFiltrationData } from "../services/pagination.service.js";
 import { client } from "../app.js";
+import { CACHE_KEYS, invalidateCache } from "../services/cache.service.js";
 
 export const leaveTypeController = {
   getByFilter: asyncHandler(async (req, res) => {
@@ -67,7 +68,7 @@ export const leaveTypeController = {
         "Failed to create leave type"
       );
     }
-    await client.del("leaveTypes:active");
+    await invalidateCache(CACHE_KEYS.LEAVE_TYPES_ACTIVE);
     return generateApiResponse(
       res,
       StatusCodes.CREATED,
@@ -100,7 +101,7 @@ export const leaveTypeController = {
         "Leave type not found"
       );
     }
-    await client.del("leaveTypes:active");
+    await invalidateCache(CACHE_KEYS.LEAVE_TYPES_ACTIVE);
     return generateApiResponse(
       res,
       StatusCodes.OK,
@@ -123,7 +124,7 @@ export const leaveTypeController = {
         "Leave type not found"
       );
     }
-    await client.del("leaveTypes:active");
+    await invalidateCache(CACHE_KEYS.LEAVE_TYPES_ACTIVE);
     return generateApiResponse(
       res,
       StatusCodes.OK,
@@ -149,7 +150,7 @@ export const leaveTypeController = {
 
     leaveType.isActive = isActive;
     leaveType.save();
-    await client.del("leaveTypes:active");
+    await invalidateCache(CACHE_KEYS.LEAVE_TYPES_ACTIVE);
     return generateApiResponse(
       res,
       StatusCodes.OK,
@@ -159,7 +160,7 @@ export const leaveTypeController = {
   }),
 
   getActiveList: asyncHandler(async (req, res) => {
-    const cacheKey = "leaveTypes:active"; // Redis key
+    const cacheKey = CACHE_KEYS.LEAVE_TYPES_ACTIVE;
 
     // 1️⃣ Check if cached data exists
     const cachedData = await client.get(cacheKey);

@@ -4,6 +4,7 @@ import { generateApiResponse } from "../services/utilities.service.js";
 import { IndustryType } from "../startup/models.js";
 import { paginationFiltrationData } from "../services/pagination.service.js";
 import { client } from "../app.js";
+import { CACHE_KEYS, invalidateCache } from "../services/cache.service.js";
 
 export const industryTypeController = {
   create: asyncHandler(async (req, res) => {
@@ -23,7 +24,7 @@ export const industryTypeController = {
         "Something went wrong"
       );
     }
-    await client.del("industryTypes:active");
+    await invalidateCache(CACHE_KEYS.INDUSTRY_TYPES_ACTIVE);
     return generateApiResponse(
       res,
       StatusCodes.OK,
@@ -60,7 +61,7 @@ export const industryTypeController = {
         "Something went wrong"
       );
     }
-    await client.del("industryTypes:active");
+    await invalidateCache(CACHE_KEYS.INDUSTRY_TYPES_ACTIVE);
     return generateApiResponse(
       res,
       StatusCodes.OK,
@@ -83,7 +84,7 @@ export const industryTypeController = {
         "Something went wrong"
       );
     }
-    await client.del("industryTypes:active");
+    await invalidateCache(CACHE_KEYS.INDUSTRY_TYPES_ACTIVE);
     return generateApiResponse(
       res,
       StatusCodes.OK,
@@ -143,7 +144,7 @@ export const industryTypeController = {
 
     document.isActive = isActive;
     document.save();
-    await client.del("industryTypes:active");
+    await invalidateCache(CACHE_KEYS.INDUSTRY_TYPES_ACTIVE);
     return generateApiResponse(
       res,
       StatusCodes.OK,
@@ -153,7 +154,7 @@ export const industryTypeController = {
   }),
 
   getActiveList: asyncHandler(async (req, res) => {
-    const cacheKey = "industryTypes:active"; // Redis key
+    const cacheKey = CACHE_KEYS.INDUSTRY_TYPES_ACTIVE; // Redis key
 
     // 1️⃣ Check Redis cache first
     const cachedData = await client.get(cacheKey);

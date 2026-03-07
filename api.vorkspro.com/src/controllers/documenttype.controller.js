@@ -4,6 +4,7 @@ import { generateApiResponse } from "../services/utilities.service.js";
 import { BugType, DocumentType } from "../startup/models.js";
 import { paginationFiltrationData } from "../services/pagination.service.js";
 import { client } from "../app.js";
+import { CACHE_KEYS, invalidateCache } from "../services/cache.service.js";
 
 export const documentTypeController = {
     create: asyncHandler(async (req, res) => {
@@ -14,7 +15,7 @@ export const documentTypeController = {
         if (!document) {
             return generateApiResponse(res, StatusCodes.BAD_REQUEST, false, 'Something went wrong')
         }
-        await client.del("documentTypes:active");
+        await invalidateCache(CACHE_KEYS.DOCUMENT_TYPES_ACTIVE);
         return generateApiResponse(res, StatusCodes.OK, true, 'Document created successfully', { document })
     }),
 
@@ -31,7 +32,7 @@ export const documentTypeController = {
         if (!document) {
             return generateApiResponse(res, StatusCodes.BAD_REQUEST, false, 'Something went wrong')
         }
-        await client.del("documentTypes:active");
+        await invalidateCache(CACHE_KEYS.DOCUMENT_TYPES_ACTIVE);
         return generateApiResponse(res, StatusCodes.OK, true, 'Document updated successfully', { document })
     }),
 
@@ -43,7 +44,7 @@ export const documentTypeController = {
         if (!document) {
             return generateApiResponse(res, StatusCodes.BAD_REQUEST, false, 'Something went wrong')
         }
-        await client.del("documentTypes:active");
+        await invalidateCache(CACHE_KEYS.DOCUMENT_TYPES_ACTIVE);
         return generateApiResponse(res, StatusCodes.OK, true, 'Document deleted successfully', { document })
     }),
 
@@ -78,12 +79,12 @@ export const documentTypeController = {
 
         document.isActive = isActive;
         document.save();
-        await client.del("documentTypes:active");
+        await invalidateCache(CACHE_KEYS.DOCUMENT_TYPES_ACTIVE);
         return generateApiResponse(res, StatusCodes.OK, true, "Status changes successfully")
     }),
 
     getActiveList: asyncHandler(async (req, res) => {
-        const cacheKey = "documentTypes:active"; // Redis cache key
+        const cacheKey = CACHE_KEYS.DOCUMENT_TYPES_ACTIVE;
 
         // 1️⃣ Check Redis cache first
         const cachedData = await client.get(cacheKey);

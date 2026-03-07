@@ -374,7 +374,7 @@ async function seedData() {
 
     // Super Admin (from env)
     const adminEmail = process.env.ADMIN_EMAIL || "admin@vorkspro.com";
-    const defaultPassword = process.env.ADMIN_PASSWORD || "12345678";
+    const defaultPassword = process.env.ADMIN_PASSWORD || "password";
     const existingAdmin = await User.findOne({ email: adminEmail });
     if (!existingAdmin) {
       const adminRole = await Role.findOne({ name: "Admin" });

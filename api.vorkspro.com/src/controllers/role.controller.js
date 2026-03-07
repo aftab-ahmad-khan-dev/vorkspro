@@ -3,7 +3,7 @@ import { asyncHandler } from "../services/asynchandler.js";
 import { generateApiResponse } from "../services/utilities.service.js";
 import { Role } from "../startup/models.js";
 import { client } from "../app.js";
-
+import { CACHE_KEYS, invalidateCache } from "../services/cache.service.js";
 
 const MODULES = [
     "Dashboard",
@@ -116,7 +116,7 @@ export const roleController = {
         });
 
         await client.del(`user:${user}:role`);
-        // await client.del("roles:active");
+        await invalidateCache(CACHE_KEYS.ROLES_ACTIVE);
         return generateApiResponse(
             res,
             StatusCodes.CREATED,
@@ -140,7 +140,7 @@ export const roleController = {
         if (!role) {
             return generateApiResponse(res, StatusCodes.CONFLICT, false, "Role not found");
         }
-        await client.del("roles:active");
+        await invalidateCache(CACHE_KEYS.ROLES_ACTIVE);
         return generateApiResponse(res, StatusCodes.OK, true, "Role deleted successfully");
     }),
 
@@ -184,7 +184,7 @@ export const roleController = {
             );
         }
         await client.del(`user:${user}:role`);
-        // await client.del("roles:active");
+        await invalidateCache(CACHE_KEYS.ROLES_ACTIVE);
         return generateApiResponse(
             res,
             StatusCodes.OK,
@@ -207,19 +207,16 @@ export const roleController = {
 
         role.isActive = isActive;
         await role.save();
-        await client.del("roles:active");
+        await invalidateCache(CACHE_KEYS.ROLES_ACTIVE);
         return generateApiResponse(res, StatusCodes.OK, true, "Role status toggled successfully", { role });
     }),
 
     getActiveRoles: asyncHandler(async (req, res) => {
-        const cacheKey = "roles:active";
-
-        // 1️⃣ Check Redis
-        const cachedRoles = await client.get(cacheKey);
+        // 1️⃣ Check Redis (cache is invalidated on every role mutation, so no stale data)
+        const cachedRoles = await client.get(CACHE_KEYS.ROLES_ACTIVE);
 
         if (cachedRoles) {
             console.log("Roles served from Redis");
-
             return generateApiResponse(
                 res,
                 StatusCodes.OK,
@@ -229,16 +226,13 @@ export const roleController = {
             );
         }
 
-        // 2️⃣ Fetch from DB
+        // 2️⃣ Fetch from DB and repopulate cache
         console.log("Roles served from Database");
-
         const roles = await Role.find({ isActive: true }).select("name");
-
-        // 3️⃣ Store in Redis
         await client.set(
-            cacheKey,
+            CACHE_KEYS.ROLES_ACTIVE,
             JSON.stringify(roles),
-            { EX: 600 } // 10 minutes
+            { EX: 600 } // fallback TTL only; any mutation invalidates immediately
         );
 
         return generateApiResponse(
@@ -261,7 +255,7 @@ export const roleController = {
 
         role.cost = cost;
         await role.save();
-        await client.del("roles:active");
+        await invalidateCache(CACHE_KEYS.ROLES_ACTIVE);
         return generateApiResponse(res, StatusCodes.OK, true, "cost updated successfully", );
     }),
 }

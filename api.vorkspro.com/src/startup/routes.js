@@ -1,13 +1,19 @@
-import { getHealth, getHealthPage } from './health.js';
-import portalRoutes from '../routes/index.js';
-import logger from '../services/logger.js';
+import { getHealth, getHealthPage } from "./health.js";
+import logger from "../services/logger.js";
+
+import webRoutes from "../platforms/web/routes.js";
+import mobileRoutes from "../platforms/mobile/routes.js";
+import desktopRoutes from "../platforms/desktop/routes.js";
 
 export default function (app) {
-    app.use("/api", portalRoutes);
+  app.use("/api", webRoutes);
+  app.use("/api/web", webRoutes);
+  app.use("/api/mobile", mobileRoutes);
+  app.use("/api/desktop", desktopRoutes);
 
-    logger.banner(`Routes mounted (mode: ${process.env.MODE || "development"})`);
-    app.get('/', getHealthPage);
-
-    app.get('/health', getHealthPage);
-
+  logger.banner(
+    `Routes mounted: /api, /api/web, /api/mobile, /api/desktop (mode: ${process.env.MODE || "development"})`
+  );
+  app.get("/", getHealthPage);
+  app.get("/health", getHealthPage);
 }

@@ -3,7 +3,7 @@ import { app } from "./app.js";
 import initializeSocket from "./startup/socket.js";
 import logger from "./services/logger.js";
 
-const startServer = async () => {
+export async function startServer() {
   try {
     await initializeDatabase();
     const { server, io } = initializeSocket(app);
@@ -18,6 +18,8 @@ const startServer = async () => {
     logger.error("MongoDB connection failed", "Server", err);
     process.exit(1);
   }
-};
+}
 
-startServer();
+if (!process.env.RUN_AS_WORKER) {
+  startServer();
+}

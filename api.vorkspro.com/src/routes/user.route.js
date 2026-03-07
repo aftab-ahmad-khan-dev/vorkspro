@@ -12,6 +12,16 @@ route.post(
 );
 
 route.post(
+    "/registration-draft",
+    userController.saveRegistrationDraft
+);
+
+route.get(
+    "/registration-draft",
+    userController.getRegistrationDraft
+);
+
+route.post(
     "/login",
     userController.loginUser
 );

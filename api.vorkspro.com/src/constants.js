@@ -2,6 +2,8 @@ export const ProjectName = "Vorks Pro";
 export const DB_NAME = "VorksPro";
 export const TEST_DB_NAME = "VorksProTest";
 export const DEV_DB_NAME = "VorksPro";
+/** Registry DB: stores organizations (one document per org; org's data lives in its own DB). */
+export const REGISTRY_DB_NAME = "VorksProRegistry";
 
 const ModelNames = {
   Achievement: { model: "Achievement", db: "achievements" },
