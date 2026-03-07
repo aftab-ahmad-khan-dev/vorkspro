@@ -5,6 +5,7 @@ const route = Router();
 
 route.post('/log-followup', followupController.logCommunity);
 route.post('/schedule-followup', followupController.createSchedule);
+route.patch('/update/:id', followupController.update);
 route.get('/get-by-filter', followupController.getByFilter);
 route.get('/get-by-id/:id', followupController.getById);
 route.get('/get-stats', followupController.getStats);

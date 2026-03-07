@@ -48,6 +48,11 @@ export const PAGE_TOURS = {
     { id: "driver-page-header", title: "Projects", description: "Manage projects. Switch between List, Calendar, and Kanban. Use List/Grid toggle for list view. Search, filter, and create projects." },
     { id: "driver-main-content", title: "Project List", description: "Projects in table or card grid. Create projects and track status. Click for details." },
   ],
+  "/app/projects/project-detail": [
+    { id: "driver-project-header", title: "Project Header", description: "Project name, status, priority. Edit project or change status from here." },
+    { id: "driver-project-tabs", title: "Project Tabs", description: "Overview, Canvas, Team, Activity, Milestones, Documents, Blockages, Credentials & Keys, Budget. Canvas lets you add Slack-like notes, links, and blocks per project." },
+    { id: "driver-main-content", title: "Tab Content", description: "Content for the selected tab. Use Canvas for notes and ideas, Team for members, Milestones for tasks, and more." },
+  ],
   "/app/client-management": [
     { id: "driver-page-header", title: "Client Management", description: "Manage clients. Add clients and view details. Switch between List and Grid view." },
     { id: "driver-main-content", title: "Client List", description: "All clients. Click for details, contacts, and projects." },
@@ -119,6 +124,14 @@ export const PAGE_TOURS = {
   "/app/blockages": [
     { id: "driver-page-header", title: "Blockages", description: "Track project blockages. List, Calendar, Kanban views. List/Grid toggle for list view." },
     { id: "driver-main-content", title: "Blockage List", description: "View and resolve blockages. Drag in Kanban to update status." },
+  ],
+  "/app/automation": [
+    { id: "driver-page-header", title: "Automation", description: "Workflow automation. Work types, status categories, and notification rules." },
+    { id: "driver-main-content", title: "Automation Content", description: "Projects, work types, status categories, and rules. Configure when to notify assignees on status changes." },
+  ],
+  "/app/chat": [
+    { id: "driver-page-header", title: "Chat", description: "Direct messages with your team." },
+    { id: "driver-main-content", title: "Chat Content", description: "Conversations, message history, and replies." },
   ],
 };
 

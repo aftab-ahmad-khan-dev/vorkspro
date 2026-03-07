@@ -38,6 +38,7 @@ import KeysAndCredentials from "./pages/private/Keys&Credentials";
 import { AuthGuard } from "./guards/AuthGuard";
 import Blockages from "./pages/private/Blockages";
 import Chat from "./pages/private/Chat";
+import Automation from "./pages/private/Automation";
 
 function App() {
   const token = localStorage.getItem("token");
@@ -145,6 +146,9 @@ function App() {
 
         {/* Categories */}
         <Route path="categories" element={<Category />} />
+
+        {/* Automation */}
+        <Route path="automation" element={<Automation />} />
 
         {/* Always Accessible Routes */}
         <Route path="settings" element={<Settings />} />

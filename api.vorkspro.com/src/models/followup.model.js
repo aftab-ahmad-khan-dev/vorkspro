@@ -47,6 +47,14 @@ const EmployeeSchema = new mongoose.Schema({
         type: Boolean,
         default: false
     },
+    remindAtUtc: {
+        type: Date,
+        default: null
+    },
+    reminderNotifiedAt: {
+        type: Date,
+        default: null
+    },
     type: {
         type: String,
         enum: ['schedule-followup', 'communication-history', 'my-followup'],

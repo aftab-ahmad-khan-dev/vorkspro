@@ -1,4 +1,6 @@
+import { useEffect, useState } from "react";
 import { Users, FolderKanban, DollarSign, AlertTriangle } from "lucide-react";
+import { apiGet } from "@/interceptor/interceptor";
 import {
   LineChart,
   Line,
@@ -34,6 +36,47 @@ const CustomTooltip = ({ active, payload, label,text }) => {
 export default function AdminDashboard() {
   const { tabs } = useTabs();
   const allowedModules = getModulesFromTabs(tabs);
+  const [stats, setStats] = useState({
+    totalEmployees: null,
+    activeEmployees: null,
+    totalProjects: null,
+    inProgressProjects: null,
+    completedProjects: null,
+    totalRevenue: null,
+    openBlockers: null,
+    pendingLeaveRequests: null,
+  });
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      const [emp, proj, client, block, leave] = await Promise.allSettled([
+        apiGet("employee/get-stats"),
+        apiGet("project/get-stats"),
+        apiGet("client/get-stats"),
+        apiGet("project/blockage/get-all").then((r) => ({ blockages: r?.blockages ?? [] })),
+        apiGet("leave-request/get-stats"),
+      ]);
+      const empStats = emp.status === "fulfilled" ? emp.value?.stats : null;
+      const projStats = proj.status === "fulfilled" ? proj.value?.stats : null;
+      const clientStats = client.status === "fulfilled" ? client.value?.stats : null;
+      const blockRes = block.status === "fulfilled" ? block.value : null;
+      const openBlockersCount = Array.isArray(blockRes?.blockages)
+        ? blockRes.blockages.filter((b) => b.status === "in-progress").length
+        : null;
+      const leaveStats = leave.status === "fulfilled" ? leave.value?.stats : null;
+      setStats({
+        totalEmployees: empStats?.totalEmployees ?? empStats?.activeEmployees ?? null,
+        activeEmployees: empStats?.activeEmployees ?? null,
+        totalProjects: projStats?.totalProjects ?? null,
+        inProgressProjects: projStats?.inProgressProjects ?? null,
+        completedProjects: projStats?.completedProjects ?? null,
+        totalRevenue: clientStats?.totalRevenue ?? null,
+        openBlockers: openBlockersCount,
+        pendingLeaveRequests: leaveStats?.pendingRequests ?? null,
+      });
+    };
+    fetchStats();
+  }, []);
 
   const revenueData = [
     { month: "Jul", value: 85000 },
@@ -56,10 +99,10 @@ export default function AdminDashboard() {
     <div className="min-h-screen bg-background sm:p-8">
       <DashboardSummaryCard title="Admin dashboard" summary={DASHBOARD_SUMMARIES.admin} />
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-        <DashboardInsightCard title="Active Employees" value="5" subtitle="+8% vs last month" Icon={Users} iconBg="bg-[var(--primary)]" />
-        <DashboardInsightCard title="Active Projects" value="3" subtitle="+12% vs last month" Icon={FolderKanban} iconBg="bg-gradient-to-br from-blue-600 to-cyan-400" />
-        <DashboardInsightCard title="Monthly Revenue" value="$40K" subtitle="+15% vs last month" Icon={DollarSign} iconBg="bg-[var(--primary)]" />
-        <DashboardInsightCard title="Open Blockers" value="2" Icon={AlertTriangle} iconBg="bg-gradient-to-br from-orange-500 to-red-500" />
+        <DashboardInsightCard title="Active Employees" value={stats.activeEmployees ?? "—"} Icon={Users} iconBg="bg-[var(--primary)]" />
+        <DashboardInsightCard title="Active Projects" value={stats.inProgressProjects ?? stats.totalProjects ?? "—"} Icon={FolderKanban} iconBg="bg-gradient-to-br from-blue-600 to-cyan-400" />
+        <DashboardInsightCard title="Total Revenue" value={stats.totalRevenue != null ? (typeof stats.totalRevenue === "number" ? `PKR ${stats.totalRevenue.toLocaleString()}` : stats.totalRevenue) : "—"} Icon={DollarSign} iconBg="bg-[var(--primary)]" />
+        <DashboardInsightCard title="Open Blockers" value={stats.openBlockers ?? "—"} Icon={AlertTriangle} iconBg="bg-gradient-to-br from-orange-500 to-red-500" />
       </div>
       <DashboardQuickActions className="mb-8" />
 
@@ -91,7 +134,7 @@ export default function AdminDashboard() {
         <DashboardActivitySection title="Project Progress" subtitle="">
           <div className="flex justify-end mb-2">
             <span className="text-xs bg-blue-500/20 text-blue-400 px-4 font-semibold py-2 rounded-full">
-              3 Active
+              {stats.inProgressProjects ?? 0} Active
             </span>
           </div>
           <div className="h-56">
@@ -140,7 +183,7 @@ export default function AdminDashboard() {
               <p className="font-semibold text-sm text-yellow-600 dark:text-yellow-400">Leave Requests</p>
               <p className="text-xs text-muted-foreground">Awaiting approval</p>
             </div>
-            <span className="text-yellow-600 dark:text-yellow-400 font-bold">1</span>
+            <span className="text-yellow-600 dark:text-yellow-400 font-bold">{stats.pendingLeaveRequests ?? 0}</span>
           </div>
 
           <div className="flex justify-between items-center bg-red-400/5 rounded-lg p-4">
@@ -148,7 +191,7 @@ export default function AdminDashboard() {
               <p className="font-semibold text-sm text-red-400">Open Blockers</p>
               <p className="text-xs text-muted-foreground">Need attention</p>
             </div>
-            <span className="text-red-400 font-bold">2</span>
+            <span className="text-red-400 font-bold">{stats.openBlockers ?? 0}</span>
           </div>
         </DashboardActivitySection>
 
@@ -181,10 +224,10 @@ export default function AdminDashboard() {
 
         <DashboardActivitySection title="Quick Stats" subtitle="">
           {[
-            ["Total Employees", "6"],
-            ["On Leave Today", "1"],
-            ["Total Projects", "4"],
-            ["Completed Projects", "0"],
+            ["Total Employees", stats.totalEmployees ?? "—"],
+            ["Total Projects", stats.totalProjects ?? "—"],
+            ["In Progress", stats.inProgressProjects ?? "—"],
+            ["Pending Leave", stats.pendingLeaveRequests ?? "—"],
           ].map((item, i) => (
             <div key={i} className="flex justify-between mb-3 text-sm">
               <span className="text-muted-foreground">{item[0]}</span>

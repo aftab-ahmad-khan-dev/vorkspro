@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { employeeController } from "../controllers/employee.controller.js";
 import { checkPermission } from "../middlewares/permission.middleware.js";
+import { multerSingleUploadRoute } from "../services/file.service2.js";
 
 const route = Router();
 
@@ -48,6 +49,12 @@ route.get(
 route.patch(
   "/update-profile",
   employeeController.updateProfile
+);
+
+route.post(
+  "/upload-profile-photo",
+  multerSingleUploadRoute,
+  employeeController.uploadProfilePhoto
 );
 
 route.delete(

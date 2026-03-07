@@ -7,6 +7,7 @@ import MilestonesTab from "./MilestoneTab";
 import DocumentsTab from "./DocumentsTab";
 import CredentialsTab from "./CredentialTab";
 import BudgetTab from "./BudgetTab";
+import CanvasTab from "./CanvasTab";
 import {
   Select,
   SelectContent,
@@ -69,6 +70,7 @@ export default function ProjectTabs({
         if (modules.detailTabs.includes("Budget Breakdown")) {
           availableTabs.push("Budget Breakdown");
         }
+        availableTabs.push("canvas");
 
         // Set first available tab as default if not already set (only when uncontrolled)
         if (controlledActiveTab == null && availableTabs.length > 0 && !internalActiveTab) {
@@ -100,6 +102,7 @@ export default function ProjectTabs({
     hasDetailTabsPermission("Projects", "Blockages"),
     hasDetailTabsPermission("Projects", "Credentials&Keys"),
     hasDetailTabsPermission("Projects", "Budget Breakdown"),
+    true, // Canvas – optional per project, show for all with project access
   ].filter(Boolean).length;
 
   function hasPermission(moduleName, requiredAction) {
@@ -161,16 +164,21 @@ export default function ProjectTabs({
     >
       {/* Desktop tabs */}
       {detailTabsCount > 1 && (
-        <TabsList className="hidden md:flex gap-2 rounded-2xl bg-border/50 p-1 mb-6 overflow-x-auto">
+        <TabsList id="driver-project-tabs" className="hidden md:flex gap-2 rounded-2xl bg-border/50 p-1 mb-6 overflow-x-auto">
           {hasDetailTabsPermission("Projects", "Overview") && (
             <TabsTrigger
               value="overview"
-              className="rounded-xl px-5 py-2.5 text-sm font-medium capitalize"
+              className="rounded-xl px-5 py-2.5 text-sm font-medium capitalize shrink-0"
             >
               Overview
             </TabsTrigger>
           )}
-          
+          <TabsTrigger
+            value="canvas"
+            className="rounded-xl px-5 py-2.5 text-sm font-medium capitalize shrink-0"
+          >
+            Canvas
+          </TabsTrigger>
           {hasDetailTabsPermission("Projects", "Team") && (
             <TabsTrigger
               value="team"
@@ -238,7 +246,7 @@ export default function ProjectTabs({
           {hasDetailTabsPermission("Projects", "Budget Breakdown") && (
             <TabsTrigger
               value="Budget Breakdown"
-              className="rounded-xl px-5 py-2.5 text-sm font-medium capitalize"
+              className="rounded-xl px-5 py-2.5 text-sm font-medium capitalize shrink-0"
             >
               Budget Breakdown
             </TabsTrigger>
@@ -262,7 +270,9 @@ export default function ProjectTabs({
                   Overview
                 </SelectItem>
               )}
-              
+              <SelectItem value="canvas" className="rounded-xl px-5 py-2.5 text-sm font-medium capitalize">
+                Canvas
+              </SelectItem>
               {hasDetailTabsPermission("Projects", "Team") && (
                 <SelectItem value="team" className="rounded-xl px-5 py-2.5 text-sm font-medium capitalize">
                   Team
@@ -351,6 +361,10 @@ export default function ProjectTabs({
           onDelete={onDeleteCredential}
           onRefresh={refresh}
         />
+      </TabsContent>
+
+      <TabsContent value="canvas">
+        <CanvasTab project={project} refresh={refresh} />
       </TabsContent>
     </Tabs>
   );

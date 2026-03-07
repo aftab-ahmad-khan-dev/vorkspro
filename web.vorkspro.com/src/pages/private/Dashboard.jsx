@@ -21,8 +21,7 @@ import {
   FolderPlus,
   UserPlus2,
   File,
-  DollarSignIcon,
-  Calendar1,
+  Calendar,
   Loader2,
   Inbox,
   HelpCircle,
@@ -187,13 +186,13 @@ function Dashboard() {
     },
     {
       label: "Create Invoice",
-      icon: <DollarSignIcon strokeWidth={2.5} />,
+      icon: <DollarSign strokeWidth={2.5} />,
       module: "Finance",
       action: "View Finance",
     },
     {
       label: "Add Announcement",
-      icon: <Calendar1 strokeWidth={2.5} />,
+      icon: <Calendar strokeWidth={2.5} />,
       module: "Announcements",
       action: "Create Records",
     },
@@ -338,7 +337,7 @@ function Dashboard() {
                   ? `${leaveStats.approvedRequests ?? 0} approved`
                   : null
               }
-              icon={<Calendar1 size={20} className='text-[var(--primary)]' />}
+              icon={<Calendar size={20} className='text-[var(--primary)]' />}
               isLoading={loading}
               to='/app/hr-management'
             />

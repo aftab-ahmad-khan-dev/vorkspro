@@ -22,7 +22,7 @@ export const listConversations = async (req, res, next) => {
 
     const conversations = await ChatConversation.find(query)
       .sort({ updatedAt: -1 })
-      .populate("participants", "firstName lastName email")
+      .populate("participants", "firstName lastName email profilePicture")
       .lean();
 
     res.json(conversations);
@@ -50,7 +50,7 @@ export const searchUsersForChat = async (req, res, next) => {
     }
 
     const users = await User.find(filter)
-      .select("firstName lastName email")
+      .select("firstName lastName email profilePicture")
       .limit(20)
       .lean();
 
@@ -89,7 +89,7 @@ export const getOrCreateDirectConversation = async (req, res, next) => {
     }
 
     const populated = await ChatConversation.findById(conversation._id)
-      .populate("participants", "firstName lastName email")
+      .populate("participants", "firstName lastName email profilePicture")
       .lean();
 
     res.status(201).json(populated);
@@ -112,7 +112,7 @@ export const listMessages = async (req, res, next) => {
     const messages = await ChatMessage.find(query)
       .sort({ createdAt: -1 })
       .limit(limit)
-      .populate("sender", "firstName lastName email")
+      .populate("sender", "firstName lastName email profilePicture")
       .lean();
 
     res.json(messages.reverse());
@@ -140,10 +140,15 @@ export const sendMessage = async (req, res, next) => {
       return res.status(403).json({ message: "Not part of this conversation" });
     }
 
+    const otherParticipantIds = conversation.participants
+      .filter((id) => String(id) !== String(userId))
+      .map((id) => id);
+
     const msg = await ChatMessage.create({
       conversation: conversationId,
       sender: userId,
       body: body.trim(),
+      deliveredTo: otherParticipantIds,
     });
 
     // Update conversation summary
@@ -155,7 +160,7 @@ export const sendMessage = async (req, res, next) => {
     const io = req.app.locals.io;
     if (io) {
       const populatedMsg = await ChatMessage.findById(msg._id)
-        .populate("sender", "firstName lastName email")
+        .populate("sender", "firstName lastName email profilePicture")
         .lean();
 
       io.to(`conversation_${conversationId}`).emit("chat:message", populatedMsg);

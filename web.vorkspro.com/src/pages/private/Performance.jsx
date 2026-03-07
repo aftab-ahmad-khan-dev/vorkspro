@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import {
   Users,
-  Calendar1,
+  Calendar,
   AlertCircle,
   CheckCircle,
   Clock,
@@ -84,7 +84,7 @@ function Performance() {
           title="On Leave Today"
           value={loading ? "—" : (leaveStats?.onLeaveRequests ?? attendanceStats?.onLeave ?? 0)}
           subtitle="Currently on leave"
-          icon={<Calendar1 size={20} className="text-[var(--primary)]" />}
+          icon={<Calendar size={20} className="text-[var(--primary)]" />}
           isLoading={loading}
         />
         <StatCard

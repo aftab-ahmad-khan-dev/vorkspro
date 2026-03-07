@@ -16,6 +16,7 @@ import {
   User,
 } from "../startup/models.js";
 import { tokenCreator } from "../services/token.service.js";
+import { uploadASingleFile } from "../services/file.service2.js";
 
 export const employeeController = {
   /* -------------------------------------------------------------
@@ -281,6 +282,9 @@ export const employeeController = {
     const employee = await Employee.findByIdAndUpdate(findEmployee._id, updatedData, {
       new: true,
     });
+    if (updatedData.profilePicture !== undefined) {
+      await User.findByIdAndUpdate(userId, { profilePicture: updatedData.profilePicture });
+    }
     if (!employee) {
       return generateApiResponse(
         res,
@@ -300,6 +304,39 @@ export const employeeController = {
       "Profile updated successfully",
       { employee, token }
     )
+  }),
+
+  uploadProfilePhoto: asyncHandler(async (req, res) => {
+    const userId = req.user?._id;
+    const file = req.file;
+    if (!file || !file.mimetype?.startsWith("image/")) {
+      return generateApiResponse(res, StatusCodes.BAD_REQUEST, false, "Valid image file required", null);
+    }
+
+    const findEmployee = await Employee.findOne({ user: userId });
+    if (!findEmployee) {
+      return generateApiResponse(res, StatusCodes.NOT_FOUND, false, "Employee not found", null);
+    }
+
+    const fileName = await uploadASingleFile(file, true, 200);
+    if (!fileName) {
+      return generateApiResponse(res, StatusCodes.INTERNAL_SERVER_ERROR, false, "Upload failed", null);
+    }
+
+    const baseUrl = process.env.API_BASE_URL || `${req.protocol}://${req.get("host")}`;
+    const profilePicture = `${baseUrl}/${fileName}`;
+
+    await Employee.findByIdAndUpdate(findEmployee._id, { profilePicture });
+    await User.findByIdAndUpdate(userId, { profilePicture });
+
+    const employee = await Employee.findById(findEmployee._id).lean();
+    const token = tokenCreator({ _id: userId, role: employee.role, employee });
+
+    return generateApiResponse(res, StatusCodes.OK, true, "Profile photo updated", {
+      profilePicture,
+      employee,
+      token,
+    });
   }),
 
   /* -------------------------------------------------------------
@@ -602,16 +639,11 @@ export const employeeController = {
   }),
 
   getActiveEmployees: asyncHandler(async (req, res) => {
-    const attendance = await Attendance.find({});
     const employees = await Employee.find({
       status: "active",
-    }).populate("leaveAllocation.leaveType").select('firstName lastName');
-
-    attendance.filter((attendance) => {
-      if (attendance._id === "present") {
-        return attendance;
-      }
-    });
+    })
+      .select("_id firstName lastName")
+      .lean();
 
     return generateApiResponse(
       res,

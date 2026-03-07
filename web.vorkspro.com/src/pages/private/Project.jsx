@@ -392,14 +392,18 @@ function Project() {
       <div className={`grid grid-cols-1 md:grid-cols-2 ${actions.cost ? "lg:grid-cols-4" : "lg:grid-cols-3"} gap-6`}>
         <StatCard
           title="Total Projects"
-          value={stats.totalProjects}
-          subtitle="+5 this month"
+          value={stats.totalProjects ?? 0}
+          subtitle={
+            stats.projectsCreatedThisMonth != null
+              ? `${stats.projectsCreatedThisMonth > 0 ? "+" : ""}${stats.projectsCreatedThisMonth} this month`
+              : undefined
+          }
           icon={<Briefcase size={20} className="text-[var(--primary)]" />}
           isLoading={statsLoading}
         />
         <StatCard
           title="In Progress"
-          value={stats.inProgressProjects}
+          value={stats.inProgressProjects ?? 0}
           subtitle="Active development"
           valueClass="text-blue-600"
           icon={<Clock size={20} className="text-blue-500" />}
@@ -407,20 +411,27 @@ function Project() {
         />
         <StatCard
           title="Completed"
-          value={stats.completedProjects}
+          value={stats.completedProjects ?? 0}
           subtitle="Successfully delivered"
           valueClass="text-green-600"
           icon={<CheckCircle2 size={20} className="text-green-500" />}
           isLoading={statsLoading}
         />
-        {actions.cost &&
+        {actions.cost && (
           <StatCard
             title="Total Cost"
-            value={`${stats?.cancelledProjects}`}
+            value={
+              stats?.totalCost != null
+                ? typeof stats.totalCost === "number"
+                  ? stats.totalCost.toLocaleString()
+                  : stats.totalCost
+                : "—"
+            }
             subtitle="Across all projects"
             icon={<DollarSign size={20} className="text-[var(--primary)]" />}
             isLoading={statsLoading}
-          />}
+          />
+        )}
       </div>
 
       {/* Tabs + Search + Filters */}

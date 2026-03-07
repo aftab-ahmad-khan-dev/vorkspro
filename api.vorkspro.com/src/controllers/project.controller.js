@@ -302,28 +302,32 @@ export const projectController = {
       tags,
       progress,
       client,
+      canvas,
     } = req.body;
+
+    const updatePayload = {
+      name,
+      description,
+      startDate,
+      endDate,
+      status,
+      priority,
+      projectManager,
+      teamMembers,
+      project,
+      tasks,
+      milestones,
+      budget,
+      documents,
+      tags,
+      progress,
+      client,
+    };
+    if (canvas !== undefined) updatePayload.canvas = canvas;
 
     const updatedProject = await Project.findByIdAndUpdate(
       id,
-      {
-        name,
-        description,
-        startDate,
-        endDate,
-        status,
-        priority,
-        projectManager,
-        teamMembers,
-        project,
-        tasks,
-        milestones,
-        budget,
-        documents,
-        tags,
-        progress,
-        client,
-      },
+      updatePayload,
       { new: true }
     );
 
@@ -348,6 +352,26 @@ export const projectController = {
       true,
       "Project updated successfully",
       { project: updatedProject }
+    );
+  }),
+
+  updateProjectCanvas: asyncHandler(async (req, res) => {
+    const { id } = req.params;
+    const { canvas } = req.body;
+    const updated = await Project.findByIdAndUpdate(
+      id,
+      { canvas: typeof canvas === "string" ? canvas : "" },
+      { new: true }
+    ).select("canvas");
+    if (!updated) {
+      return generateApiResponse(res, StatusCodes.NOT_FOUND, false, "Project not found", null);
+    }
+    return generateApiResponse(
+      res,
+      StatusCodes.OK,
+      true,
+      "Canvas updated",
+      { project: { _id: updated._id, canvas: updated.canvas } }
     );
   }),
 
@@ -415,6 +439,8 @@ export const projectController = {
               completedProjects: 0,
               onHoldProjects: 0,
               cancelledProjects: 0,
+              projectsCreatedThisMonth: 0,
+              totalCost: 0,
             },
           }
         );
@@ -426,22 +452,30 @@ export const projectController = {
       ];
     }
 
+    const startOfMonth = new Date();
+    startOfMonth.setDate(1);
+    startOfMonth.setHours(0, 0, 0, 0);
+
     // -----------------------------
     // 📊 AGGREGATION
     // -----------------------------
-    const result = await Project.aggregate([
-      { $match: matchStage },
-      {
-        $group: {
-          _id: "$status",
-          count: { $sum: 1 },
-        },
-      },
+    const [result, thisMonthResult, costResult] = await Promise.all([
+      Project.aggregate([
+        { $match: matchStage },
+        { $group: { _id: "$status", count: { $sum: 1 } } },
+      ]),
+      Project.countDocuments({
+        ...matchStage,
+        createdAt: { $gte: startOfMonth },
+      }),
+      Project.aggregate([
+        { $match: matchStage },
+        { $group: { _id: null, totalCost: { $sum: { $ifNull: ["$cost", 0] } } } },
+      ]),
     ]);
 
-    // -----------------------------
-    // 🧮 FORMAT RESPONSE
-    // -----------------------------
+    const totalCostSum = costResult[0]?.totalCost ?? 0;
+
     const stats = {
       totalProjects: 0,
       notstartedProjects: 0,
@@ -449,6 +483,8 @@ export const projectController = {
       completedProjects: 0,
       onHoldProjects: 0,
       cancelledProjects: 0,
+      projectsCreatedThisMonth: thisMonthResult ?? 0,
+      totalCost: totalCostSum,
     };
 
     result.forEach((item) => {
@@ -705,13 +741,15 @@ export const projectController = {
       blockedBy,
       impact,
       notes,
-      createdBy
+      createdBy,
+      workType
     } = req.body;
 
     // 🔥 Fix: convert empty strings to null
     if (milestone === "") milestone = null;
     if (assignedTo === "") assignedTo = null;
     if (createdBy === "") createdBy = null;
+    if (workType === "") workType = null;
 
     const newBlockage = new Blockage({
       title,
@@ -725,10 +763,16 @@ export const projectController = {
       status,
       assignedTo,
       blockedBy,
-      createdBy
+      createdBy,
+      workType
     });
 
     const savedBlockage = await newBlockage.save();
+
+    if (assignedTo) {
+      const { sendAssignmentNotification } = await import("../services/automation.service.js");
+      await sendAssignmentNotification("blockage", await savedBlockage.populate("assignedTo"), savedBlockage.title).catch(() => {});
+    }
 
     // 🔥 OPTIONAL: project ke andar blockage push karna
     const findProject = await Project.findById(project);
@@ -807,8 +851,7 @@ export const projectController = {
       );
     }
 
-    console.log(blockage.status)
-    let oldStatus = blockage.status
+    const oldStatus = blockage.status;
 
     if (status) {
       blockage.status = status;
@@ -818,6 +861,15 @@ export const projectController = {
     }
 
     const updatedBlockage = await blockage.save();
+
+    const { sendAutomationNotifications } = await import("../services/automation.service.js");
+    await sendAutomationNotifications({
+      entityType: "blockage",
+      entity: updatedBlockage,
+      oldStatus,
+      newStatus: updatedBlockage.status,
+      title: updatedBlockage.title,
+    }).catch(() => {});
 
     await updatedBlockage.populate([
       { path: "milestone", select: "name" },

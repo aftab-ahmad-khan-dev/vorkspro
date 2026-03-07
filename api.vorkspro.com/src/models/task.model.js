@@ -31,7 +31,12 @@ const TaskSchema = new mongoose.Schema(
         },
         status: {
             type: String,
-            enum: ['to do', 'in progress', 'in review', 'completed', 'on hold', 'cancelled'],
+            enum: [
+                'to do', 'in progress', 'in review', 'completed', 'on hold', 'cancelled',
+                'not started', 'waiting for client', 'working', 'testing',
+                'delivered', 'deployed', 'client requirement',
+                'need to start', 'need design', 'need deployment'
+            ],
             default: 'to do'
         },
         estimatedHours: { type: Number },
@@ -46,6 +51,10 @@ const TaskSchema = new mongoose.Schema(
             createdAt: { type: Date, default: Date.now }
         }],
         tags: [{ type: String }],
+        workType: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: ModelNames.WorkType.model,
+        },
         // dependencies: [{
         //     type: mongoose.Schema.Types.ObjectId,
         //     ref: ModelNames.Task.model

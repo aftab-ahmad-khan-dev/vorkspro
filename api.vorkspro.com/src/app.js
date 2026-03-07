@@ -5,10 +5,15 @@ import routes from "./startup/routes.js";
 import { tokenChecker } from "./middlewares/token.middleware.js";
 import logger from "./services/logger.js";
 // Skip cron in serverless (Vercel) — it only runs in long-lived processes
-if (!process.env.VERCEL) import("./cron/reminder.cron.js");
+if (!process.env.VERCEL) {
+  import("./cron/reminder.cron.js");
+  import("./cron/followup-reminder.cron.js");
+}
 import { createClient } from "redis";
 
-const redisUrl = process.env.REDIS_URL || "redis://127.0.0.1:6379";
+const redisUrl =
+  process.env.REDIS_URL ||
+  "redis-11312.c263.us-east-1-2.ec2.cloud.redislabs.com:11312";
 
 const noOpRedis = {
   get: async () => null,
@@ -26,7 +31,9 @@ let client = noOpRedis;
     });
     await Promise.race([
       redisClient.connect(),
-      new Promise((_, reject) => setTimeout(() => reject(new Error("Redis connect timeout")), 3000)),
+      new Promise((_, reject) =>
+        setTimeout(() => reject(new Error("Redis connect timeout")), 3000),
+      ),
     ]);
     client = redisClient;
     logger.banner("Redis connected");

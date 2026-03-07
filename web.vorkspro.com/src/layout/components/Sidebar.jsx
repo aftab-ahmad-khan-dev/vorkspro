@@ -24,6 +24,7 @@ import {
   ClipboardList,
   Construction,
   Key,
+  Zap,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Link, useLocation, useNavigate } from "react-router-dom";
@@ -67,6 +68,7 @@ function Sidebar({ isSidebarOpen, toggleSidebar, isMobile }) {
       "Knowledge Base",
       "Announcements",
       "Categories",
+      "Automation",
     ]
     : (userRole?.modulePermissions || []).map((perm) => perm.module);
 
@@ -223,8 +225,8 @@ function Sidebar({ isSidebarOpen, toggleSidebar, isMobile }) {
               />
             )}
 
-            {/* Project Management Group */}
-            {hasAnyChildPermission(["Projects", "Milestones"]) && (
+            {/* Project Management Group (includes Automation - admin controlled) */}
+            {hasAnyChildPermission(["Projects", "Milestones", "Automation"]) && (
               <NavGroup
                 icon={<Briefcase size={16} />}
                 label="Project Management"
@@ -232,7 +234,7 @@ function Sidebar({ isSidebarOpen, toggleSidebar, isMobile }) {
                 open={openMenus.includes("project")}
                 onToggle={() => toggleMenu("project")}
                 isActive={location.pathname.startsWith("/app/project") ||
-                  ["projects", "milestones"].some(p => location.pathname.startsWith(`/app/${p}`))}
+                  ["projects", "milestones", "automation"].some(p => location.pathname.startsWith(`/app/${p}`))}
                 items={[
                   hasPermission("Projects") && {
                     label: "Projects",
@@ -257,6 +259,12 @@ function Sidebar({ isSidebarOpen, toggleSidebar, isMobile }) {
                     link: "/app/blockages",
                     icon: <Construction size={16} />,
                     driverId: "driver-sidebar-blockages",
+                  },
+                  hasPermission("Automation") && {
+                    label: "Automation",
+                    link: "/app/automation",
+                    icon: <Zap size={16} />,
+                    driverId: "driver-sidebar-automation",
                   },
                 ].filter(Boolean)}
                 isSidebarOpen={isSidebarOpen}

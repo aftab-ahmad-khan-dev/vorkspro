@@ -284,7 +284,7 @@ export const userController = {
                 .populate("subDepartment", "name")
                 .lean(),
             User.findById(req.user._id)
-                .select("firstName lastName email phone isSuperAdmin role")
+                .select("firstName lastName email phone isSuperAdmin role profilePicture")
                 .populate("role", "name")
                 .lean(),
         ]);
@@ -301,10 +301,10 @@ export const userController = {
         );
     }),
 
-    /** Update current user profile (e.g. theme preference). Body: { themePreference, themeMode?, lightColor?, darkColor? } */
+    /** Update current user profile (e.g. theme preference). Body: { themePreference, themeMode?, lightColor?, darkColor?, profilePicture? } */
     updateProfile: asyncHandler(async (req, res) => {
         const { _id } = req.user;
-        const { themePreference, themeMode, lightColor, darkColor } = req.body;
+        const { themePreference, themeMode, lightColor, darkColor, profilePicture } = req.body;
         if (themePreference && !ALLOWED_THEME_PREFERENCES.includes(themePreference)) {
             return generateApiResponse(res, StatusCodes.BAD_REQUEST, false, "Invalid theme preference");
         }
@@ -316,6 +316,7 @@ export const userController = {
         if (themeMode) user.themeMode = themeMode;
         if (lightColor) user.lightColor = lightColor;
         if (darkColor) user.darkColor = darkColor;
+        if (profilePicture !== undefined) user.profilePicture = profilePicture;
         await user.save();
         const cacheKey = `user:${_id}:role`;
         await client.del(cacheKey).catch(() => {});

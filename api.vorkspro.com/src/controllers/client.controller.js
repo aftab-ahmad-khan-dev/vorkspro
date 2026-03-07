@@ -1,7 +1,7 @@
 import { StatusCodes } from "http-status-codes";
 import { asyncHandler } from "../services/asynchandler.js";
 import { generateApiResponse } from "../services/utilities.service.js";
-import { Client, Followup } from "../startup/models.js";
+import { Client, Followup, Project } from "../startup/models.js";
 import { paginationFiltrationData } from "../services/pagination.service.js";
 import { uploadMultipleFiles } from "../services/file.service2.js";
 
@@ -329,19 +329,18 @@ export const clientController = {
     //   },
     // ]);
 
-    const totalClients = await Client.countDocuments();
-    const activeClients = await Client.countDocuments({
-      status: "active",
-    });
-    const inactiveClients = await Client.countDocuments({
-      status: "inactive",
-    });
-    const pausedClients = await Client.countDocuments({
-      status: "paused",
-    });
-    const leadClients = await Client.countDocuments({
-      status: "lead",
-    });
+    const [totalClients, activeClients, inactiveClients, pausedClients, leadClients, revenueResult, activeProjects, followUpsDue] = await Promise.all([
+      Client.countDocuments(),
+      Client.countDocuments({ status: "active" }),
+      Client.countDocuments({ status: "inactive" }),
+      Client.countDocuments({ status: "paused" }),
+      Client.countDocuments({ status: "lead" }),
+      Client.aggregate([{ $group: { _id: null, total: { $sum: "$revenue" } } }]),
+      Project.countDocuments({ isDeleted: false, client: { $exists: true, $ne: null } }),
+      Followup.countDocuments({ status: { $in: ["due-today", "over-due"] } }),
+    ]);
+
+    const totalRevenue = revenueResult[0]?.total ?? 0;
 
     const stats = {
       totalClients,
@@ -349,6 +348,9 @@ export const clientController = {
       inactiveClients,
       pausedClients,
       leadClients,
+      totalRevenue,
+      activeProjects,
+      followUpsDue,
     };
 
     return generateApiResponse(

@@ -54,6 +54,7 @@ const ProjectSchema = new Schema(
     tags: [{ type: String }],
     progress: { type: Number, default: 0 }, // percentage 0–100
     isDeleted: { type: Boolean, default: false },
+    canvas: { type: String, default: "" },
   },
   { timestamps: true }
 );

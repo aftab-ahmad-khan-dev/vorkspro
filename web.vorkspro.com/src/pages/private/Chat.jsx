@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
-import io from "socket.io-client";
-import { Search, Check, CheckCheck, Circle, Send } from "lucide-react";
+import { Search, Check, CheckCheck, Circle, Send, Smile } from "lucide-react";
+import EmojiPicker from "emoji-picker-react";
+import ProfilePicture from "@/components/ProfilePicture";
 import {
   fetchConversations,
   searchChatUsers,
@@ -10,37 +11,40 @@ import {
   markConversationRead,
 } from "@/api/chat";
 import { jwtDecode } from "jwt-decode";
+import { getAppSocket } from "@/utils/socket";
 
-const SOCKET_URL = import.meta.env.VITE_APP_BASE_URL?.replace(/\/api\/?$/, "") || window.location.origin;
-
-// Simple in-memory socket singleton so we don't open multiple connections
-let socket;
-const getSocket = (token) => {
-  if (!socket) {
-    socket = io(SOCKET_URL, {
-      transports: ["websocket"],
-      auth: token ? { token } : undefined,
-    });
-  }
-  return socket;
-};
-
-function TickIcon({ deliveredTo = [], readBy = [], participants = [], currentUserId }) {
+function TickIcon({
+  deliveredTo = [],
+  readBy = [],
+  participants = [],
+  currentUserId,
+}) {
   const otherIds = useMemo(
-    () => participants.filter((id) => id !== currentUserId),
-    [participants, currentUserId]
+    () =>
+      participants
+        .map((id) => String(id))
+        .filter((id) => id !== String(currentUserId)),
+    [participants, currentUserId],
   );
+  const deliveredStrs = (deliveredTo || []).map((id) => String(id));
+  const readStrs = (readBy || []).map((id) => String(id));
 
-  const allDelivered = otherIds.length > 0 && otherIds.every((id) => deliveredTo.includes(id));
-  const allRead = otherIds.length > 0 && otherIds.every((id) => readBy.includes(id));
+  const allDelivered =
+    otherIds.length > 0 && otherIds.every((id) => deliveredStrs.includes(id));
+  const allRead =
+    otherIds.length > 0 && otherIds.every((id) => readStrs.includes(id));
 
   if (allRead) {
-    return <CheckCheck className="h-4 w-4 text-blue-500" />;
+    return (
+      <CheckCheck className='h-4 w-4 shrink-0 text-blue-400' aria-label='Read' />
+    );
   }
   if (allDelivered) {
-    return <CheckCheck className="h-4 w-4 text-[var(--muted-foreground)]" />;
+    return (
+      <CheckCheck className='h-4 w-4 shrink-0 opacity-90' aria-label='Delivered' />
+    );
   }
-  return <Check className="h-4 w-4 text-[var(--muted-foreground)]" />;
+  return <Check className='h-4 w-4 shrink-0 opacity-90' aria-label='Sent' />;
 }
 
 export default function Chat() {
@@ -55,16 +59,19 @@ export default function Chat() {
   const [searchTerm, setSearchTerm] = useState("");
   const [searchResults, setSearchResults] = useState([]);
   const [presence, setPresence] = useState({});
+  const [showEmoji, setShowEmoji] = useState(false);
 
   // Load conversations
   useEffect(() => {
-    fetchConversations().then(setConversations).catch(() => {});
+    fetchConversations()
+      .then(setConversations)
+      .catch(() => {});
   }, []);
 
   // Setup socket connection & listeners
   useEffect(() => {
     if (!token) return;
-    const s = getSocket(token);
+    const s = getAppSocket(token);
 
     if (currentUserId) {
       s.emit("join", currentUserId);
@@ -79,7 +86,7 @@ export default function Chat() {
 
     const handleChatMessage = (msg) => {
       setMessages((prev) =>
-        msg.conversation === activeConversation?._id ? [...prev, msg] : prev
+        msg.conversation === activeConversation?._id ? [...prev, msg] : prev,
       );
     };
 
@@ -94,8 +101,8 @@ export default function Chat() {
                   ? m.readBy
                   : [...(m.readBy || []), userId],
               }
-            : m
-        )
+            : m,
+        ),
       );
     };
 
@@ -110,10 +117,24 @@ export default function Chat() {
     };
   }, [token, currentUserId, activeConversation?._id]);
 
+  useEffect(() => {
+    const close = (e) => {
+      if (
+        showEmoji &&
+        !e.target.closest(".chat-emoji-picker") &&
+        !e.target.closest(".chat-emoji-btn")
+      ) {
+        setShowEmoji(false);
+      }
+    };
+    document.addEventListener("click", close);
+    return () => document.removeEventListener("click", close);
+  }, [showEmoji]);
+
   const openConversation = async (conv) => {
     try {
       setActiveConversation(conv);
-      const s = getSocket(token);
+      const s = getAppSocket(token);
       s.emit("chat:joinConversation", conv._id);
       const msgs = await fetchMessages(conv._id);
       setMessages(msgs || []);
@@ -171,47 +192,73 @@ export default function Chat() {
     activeConversation?.participants?.map((p) => p._id || p) ||
     [];
   const otherParticipantId =
-    activeConversation && activeParticipantIds.find((p) => p !== currentUserId);
-  const otherParticipant =
     activeConversation &&
-    Array.isArray(activeConversation.participants)
+    activeParticipantIds.find((p) => String(p) !== String(currentUserId));
+  const otherParticipant =
+    activeConversation && Array.isArray(activeConversation.participants)
       ? activeConversation.participants.find(
-          (p) => (p._id || p) === otherParticipantId
+          (p) => String(p._id || p) === String(otherParticipantId),
+        ) || null
+      : null;
+  const listConversation = activeConversation?._id
+    ? conversations.find(
+        (conv) => String(conv._id) === String(activeConversation._id),
+      )
+    : null;
+  const listOtherUser =
+    listConversation &&
+    Array.isArray(listConversation.participants) &&
+    otherParticipantId
+      ? listConversation.participants.find(
+          (p) => String(p._id || p) === String(otherParticipantId),
         )
       : null;
+  const recipientName =
+    activeConversation?.title ||
+    (otherParticipant && typeof otherParticipant === "object"
+      ? `${otherParticipant.firstName || ""} ${otherParticipant.lastName || ""}`.trim() ||
+        otherParticipant.email ||
+        "Unknown"
+      : listOtherUser && typeof listOtherUser === "object"
+        ? `${listOtherUser.firstName || ""} ${listOtherUser.lastName || ""}`.trim() ||
+          listOtherUser.email ||
+          "Unknown"
+        : "Direct chat");
 
   return (
-    <div className="h-full flex flex-col md:flex-row gap-4">
+    <div className='h-full flex flex-col md:flex-row gap-4'>
       {/* Sidebar: conversations + search */}
-      <div className="w-full md:w-80 border border-[var(--border)] rounded-xl bg-[var(--card)] flex flex-col">
-        <div className="p-3 border-b border-[var(--border)]">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--muted-foreground)]" />
+      <div className='w-full md:w-80 border border-[var(--border)] rounded-xl bg-[var(--card)] flex flex-col'>
+        <div className='p-3 border-b border-[var(--border)]'>
+          <div className='relative'>
+            <Search className='absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--muted-foreground)]' />
             <input
               value={searchTerm}
               onChange={(e) => handleSearch(e.target.value)}
-              placeholder="Search or start a chat..."
-              className="w-full pl-9 pr-3 py-2 text-sm rounded-lg bg-[var(--muted)]/40 border border-[var(--border)] focus:outline-none focus:ring-1 focus:ring-[var(--primary)]"
+              placeholder='Search or start a chat...'
+              className='w-full pl-9 pr-3 text-white py-2 text-sm rounded-lg bg-[var(--muted)]/40 border border-[var(--border)] focus:outline-none focus:ring-1 focus:ring-[var(--primary)]'
             />
           </div>
         </div>
 
         {searchResults.length > 0 && (
-          <div className="border-b border-[var(--border)] max-h-60 overflow-y-auto">
+          <div className='border-b border-[var(--border)] max-h-60 overflow-y-auto'>
             {searchResults.map((u) => (
               <button
                 key={u._id}
                 onClick={() => startDirectChat(u)}
-                className="w-full flex items-center gap-3 px-3 py-2 hover:bg-[var(--muted)]/40 text-left"
+                className='w-full flex items-center gap-3 px-3 py-2 hover:bg-[var(--muted)]/40 text-left'
               >
-                <div className="h-8 w-8 rounded-full bg-[var(--accent)] flex items-center justify-center text-xs font-medium">
-                  {u.firstName?.[0]}
-                </div>
-                <div className="flex-1">
-                  <div className="text-sm font-medium text-[var(--foreground)]">
+                <ProfilePicture
+                  name={`${u.firstName || ""} ${u.lastName || ""}`.trim() || u.email}
+                  profilePicture={u.profilePicture}
+                  size={32}
+                />
+                <div className='flex-1'>
+                  <div className='text-sm font-medium text-[var(--foreground)]'>
                     {u.firstName} {u.lastName}
                   </div>
-                  <div className="text-xs text-[var(--muted-foreground)]">
+                  <div className='text-xs text-[var(--muted-foreground)]'>
                     {u.email}
                   </div>
                 </div>
@@ -220,7 +267,7 @@ export default function Chat() {
           </div>
         )}
 
-        <div className="flex-1 overflow-y-auto">
+        <div className='flex-1 overflow-y-auto'>
           {conversations.map((c) => {
             const participantIds =
               c.participantIds ||
@@ -245,31 +292,32 @@ export default function Chat() {
             return (
               <button
                 key={c._id}
-                onClick={() => openConversation({ ...c, participants: participantIds })}
+                onClick={() => openConversation(c)}
                 className={`w-full flex items-center gap-3 px-3 py-2 hover:bg-[var(--muted)]/30 ${
                   activeConversation?._id === c._id ? "bg-[var(--muted)]/40" : ""
                 }`}
               >
-                <div className="relative">
-                  <div className="h-9 w-9 rounded-full bg-[var(--accent)] flex items-center justify-center text-xs font-medium">
-                    {/* For now just show generic initials */}
-                    💬
-                  </div>
+                <div className='relative shrink-0'>
+                  <ProfilePicture
+                    name={title}
+                    profilePicture={otherUser?.profilePicture}
+                    size={36}
+                  />
                   {isOnline && (
-                    <span className="absolute -right-0 -bottom-0 h-3 w-3 rounded-full bg-emerald-500 border border-[var(--card)]" />
+                    <span className='absolute -right-0 -bottom-0 h-3 w-3 rounded-full bg-emerald-500 border border-[var(--card)]' />
                   )}
                 </div>
-                <div className="flex-1 min-w-0 text-left">
-                  <div className="flex items-center justify-between gap-2">
-                    <span className="text-sm font-semibold text-[var(--foreground)] truncate">
+                <div className='flex-1 min-w-0 text-left'>
+                  <div className='flex items-center justify-between gap-2'>
+                    <span className='text-sm font-semibold text-[var(--foreground)] truncate'>
                       {title}
                     </span>
-                    <span className="text-[10px] text-[var(--muted-foreground)]">
+                    <span className='text-[10px] text-[var(--muted-foreground)]'>
                       {lastMessageTime}
                     </span>
                   </div>
-                  <div className="flex items-center justify-between gap-2 mt-0.5">
-                    <span className="text-xs text-[var(--muted-foreground)] truncate">
+                  <div className='flex items-center justify-between gap-2 mt-0.5'>
+                    <span className='text-xs text-[var(--muted-foreground)] truncate'>
                       {c.lastMessagePreview || "No messages yet"}
                     </span>
                   </div>
@@ -281,25 +329,22 @@ export default function Chat() {
       </div>
 
       {/* Main chat area */}
-      <div className="flex-1 border border-[var(--border)] rounded-xl bg-[var(--card)] flex flex-col min-h-[320px]">
+      <div className='flex-1 border border-[var(--border)] rounded-xl bg-[var(--card)] flex flex-col min-h-[320px]'>
         {activeConversation ? (
           <>
-            <div className="px-4 py-3 border-b border-[var(--border)] flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="h-8 w-8 rounded-full bg-[var(--accent)] flex items-center justify-center text-xs font-medium">
-                  💬
-                </div>
-                <div className="flex flex-col">
-                  <span className="text-sm font-semibold text-[var(--foreground)]">
-                    {activeConversation.title ||
-                      (otherParticipant
-                        ? `${otherParticipant.firstName || ""} ${
-                            otherParticipant.lastName || ""
-                          }`.trim() || otherParticipant.email
-                        : "Direct chat")}
+            <div className='px-4 py-3 border-b border-[var(--border)] flex items-center justify-between bg-[var(--card)]'>
+              <div className='flex items-center gap-3'>
+                <ProfilePicture
+                  name={recipientName}
+                  profilePicture={otherParticipant?.profilePicture}
+                  size={40}
+                />
+                <div className='flex flex-col'>
+                  <span className='text-sm font-semibold text-gray-900 dark:text-gray-100'>
+                    {recipientName}
                   </span>
                   {otherParticipantId && (
-                    <span className="text-xs text-[var(--muted-foreground)] flex items-center gap-1">
+                    <span className='text-xs text-[var(--muted-foreground)] flex items-center gap-1'>
                       <Circle
                         className={`h-2 w-2 ${
                           presence[otherParticipantId]?.online
@@ -307,7 +352,9 @@ export default function Chat() {
                             : "text-[var(--muted-foreground)]"
                         }`}
                         fill={
-                          presence[otherParticipantId]?.online ? "currentColor" : "none"
+                          presence[otherParticipantId]?.online
+                            ? "currentColor"
+                            : "none"
                         }
                       />
                       {presence[otherParticipantId]?.online ? "Online" : "Offline"}
@@ -317,23 +364,35 @@ export default function Chat() {
               </div>
             </div>
 
-            <div className="flex-1 overflow-y-auto px-4 py-3 space-y-2">
+            <div className='flex-1 overflow-y-auto px-4 py-3 space-y-3 bg-[var(--background)]/30'>
               {messages.map((m) => {
                 const isMine = m.sender?._id === currentUserId;
+                const senderName = m.sender
+                  ? `${m.sender.firstName || ""} ${m.sender.lastName || ""}`.trim() ||
+                    m.sender.email
+                  : "User";
                 return (
                   <div
                     key={m._id}
-                    className={`flex ${isMine ? "justify-end" : "justify-start"}`}
+                    className={`flex items-end gap-2 ${isMine ? "flex-row-reverse" : ""}`}
                   >
+                    {!isMine && (
+                      <ProfilePicture
+                        name={senderName}
+                        profilePicture={m.sender?.profilePicture}
+                        size={28}
+                        className='shrink-0'
+                      />
+                    )}
                     <div
-                      className={`max-w-[70%] rounded-2xl px-3 py-2 text-sm shadow-sm ${
+                      className={`max-w-[70%] rounded-2xl px-4 py-2.5 text-sm shadow-sm ${
                         isMine
-                          ? "bg-[var(--button)] text-[var(--button-foreground)] rounded-br-sm"
-                          : "bg-[var(--muted)]/80 text-[var(--foreground)] rounded-bl-sm"
+                          ? "bg-[var(--button)] text-[var(--button-foreground)] rounded-br-md"
+                          : "bg-[var(--muted)]/90 text-[var(--foreground)] rounded-bl-md"
                       }`}
                     >
                       <div>{m.body}</div>
-                      <div className="flex items-center justify-end gap-1 mt-1 text-[10px] opacity-80">
+                      <div className='flex items-center justify-end gap-1 mt-1 text-[10px] opacity-80'>
                         <span>
                           {new Date(m.createdAt).toLocaleTimeString([], {
                             hour: "2-digit",
@@ -341,12 +400,12 @@ export default function Chat() {
                           })}
                         </span>
                         {isMine && (
-                        <TickIcon
-                          deliveredTo={m.deliveredTo || []}
-                          readBy={m.readBy || []}
-                          participants={activeParticipantIds}
-                          currentUserId={currentUserId}
-                        />
+                          <TickIcon
+                            deliveredTo={m.deliveredTo || []}
+                            readBy={m.readBy || []}
+                            participants={activeParticipantIds}
+                            currentUserId={currentUserId}
+                          />
                         )}
                       </div>
                     </div>
@@ -355,25 +414,54 @@ export default function Chat() {
               })}
             </div>
 
-            <form onSubmit={handleSend} className="p-3 border-t border-[var(--border)]">
-              <div className="flex items-center gap-2">
+            <form
+              onSubmit={handleSend}
+              className='p-3 border-t border-[var(--border)] bg-[var(--card)]'
+            >
+              <div className='flex items-end gap-2 relative'>
+                <button
+                  type='button'
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setShowEmoji((prev) => !prev);
+                  }}
+                  className='chat-emoji-btn h-9 w-9 shrink-0 rounded-full flex items-center justify-center text-[var(--muted-foreground)] hover:bg-[var(--muted)]/60 transition-colors'
+                  aria-label='Add emoji'
+                >
+                  <Smile className='h-5 w-5' />
+                </button>
+                {showEmoji && (
+                  <div className='absolute bottom-12 left-0 z-20 chat-emoji-picker'>
+                    <EmojiPicker
+                      onEmojiClick={(e) => setMessageInput((prev) => prev + e.emoji)}
+                      theme={
+                        document.documentElement.classList.contains("dark")
+                          ? "dark"
+                          : "light"
+                      }
+                      width={320}
+                      height={360}
+                    />
+                  </div>
+                )}
                 <input
                   value={messageInput}
                   onChange={(e) => setMessageInput(e.target.value)}
-                  placeholder="Type a message..."
-                  className="flex-1 rounded-full bg-[var(--muted)]/40 border border-[var(--border)] px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-[var(--primary)]"
+                  onFocus={() => setShowEmoji(false)}
+                  placeholder='Type a message...'
+                  className='flex-1 rounded-2xl text-white placeholder:text-white bg-[var(--muted)]/40 border border-[var(--border)] px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--primary)]/50'
                 />
                 <button
-                  type="submit"
-                  className="h-9 w-9 rounded-full bg-[var(--button)] text-[var(--button-foreground)] flex items-center justify-center hover:bg-[var(--button)]/90 transition-colors"
+                  type='submit'
+                  className='h-9 w-9 shrink-0 rounded-full bg-[var(--button)] text-[var(--button-foreground)] flex items-center justify-center hover:bg-[var(--button)]/90 transition-all hover:scale-105 active:scale-95'
                 >
-                  <Send className="h-4 w-4" />
+                  <Send className='h-4 w-4' />
                 </button>
               </div>
             </form>
           </>
         ) : (
-          <div className="flex-1 flex items-center justify-center text-sm text-[var(--muted-foreground)]">
+          <div className='flex-1 flex items-center justify-center text-sm text-[var(--muted-foreground)]'>
             Select a conversation or search to start chatting.
           </div>
         )}
@@ -381,4 +469,3 @@ export default function Chat() {
     </div>
   );
 }
-

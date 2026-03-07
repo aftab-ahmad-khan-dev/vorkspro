@@ -93,6 +93,15 @@ route.patch(
 );
 
 route.patch(
+  "/update-canvas/:id",
+  checkPermission({
+    modules: ["Projects"],
+    actions: ["Edit Records"],
+  }),
+  projectController.updateProjectCanvas
+);
+
+route.patch(
   "/change-status/:id",
   checkPermission({
     modules: ["Projects"],

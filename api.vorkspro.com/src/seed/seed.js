@@ -315,6 +315,39 @@ async function seedEmployeesAndUsers(empData) {
   console.log(`\nTotal employees processed: ${success}/${empData.length}`);
 }
 
+async function ensureEmployeeProfiles() {
+  console.log("\n📋 Ensuring Employee profiles for all Users...");
+  const usersWithoutEmployee = await User.aggregate([
+    { $lookup: { from: "employees", localField: "_id", foreignField: "user", as: "emp" } },
+    { $match: { "emp.0": { $exists: false }, isActive: true } },
+    { $project: { _id: 1, firstName: 1, lastName: 1, email: 1, phone: 1, isSuperAdmin: 1, role: 1 } },
+  ]);
+  const roles = await Role.find({}).lean();
+  const roleMap = new Map(roles.map((r) => [r._id.toString(), r.name]));
+
+  for (const u of usersWithoutEmployee) {
+    const roleName = roleMap.get(u.role?.toString()) || "Employee";
+    const jobTitle = u.isSuperAdmin ? "Super Admin" : roleName;
+    await Employee.create({
+      user: u._id,
+      firstName: u.firstName || "User",
+      lastName: u.lastName || "",
+      email: u.email || "",
+      phone: u.phone || "",
+      companyEmail: u.email || "",
+      status: "active",
+      jobTitle,
+      employmentType: "full time",
+      workLocation: "hybrid",
+      isDeleted: false,
+    });
+    console.log(`   ✓ Created Employee profile: ${u.email} (${jobTitle})`);
+  }
+  if (usersWithoutEmployee.length === 0) {
+    console.log("   ✓ All Users already have Employee profiles");
+  }
+}
+
 function buildDbUri(dbName) {
   const uri = process.env.MONGODB_URI?.trim();
   if (!uri) return null;
@@ -396,6 +429,9 @@ async function seedData() {
       });
       console.log(`👤 Created user for role "${seed.roleName}": ${seed.email}`);
     }
+
+    // Ensure all Users have Employee profiles (fixes Profile page not loading)
+    await ensureEmployeeProfiles();
 
     console.log("\n🎉 All seeding completed successfully!");
   } catch (err) {

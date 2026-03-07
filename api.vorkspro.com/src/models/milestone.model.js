@@ -14,7 +14,12 @@ const MilestoneSchema = new mongoose.Schema(
     endDate: { type: Date },
     status: {
       type: String,
-      enum: ["not started", "in progress", "completed", "delayed"],
+      enum: [
+        "not started", "in progress", "completed", "delayed",
+        "waiting for client", "working", "testing",
+        "delivered", "deployed", "client requirement",
+        "need to start", "need design", "need deployment"
+      ],
       default: "not started",
     },
     tasks: [

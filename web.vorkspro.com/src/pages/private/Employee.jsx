@@ -12,6 +12,9 @@ import {
   RefreshCw,
   RotateCcw,
   Users,
+  UserCheck,
+  UserX,
+  UserPlus,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -366,24 +369,28 @@ const hasPermission = (moduleName, requiredAction) => {
           title="Total Workforce"
           isLoading={statsLoading}
           value={stat?.totalEmployees}
+          icon={<Users size={20} className="text-[var(--primary)]" />}
         />
         <StatCard
           title="Active Workforce"
           isLoading={statsLoading}
           valueClass="text-green-500"
           value={stat?.activeEmployees}
+          icon={<UserCheck size={20} className="text-green-500" />}
         />
         <StatCard
           title="Past Workforce"
           isLoading={statsLoading}
           valueClass="text-red-500"
           value={stat?.inactiveEmployees}
+          icon={<UserX size={20} className="text-red-500" />}
         />
         <StatCard
           title="New This Month"
           isLoading={statsLoading}
           valueClass="text-blue-500"
           value={stat?.thisMonthJoined}
+          icon={<UserPlus size={20} className="text-blue-500" />}
         />
       </div>
 

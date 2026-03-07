@@ -71,7 +71,7 @@ const ALL_MODULES = [
   "Projects", "Milestones", "Blockages", "Keys & Credentials",
   "Client Management", "Follow-up-Hub", "Finance", "HR Management",
   "My To-Do Hub", "Reports & Analytics", "Admin & Assets",
-  "Knowledge Base", "Announcements", "Categories", "Settings",
+  "Knowledge Base", "Announcements", "Categories", "Automation", "Settings",
 ];
 
 /**

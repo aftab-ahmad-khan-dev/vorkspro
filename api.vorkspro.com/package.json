@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "start": "nodemon -r dotenv/config --experimental-json-modules src/index.js",
-    "seed": "node src/seed/seed.js"
+    "seed": "node src/seed/seed.js",
+    "seed:profiles": "node src/seed/ensure-profiles.js"
   },
   "keywords": [],
   "author": "",

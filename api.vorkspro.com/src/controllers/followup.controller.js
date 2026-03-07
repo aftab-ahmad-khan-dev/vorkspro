@@ -23,11 +23,11 @@ export const followupController = {
     }),
 
     createSchedule: asyncHandler(async (req, res) => {
-        const { client, assignTo, topic, date, time, priority, notes, isReminderSet } = req.body;
+        const { client, assignTo, topic, date, time, priority, notes, isReminderSet, remindAtUtc } = req.body;
 
         const selectedDate = new Date(date);
-        const [hours, minutes] = time.split(':');
-        selectedDate.setHours(Number(hours), Number(minutes), 0, 0);
+        const [hours, minutes] = (time || "00:00").split(':').map(Number);
+        selectedDate.setHours(hours || 0, minutes || 0, 0, 0);
 
         const followup = await Followup.create({
             client,
@@ -38,6 +38,7 @@ export const followupController = {
             priority,
             notes,
             isReminderSet,
+            remindAtUtc: isReminderSet && remindAtUtc ? new Date(remindAtUtc) : null,
             type: "schedule-followup"
         });
         return generateApiResponse(
@@ -47,6 +48,37 @@ export const followupController = {
             "Followup logged successfully",
             { followup }
         );
+    }),
+
+    update: asyncHandler(async (req, res) => {
+        const { id } = req.params;
+        const { client, assignTo, topic, date, time, priority, notes, isReminderSet, remindAtUtc } = req.body;
+
+        const updateData = { client, assignTo, topic, priority, notes, isReminderSet };
+        if (date) {
+            const selectedDate = new Date(date);
+            const [h, m] = (time || "00:00").split(':').map(Number);
+            selectedDate.setHours(h || 0, m || 0, 0, 0);
+            updateData.date = selectedDate;
+            updateData.time = time;
+        }
+        if (isReminderSet && remindAtUtc) {
+            updateData.remindAtUtc = new Date(remindAtUtc);
+        } else if (!isReminderSet) {
+            updateData.remindAtUtc = null;
+            updateData.reminderNotifiedAt = null;
+        }
+
+        const followup = await Followup.findByIdAndUpdate(
+            id,
+            { $set: updateData },
+            { new: true }
+        ).populate("client", "name").populate("assignTo", "firstName lastName email user");
+
+        if (!followup) {
+            return generateApiResponse(res, StatusCodes.NOT_FOUND, false, "Follow-up not found", null);
+        }
+        return generateApiResponse(res, StatusCodes.OK, true, "Follow-up updated successfully", { followup });
     }),
 
     // getByFilter: asyncHandler(async (req, res) => {

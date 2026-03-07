@@ -35,7 +35,8 @@ const MODULES = [
     "Categories",
     "Settings",
     "Blockages",
-    "Categories"
+    "Categories",
+    "Automation"
 ];
 
 const ACTIONS = [

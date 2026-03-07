@@ -145,6 +145,7 @@ const EmployeeSchema = new mongoose.Schema(
     hobbies: [{ type: String }],
     notes: { type: String },
     isDeleted: { type: Boolean, default: false },
+    profilePicture: { type: String },
 
     achievements: [
       {

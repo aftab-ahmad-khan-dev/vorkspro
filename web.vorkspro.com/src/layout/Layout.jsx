@@ -11,6 +11,8 @@ import Sidebar from "./components/Sidebar";
 import Topbar from "./components/Topbar";
 import { jwtDecode } from "jwt-decode";
 import { useTabs } from "@/context/TabsContext";
+import { registerServiceWorker, initSocketNotifications } from "@/utils/pushNotifications";
+import { getAppSocket } from "@/utils/socket";
 
 // ====================
 // No-role screen (assign default role or sign out)
@@ -178,6 +180,15 @@ function Layout() {
           }
           if (themePreference) {
             applyThemePreference(themePreference);
+          }
+          // Socket.IO + Service Worker notifications (no 3rd-party push)
+          const token = localStorage.getItem("token");
+          const userId = decodedToken?._id || decodedToken?.userId || decodedToken?.id;
+          if (token && userId) {
+            registerServiceWorker().then(() => {
+              const socket = getAppSocket(token);
+              initSocketNotifications(socket, userId);
+            }).catch(() => {});
           }
         } else {
           setTabs(emptyRole);

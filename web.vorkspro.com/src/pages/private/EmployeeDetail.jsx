@@ -6,7 +6,7 @@ import {
   MapPin,
   Calendar,
   TrendingUp,
-  PencilIcon,
+  Pencil,
   Trophy,
   Briefcase,
   Trash2,
@@ -414,7 +414,7 @@ function EmployeeDetail() {
                     onClick={() => setShowEditDialog(true)}
                   >
                     <span className="flex gap-2 items-center justify-center">
-                      <PencilIcon className="w-4 h-4" /> Edit Employee
+                      <Pencil className="w-4 h-4" /> Edit Employee
                     </span>
                   </Button>
                 )

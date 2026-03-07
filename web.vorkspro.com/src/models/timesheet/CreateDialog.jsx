@@ -2,7 +2,7 @@ import React from 'react';
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
-import { LucideCalendar } from 'lucide-react';
+import { Calendar } from 'lucide-react';
 import { Textarea } from '@/components/ui/textarea';
 
 function CreateDialog() {
@@ -13,7 +13,7 @@ function CreateDialog() {
           <label className="block text-sm font-medium text-[var(--text)] py-1">Date</label>
           <div className="flex items-center">
             <Input type="date" defaultValue="2025-10-14" className="mt-1" />
-            <LucideCalendar className="ml-2 h-4 w-4 text-gray-500" />
+            <Calendar className="ml-2 h-4 w-4 text-gray-500" />
           </div>
         </div>
         <div className="flex-1">

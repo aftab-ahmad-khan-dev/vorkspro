@@ -10,7 +10,7 @@ import {
   Users,
   DollarSign,
   Calendar,
-  PencilIcon,
+  Pencil,
   Briefcase,
   FileText,
   StickyNote,
@@ -306,7 +306,7 @@ function ClientDetail() {
       className="border-button w-full sm:w-auto"
       onClick={() => setShowEditDialog(true)}
     >
-      <PencilIcon className="w-4 h-4" />
+      <Pencil className="w-4 h-4" />
       Edit Client
     </Button>
     */}

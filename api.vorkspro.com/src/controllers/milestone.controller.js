@@ -354,8 +354,18 @@ export const milestoneController = {
       );
     }
 
+    const oldStatus = milestone.status;
     milestone.status = status;
-    milestone.save();
+    await milestone.save();
+
+    const { sendAutomationNotifications } = await import("../services/automation.service.js");
+    await sendAutomationNotifications({
+      entityType: "milestone",
+      entity: await milestone.populate("project"),
+      oldStatus,
+      newStatus: status,
+      title: milestone.name,
+    }).catch(() => {});
 
     const totalMilestones = await Milestone.countDocuments({
       project: milestone.project,

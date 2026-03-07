@@ -122,12 +122,19 @@ function FollowHub() {
     }
   }, [allowedTabs, activeTab]);
 
-  function formatTime12h(time) {
+  // Region-specific: uses browser timezone automatically
+  function formatTime12h(time, dateStr) {
     if (!time) return "";
+    if (!dateStr) {
+      const [h, m] = time.split(":").map(Number);
+      const ampm = h >= 12 ? "PM" : "AM";
+      const hour12 = h % 12 || 12;
+      return `${hour12}:${m.toString().padStart(2, "0")} ${ampm}`;
+    }
+    const d = new Date(dateStr);
     const [h, m] = time.split(":").map(Number);
-    const ampm = h >= 12 ? "PM" : "AM";
-    const hour12 = h % 12 || 12;
-    return `${hour12}:${m.toString().padStart(2, "0")} ${ampm}`;
+    d.setHours(h, m, 0, 0);
+    return d.toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" });
   }
 
   function formatDate(dateStr) {
@@ -135,6 +142,19 @@ function FollowHub() {
       year: "numeric",
       month: "short",
       day: "numeric",
+    });
+  }
+
+  function formatDateTimeRegion(dateStr, time) {
+    if (!dateStr) return "";
+    const d = new Date(dateStr);
+    if (time) {
+      const [h, m] = time.split(":").map(Number);
+      d.setHours(h, m, 0, 0);
+    }
+    return d.toLocaleString(undefined, {
+      dateStyle: "medium",
+      timeStyle: time ? "short" : undefined,
     });
   }
 
@@ -420,7 +440,7 @@ function FollowHub() {
         <td className="px-6 py-4 text-sm">
           {isLog
             ? formatDate(item.date)
-            : `${formatDate(item.date)} at ${formatTime12h(item.time)}`}
+            : formatDateTimeRegion(item.date, item.time)}
         </td>
         <td className="px-6 py-4">
           {isLog ? (
@@ -489,7 +509,7 @@ function FollowHub() {
           </p>
           <p className="text-[var(--muted-foreground)]">
             <span className="font-medium text-[var(--foreground)]">Date:</span>{" "}
-            {formatDate(item.date)} {!isLog && `at ${formatTime12h(item.time)}`}
+            {!isLog && item.time ? formatDateTimeRegion(item.date, item.time) : formatDate(item.date)}
           </p>
           <div className="flex items-center gap-2">
             <span className="font-medium text-[var(--foreground)] text-xs">
@@ -673,7 +693,7 @@ function FollowHub() {
                 <h4 className="font-semibold text-sm truncate">{item.client?.name || item.topic}</h4>
                 <p className="text-xs text-[var(--muted-foreground)] mt-1 truncate">{item.topic || item.notes}</p>
                 <p className="text-xs text-[var(--muted-foreground)] mt-1">
-                  {formatDate(item.date)}{item.time ? ` ${formatTime12h(item.time)}` : ""}
+                  {formatDateTimeRegion(item.date, item.time)}
                 </p>
               </div>
             )}
@@ -905,8 +925,7 @@ function FollowHub() {
                   Date
                 </p>
                 <p className="mt-1 text-[var(--foreground)]">
-                  {formatDate(selectedFollowup.date)}
-                  {selectedFollowup.time ? ` • ${formatTime12h(selectedFollowup.time)}` : ""}
+                  {formatDateTimeRegion(selectedFollowup.date, selectedFollowup.time)}
                 </p>
               </div>
               <div>

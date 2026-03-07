@@ -48,7 +48,7 @@ const ROLE_PANELS = [
     modules: [
       { icon: LayoutDashboard, label: "Dashboard" },
       { icon: Users,           label: "Employee Management", children: ["Employees","Attendance","Performance","Payroll"] },
-      { icon: Briefcase,       label: "Project Management",  children: ["Projects","Key & Credentials","Milestones","Blockages"] },
+      { icon: Briefcase,       label: "Project Management",  children: ["Projects","Canvas","Key & Credentials","Milestones","Blockages"] },
       { icon: Briefcase,       label: "Client Management" },
       { icon: MessageSquare,   label: "Follow-up Hub" },
       { icon: DollarSign,      label: "Finance" },
@@ -90,7 +90,7 @@ const ROLE_PANELS = [
     desc: "Projects, milestones, tasks, blockages, and credentials.",
     modules: [
       { icon: LayoutDashboard, label: "Dashboard" },
-      { icon: Briefcase,       label: "Project Management", children: ["Projects","Key & Credentials","Milestones","Blockages"] },
+      { icon: Briefcase,       label: "Project Management", children: ["Projects","Canvas","Key & Credentials","Milestones","Blockages"] },
       { icon: Briefcase,       label: "Client Management" },
       { icon: MessageSquare,   label: "Follow-up Hub" },
       { icon: SquareCheckBig,  label: "My To-Do Hub" },
@@ -131,6 +131,8 @@ const COMP_FEATURES = [
   { label: "Follow-up Hub",              vorks: true,  clickup: "partial", notion: false, monday: "partial", asana: "partial" },
   { label: "Performance Reviews",        vorks: true,  clickup: false, notion: false, monday: false, asana: "partial" },
   { label: "Project Management",         vorks: true,  clickup: true,  notion: "partial", monday: true, asana: true },
+  { label: "Project Canvas (Slack-like)", vorks: true,  clickup: false, notion: "partial", monday: false, asana: false },
+  { label: "Workflow Automation",        vorks: true,  clickup: "partial", notion: false, monday: "partial", asana: false },
   { label: "Knowledge Base",             vorks: true,  clickup: true,  notion: true,  monday: false, asana: false },
   { label: "Designed for Agencies",      vorks: true,  clickup: false, notion: false, monday: false, asana: false },
 ];
@@ -269,7 +271,7 @@ export default function Landing() {
   const featureCards = [
     { icon: Users,          title: "Employee Management",    desc: "Profiles, attendance, performance reviews — onboard to offboard in one flow.",                        span: "col-span-1" },
     { icon: DollarSign,     title: "Finance & Payroll",      desc: "Transactions, salary history, inflows/outflows, and payroll processing built-in — no integrations.",   span: "col-span-1" },
-    { icon: Briefcase,      title: "Project & Client Hub",   desc: "Milestones, tasks, blockages, client CRM, and secure credentials — all linked together.",             span: "col-span-2" },
+    { icon: Briefcase,      title: "Project & Client Hub",   desc: "Milestones, tasks, blockages, client CRM, Canvas (Slack-like notes per project), and secure credentials — all linked together.",             span: "col-span-2" },
     { icon: Shield,         title: "Keys & Credentials Vault", desc: "Store and share project keys securely with role-based access.",                                      span: "col-span-1" },
     { icon: BarChart3,      title: "Reports & Analytics",    desc: "Custom charts, exportable data, finance reports — real-time insights without Excel.",                  span: "col-span-1" },
     { icon: SquareCheckBig, title: "To-Do & Follow-up Hub", desc: "Personal and team tasks, follow-ups, reminders — your whole workflow in one tab.",                     span: "col-span-1" },

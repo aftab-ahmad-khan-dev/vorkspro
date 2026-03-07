@@ -433,10 +433,18 @@ function Client() {
           isLoading={statLoading}
           title="Active Clients"
         />
-        <StatCard value={0} isLoading={statLoading} title="Total Revenue" />
-        <StatCard value={0} isLoading={statLoading} title="Active Projects" />
         <StatCard
-          value={0}
+          value={stat?.totalRevenue != null ? (typeof stat.totalRevenue === "number" ? stat.totalRevenue.toLocaleString() : stat.totalRevenue) : "—"}
+          isLoading={statLoading}
+          title="Total Revenue"
+        />
+        <StatCard
+          value={stat?.activeProjects ?? "—"}
+          isLoading={statLoading}
+          title="Active Projects"
+        />
+        <StatCard
+          value={stat?.followUpsDue ?? 0}
           isLoading={statLoading}
           title="Follow-ups Due"
           cardClass={

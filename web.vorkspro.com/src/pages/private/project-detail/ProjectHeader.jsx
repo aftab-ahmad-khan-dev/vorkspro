@@ -106,7 +106,7 @@ export default function ProjectHeader({ project, onBack, clients, employees, onE
   }, [project]);
 
   return (
-    <div className="mb-8">
+    <div id="driver-project-header" className="mb-8">
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div className="flex items-center gap-4 w-full">
           <Button

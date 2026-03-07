@@ -25,7 +25,8 @@ const UserSchema = new mongoose.Schema(
         },
         themeMode: { type: String, enum: ["light", "dark"] },
         lightColor: { type: String },
-        darkColor: { type: String }
+        darkColor: { type: String },
+        profilePicture: { type: String }
 
     },
     { timestamps: true }

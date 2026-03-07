@@ -1,12 +1,14 @@
-import React, { useEffect, useState } from "react";
+import React, { useRef } from "react";
+import { useEffect, useState } from "react";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Loader2 } from "lucide-react";
+import { Loader2, Camera } from "lucide-react";
 import { toast } from "sonner";
 import { jwtDecode } from "jwt-decode";
-import { apiGet } from "@/interceptor/interceptor";
+import { apiGet, apiPost } from "@/interceptor/interceptor";
+import ProfilePicture from "@/components/ProfilePicture";
 
 function Profile() {
   const [activeTab, setActiveTab] = useState("personalInfo");
@@ -14,6 +16,8 @@ function Profile() {
   const [isSaving, setIsSaving] = useState(false);
   const [employee, setEmployee] = useState(null);
   const [originalEmployee, setOriginalEmployee] = useState(null);
+  const [uploadingPhoto, setUploadingPhoto] = useState(false);
+  const fileInputRef = useRef(null);
 
   const baseUrl = import.meta.env.VITE_APP_BASE_URL;
   let token = localStorage.getItem("token");
@@ -167,6 +171,30 @@ function Profile() {
 
   const handleEditToggle = () => setIsEditing(!isEditing);
 
+  const handlePhotoChange = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file || !file.type.startsWith("image/")) {
+      toast.error("Please select an image file (JPG, PNG, GIF)");
+      return;
+    }
+    setUploadingPhoto(true);
+    try {
+      const fd = new FormData();
+      fd.append("file", file);
+      const res = await apiPost("employee/upload-profile-photo", fd);
+      if (res?.isSuccess && res?.employee) {
+        setEmployee((prev) => ({ ...prev, profilePicture: res.profilePicture }));
+        if (res.token) localStorage.setItem("token", res.token);
+        toast.success("Profile photo updated");
+      } else throw new Error(res?.message || "Upload failed");
+    } catch (err) {
+      toast.error(err?.message || "Failed to update photo");
+    } finally {
+      setUploadingPhoto(false);
+      if (fileInputRef.current) fileInputRef.current.value = "";
+    }
+  };
+
   const handleCancel = () => {
     setIsEditing(false);
     loadEmployeeFromToken(); // Reset to original token data
@@ -249,14 +277,46 @@ function Profile() {
     );
   }
 
+  const displayName = `${employee.firstName || ""} ${employee.lastName || ""}`.trim() || "User";
+
   return (
     <div className="min-h-screen w-full text-[var(--foreground)] pb-8">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
-        <div className="text-center sm:text-left">
-          <h1 className="text-2xl sm:text-3xl font-bold">My Profile</h1>
+        <div className="flex items-center gap-6">
+          <div className="relative group">
+            <ProfilePicture
+              name={displayName}
+              profilePicture={employee.profilePicture}
+              size={80}
+              className="ring-2 ring-[var(--border)]"
+            />
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={handlePhotoChange}
+              disabled={uploadingPhoto}
+            />
+            <button
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+              disabled={uploadingPhoto}
+              className="absolute inset-0 rounded-full bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"
+            >
+              {uploadingPhoto ? (
+                <Loader2 className="h-6 w-6 animate-spin text-white" />
+              ) : (
+                <Camera className="h-6 w-6 text-white" />
+              )}
+            </button>
+          </div>
+          <div>
+            <h1 className="text-2xl sm:text-3xl font-bold">My Profile</h1>
           <p className="mt-1 text-sm sm:text-base text-[var(--muted-foreground)]">
             View and edit your personal information
           </p>
+        </div>
         </div>
 
         <div className="flex justify-center sm:justify-end w-full sm:w-auto">

@@ -6,7 +6,7 @@ import {
   DollarSign,
   TrendingUp,
   TrendingDown,
-  Calendar1,
+  Calendar,
   CheckCircle,
   AlertCircle,
   Loader2,
@@ -148,7 +148,7 @@ function Report() {
           title="Leave requests"
           value={loading ? "—" : (leaveStats?.pendingRequests ?? 0)}
           subtitle={leaveStats != null ? `${leaveStats.approvedRequests ?? 0} approved` : null}
-          icon={<Calendar1 size={20} className="text-[var(--primary)]" />}
+          icon={<Calendar size={20} className="text-[var(--primary)]" />}
           isLoading={loading}
         />
         <StatCard
@@ -337,7 +337,7 @@ function Report() {
             to="/app/hr-management"
             className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-[var(--border)] bg-[var(--background)] text-[var(--foreground)] hover:bg-[var(--muted)] text-sm"
           >
-            <Calendar1 size={16} /> HR Management
+            <Calendar size={16} /> HR Management
           </Link>
           <Link
             to="/app/my-todo-hub"

@@ -38,7 +38,9 @@ const ModelNames = {
   User: { model: "User", db: "users" },
   Blockage: { model: "Blockage", db: "blockages" },
   Config: { model: "Config", db: "configs" },
-
+  WorkType: { model: "WorkType", db: "worktypes" },
+  AutomationRule: { model: "AutomationRule", db: "automationrules" },
+  StatusCategory: { model: "StatusCategory", db: "statuscategories" },
 };
 
 export { ModelNames };

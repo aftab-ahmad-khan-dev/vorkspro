@@ -47,9 +47,19 @@ const BlockageSchema = new mongoose.Schema(
             default: "medium"
         },
 
+        workType: {
+            type: Schema.Types.ObjectId,
+            ref: ModelNames.WorkType.model,
+        },
+
         status: {
             type: String,
-            enum: ["in-progress", "resolved", "closed"],
+            enum: [
+                "in-progress", "resolved", "closed",
+                "not started", "waiting for client", "working", "testing",
+                "delivered", "deployed", "completed", "client requirement",
+                "need to start", "need design", "need deployment"
+            ],
             default: "in-progress"
         },
 

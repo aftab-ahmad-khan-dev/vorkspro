@@ -39,6 +39,7 @@ const MODULE_ACTIONS = {
   Settings: ["Access Settings"],
   Blockages: ["Create Records", "Edit Records", "Delete Records"],
   "Keys & Credentials": ["Create Records", "Edit Records", "Delete Records", "Export Data"],
+  Automation: ["Create Records", "Edit Records", "Delete Records", "View Records"],
 };
 
 const MODULE_TABS = {
@@ -75,7 +76,7 @@ const MODULES_WITH_AUTO_VIEW = [
   "Employees", "Attendance", "Performance", "Payroll",
   "Projects", "Milestones", "Client Management", "Follow-up-Hub",
   "HR Management", "My To-Do Hub", "Reports & Analytics",
-  "Admin & Assets", "Knowledge Base", "Announcements", "Categories", "Settings", "Blockages", "Keys & Credentials"
+  "Admin & Assets", "Knowledge Base", "Announcements", "Categories", "Automation", "Settings", "Blockages", "Keys & Credentials"
 ];
 
 /**

@@ -23,6 +23,7 @@ import LeaveRequestRoutes from "../routes/leaverequest.route.js";
 import ProjectKeyRoutes from "../routes/projectkey.route.js";
 import TodoRoutes from "../routes/todo.route.js";
 import AdminAndAssetsRoutes from "../routes/adminandassets.route.js";
+import AutomationRoutes from "../routes/automation.route.js";
 
 const route = Router();
 
@@ -50,5 +51,6 @@ route.use("/leave-request", LeaveRequestRoutes);
 route.use("/credential", ProjectKeyRoutes);
 route.use("/todo", TodoRoutes);
 route.use("/chat", ChatRoute);
+route.use("/automation", AutomationRoutes);
 
 export default route;

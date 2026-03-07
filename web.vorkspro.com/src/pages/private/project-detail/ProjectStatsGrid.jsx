@@ -1,6 +1,6 @@
 import StatCard from "@/components/Stats";
 import { useTabs } from "@/context/TabsContext";
-import { Clock, Calendar, DollarSign, User, DollarSignIcon } from "lucide-react";
+import { Clock, Calendar, DollarSign, User } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const formatDate = (date) => date ? new Date(date).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : "N/A";
@@ -225,7 +225,7 @@ export default function ProjectStatsGrid({ project, onNavigateToTab }) {
         >
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-emerald-500/12 flex items-center justify-center">
-              <DollarSignIcon className="w-5 h-5 text-emerald-500" />
+              <DollarSign className="w-5 h-5 text-emerald-500" />
             </div>
             <div>
               <p className="text-[14px] font-medium capitalize tracking-[0.14em] text-foreground">

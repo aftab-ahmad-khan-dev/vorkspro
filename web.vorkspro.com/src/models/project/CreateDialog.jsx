@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
+import { apiGet } from "@/interceptor/interceptor";
 import SearchableSelect from "@/components/SearchableSelect";
 import {
   Select,
@@ -33,6 +34,22 @@ function CreateDialog({
   const [loading, setLoading] = useState(false);
   const [clients, setClients] = useState(initialClients);
   const [addingClient, setAddingClient] = useState(false);
+  const [employeesList, setEmployeesList] = useState(initialEmployees);
+
+  const fetchEmployees = useCallback(async () => {
+    try {
+      const data = await apiGet("employee/get-active-employees");
+      if (data?.isSuccess && data?.filteredData?.employees) {
+        setEmployeesList(data.filteredData.employees);
+      }
+    } catch (err) {
+      console.warn("Could not load employees for dropdown", err);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchEmployees();
+  }, [fetchEmployees]);
 
   const [formData, setFormData] = useState({
     name: "",
@@ -53,6 +70,10 @@ function CreateDialog({
   useEffect(() => {
     setClients(initialClients);
   }, [initialClients]);
+
+  useEffect(() => {
+    if (initialEmployees?.length) setEmployeesList((prev) => (prev.length ? prev : initialEmployees));
+  }, [initialEmployees]);
 
   useEffect(() => {
     if (isEditMode && selectedProject) {
@@ -307,7 +328,7 @@ function CreateDialog({
         <label className="text-sm font-medium">Project Manager</label>
         <SearchableSelect
           placeholder="Search project manager"
-          items={initialEmployees}
+          items={employeesList}
           value={formData.projectManager}
           onValueChange={(v) => setFormData({ ...formData, projectManager: v })}
         />
@@ -319,7 +340,7 @@ function CreateDialog({
         </label>
         <SearchableSelect
           placeholder="Search team members"
-          items={initialEmployees}
+          items={employeesList}
           value={formData.teamMembers}
           onValueChange={(v) => setFormData({ ...formData, teamMembers: v })}
           multi
@@ -327,7 +348,7 @@ function CreateDialog({
         {formData.teamMembers.length > 0 && (
           <div className="flex flex-wrap gap-2 mt-3">
             {formData.teamMembers.map((id) => {
-              const member = initialEmployees.find((e) => e._id === id);
+              const member = employeesList.find((e) => e._id === id);
               if (!member) return null;
               return (
                 <div
@@ -335,10 +356,10 @@ function CreateDialog({
                   className="flex items-center gap-2 py-1 pl-2 pr-1 rounded-full bg-[var(--foreground)]/5 border border-[var(--border)] hover:bg-[var(--foreground)]/10 transition"
                 >
                   <div className="w-5 h-5 rounded-full bg-[var(--button)] text-white flex items-center justify-center text-[10px] font-medium">
-                    {member.firstName[0]}
+                    {(member.firstName || "?")[0]}
                   </div>
                   <span className="text-xs font-medium">
-                    {member.firstName} {member.lastName.split(" ")[0]}
+                    {[member.firstName, member.lastName].filter(Boolean).join(" ")}
                   </span>
                   <button
                     type="button"
